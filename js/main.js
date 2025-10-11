@@ -1,7 +1,7 @@
 // js/main.js
 
 // --- IMPORTS ---
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
 import { auth } from './firebase.js';
 import { listenToContacts, listenToTransactions, stopListeners } from './api.js';
 import { initializeAuthEventListeners, handleLogout } from './auth.js';
@@ -9,7 +9,7 @@ import { AppShellHTML, updateThemeIcon } from './ui.js';
 import { showDashboard } from './components/dashboard.js';
 import { showContacts } from './components/contacts.js';
 import { showTransactionForm } from './components/transactionForm.js';
-import { showPaginatedStatement } from './components/statement.js';
+import { showPaginatedStatement, initializeDetailModalListeners } from './components/statement.js';
 
 // --- GLOBAL STATE ---
 export const state = {
@@ -76,9 +76,9 @@ function showLoginScreen() {
 document.getElementById('app-root').innerHTML = AppShellHTML;
 
 // --- GLOBAL EVENT LISTENERS ---
-// These listeners are attached once to elements that are always present in the App Shell.
 function initializeGlobalListeners() {
     initializeAuthEventListeners();
+    initializeDetailModalListeners(); // Initialize listeners for the transaction detail modal
 
     document.getElementById('theme-toggle')?.addEventListener('click', () => {
         document.documentElement.classList.toggle('dark');
@@ -94,7 +94,6 @@ function initializeGlobalListeners() {
     });
 
     document.getElementById('settings-btn')?.addEventListener('click', () => {
-        // This is a placeholder for your settings/password modal
         alert('Settings modal would open here.');
     });
 
