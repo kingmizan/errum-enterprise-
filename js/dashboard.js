@@ -6,7 +6,6 @@ import { renderHeaderAndNav, updateUserEmail } from './shared.js';
 import { listenToContacts, listenToTransactions } from './api.js';
 import { initializeAuthEventListeners } from './auth.js';
 import { animateCountUp } from './ui.js';
-// ✨ FIX: Import the modal functions
 import { showTransactionDetails, initializeDetailModalListeners } from './transactionDetail.js';
 
 let userState = null;
@@ -34,7 +33,6 @@ function loadDashboard() {
     updateUserEmail(userState.email);
     document.getElementById('app-content').innerHTML = getDashboardTemplate();
     
-    // ✨ FIX: Initialize the modal listeners once the dashboard loads
     initializeDetailModalListeners();
     initializeDashboardListeners();
 
@@ -49,10 +47,78 @@ function loadDashboard() {
     });
 }
 
-function renderAllDashboardComponents() { /* ... unchanged ... */ }
-function getDashboardTemplate() { /* ... unchanged ... */ }
-function renderDashboardMetrics() { /* ... unchanged ... */ }
-function renderProfitChart() { /* ... unchanged ... */ }
+function renderAllDashboardComponents() {
+    if (!contactsState || !transactionsState) return;
+    renderDashboardMetrics();
+    renderProfitChart();
+    renderTransactionHistory();
+}
+
+function getDashboardTemplate() {
+    return `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="p-6 bg-white dark:bg-slate-900 rounded-lg shadow-sm"><h3>Total Payable</h3><p id="total-payable" class="text-3xl font-bold text-rose-500 mt-1">৳0.00</p></div>
+            <div class="p-6 bg-white dark:bg-slate-900 rounded-lg shadow-sm"><h3>Total Receivable</h3><p id="total-receivable" class="text-3xl font-bold text-green-600 mt-1">৳0.00</p></div>
+            <div class="p-6 bg-white dark:bg-slate-900 rounded-lg shadow-sm"><h3>Net Balance</h3><p id="net-balance" class="text-3xl font-bold text-teal-600 mt-1">৳0.00</p></div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 rounded-lg p-6 shadow-sm mb-8">
+            <h3 class="font-bold text-lg mb-4">Monthly Profit Overview</h3>
+            <div class="relative h-72"><canvas id="profitChart"></canvas></div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm">
+            <div class="p-4 border-b dark:border-slate-800"><h2 class="text-xl font-bold">Recent Transactions</h2></div>
+            <div id="transaction-history-body"></div>
+        </div>
+    `;
+}
+
+function renderDashboardMetrics() {
+    let totalPayable = 0, totalReceivable = 0;
+    const getPayments = (history) => (history || []).reduce((sum, p) => sum + p.amount, 0);
+
+    contactsState.forEach(c => {
+        if (c.openingBalance?.amount > 0) {
+            if (c.openingBalance.type === 'payable') totalPayable += c.openingBalance.amount;
+            else totalReceivable += c.openingBalance.amount;
+        }
+    });
+
+    transactionsState.forEach(t => {
+        if (t.type === 'trade') {
+            totalPayable += (t.supplierTotal || 0) - getPayments(t.paymentsToSupplier);
+            totalReceivable += (t.buyerTotal || 0) - getPayments(t.paymentsFromBuyer);
+        } else if (t.type === 'payment') {
+            if (t.paymentType === 'made') totalPayable -= t.amount;
+            else totalReceivable -= t.amount;
+        }
+    });
+    
+    animateCountUp(document.getElementById('total-payable'), totalPayable);
+    animateCountUp(document.getElementById('total-receivable'), totalReceivable);
+    animateCountUp(document.getElementById('net-balance'), totalReceivable - totalPayable);
+}
+
+function renderProfitChart() {
+    const ctx = document.getElementById('profitChart')?.getContext('2d');
+    if (!ctx) return;
+    const monthlyData = {};
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    transactionsState.forEach(t => {
+        if (t.type === 'trade' && new Date(t.date) >= sixMonthsAgo) {
+            const month = t.date.slice(0, 7);
+            monthlyData[month] = (monthlyData[month] || 0) + (t.profit || 0);
+        }
+    });
+    const labels = Object.keys(monthlyData).sort();
+    const data = labels.map(label => monthlyData[label]);
+    if (chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets: [{ label: 'Gross Profit', data, backgroundColor: 'rgba(20, 184, 166, 0.6)' }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+    });
+}
 
 function renderTransactionHistory() {
     const container = document.getElementById('transaction-history-body');
@@ -62,15 +128,31 @@ function renderTransactionHistory() {
         container.innerHTML = `<div class="p-4 text-center text-slate-500">No recent transactions.</div>`;
         return;
     }
-    // ✨ FIX: Add data-id and cursor-pointer to each row
+
+    // ✨ FIX: This section now correctly handles missing data to prevent 'undefined'.
     container.innerHTML = recentTransactions.map(t => {
-        const detail = t.type === 'trade' ? `${t.item} (${t.supplierName} → ${t.buyerName})` : t.description;
-        const value = t.type === 'trade' ? (t.profit || 0) : (t.paymentType === 'made' ? -(t.amount || 0) : (t.amount || 0));
-        return `<div data-id="${t.id}" class="flex justify-between items-center p-4 border-b dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50">...</div>`;
+        const detail = t.type === 'trade' 
+            ? `${t.item || 'N/A'} (${t.supplierName || 'N/A'} → ${t.buyerName || 'N/A'})` 
+            : t.description || 'Direct Payment';
+            
+        const value = t.type === 'trade' 
+            ? (t.profit || 0) 
+            : (t.paymentType === 'made' ? -(t.amount || 0) : (t.amount || 0));
+            
+        const valueClass = value >= 0 ? 'text-green-600' : 'text-rose-500';
+
+        return `
+            <div data-id="${t.id}" class="flex justify-between items-center p-4 border-b last:border-b-0 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <div class="max-w-[70%] sm:max-w-none">
+                    <p class="font-semibold truncate">${detail}</p>
+                    <p class="text-sm text-slate-500">${t.date || 'No Date'}</p>
+                </div>
+                <p class="font-bold shrink-0 ${valueClass}">৳${value.toFixed(2)}</p>
+            </div>
+        `;
     }).join('');
 }
 
-// ✨ FIX: Add event listener for row clicks
 function initializeDashboardListeners() {
     const container = document.getElementById('app-content');
     if (container.dataset.initialized) return;
