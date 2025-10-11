@@ -9,8 +9,12 @@ import {
     setDoc, 
     deleteDoc, 
     query, 
-    orderBy 
+    orderBy,
+    getDoc // This is needed for fetching a single document
 } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+// ✨ FIX: Export the necessary Firestore objects for use in other files
+export { db, doc, getDoc };
 
 // Variables to hold the unsubscribe functions for real-time listeners
 let contactsUnsubscribe = null;
@@ -22,7 +26,7 @@ let transactionsUnsubscribe = null;
  * @param {function} callback - The function to call with the updated contacts array.
  */
 export function listenToContacts(userId, callback) {
-    if (contactsUnsubscribe) contactsUnsubscribe(); // Unsubscribe from any previous listener
+    if (contactsUnsubscribe) contactsUnsubscribe();
     const contactsQuery = query(collection(db, "users", userId, "contacts"), orderBy("name"));
     contactsUnsubscribe = onSnapshot(contactsQuery, snapshot => {
         const contacts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -36,8 +40,8 @@ export function listenToContacts(userId, callback) {
  * @param {function} callback - The function to call with the updated transactions array.
  */
 export function listenToTransactions(userId, callback) {
-    if (transactionsUnsubscribe) transactionsUnsubscribe(); // Unsubscribe from any previous listener
-    const transQuery = query(collection(db, "users", userId, "transactions"));
+    if (transactionsUnsubscribe) transactionsUnsubscribe();
+    const transQuery = query(collection(db, "users", userId, "transactions"), orderBy("date", "desc"));
     transactionsUnsubscribe = onSnapshot(transQuery, snapshot => {
         const transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         callback(transactions);
@@ -45,7 +49,7 @@ export function listenToTransactions(userId, callback) {
 }
 
 /**
- * Stops all active Firestore listeners. Crucial for when a user logs out.
+ * Stops all active Firestore listeners. Called on user logout.
  */
 export function stopListeners() {
     if (contactsUnsubscribe) contactsUnsubscribe();
@@ -53,73 +57,57 @@ export function stopListeners() {
 }
 
 /**
- * Saves a contact to the database. Handles both creating and updating.
- * @param {string} userId - The UID of the logged-in user.
- * @param {object} contactData - The contact object to save.
- * @param {string|null} id - The ID of the contact to update, or null to create a new one.
- * @returns {Promise} A promise that resolves when the operation is complete.
+ * Saves a contact to the database (creates or updates).
+ * @param {string} userId
+ * @param {object} contactData
+ * @param {string|null} id
  */
 export function saveContact(userId, contactData, id = null) {
     if (id) {
-        // Update an existing contact
-        const contactRef = doc(db, "users", userId, "contacts", id);
-        return setDoc(contactRef, contactData, { merge: true });
-    } else {
-        // Add a new contact
-        const contactsCol = collection(db, "users", userId, "contacts");
-        return addDoc(contactsCol, contactData);
+        return setDoc(doc(db, "users", userId, "contacts", id), contactData, { merge: true });
     }
+    return addDoc(collection(db, "users", userId, "contacts"), contactData);
 }
 
 /**
  * Deletes a contact from the database.
- * @param {string} userId - The UID of the logged-in user.
- * @param {string} contactId - The ID of the contact to delete.
- * @returns {Promise} A promise that resolves when the deletion is complete.
+ * @param {string} userId
+ * @param {string} contactId
  */
 export function deleteContact(userId, contactId) {
-    const contactRef = doc(db, "users", userId, "contacts", contactId);
-    return deleteDoc(contactRef);
+    return deleteDoc(doc(db, "users", userId, "contacts", contactId));
 }
 
 /**
- * Saves a transaction to the database. Handles both creating and updating.
- * @param {string} userId - The UID of the logged-in user.
- * @param {object} transactionData - The transaction object to save.
- * @param {string|null} id - The ID of the transaction to update, or null to create a new one.
- * @returns {Promise} A promise that resolves when the operation is complete.
+ * Saves a transaction to the database (creates or updates).
+ * @param {string} userId
+ * @param {object} transactionData
+ * @param {string|null} id
  */
 export function saveTransaction(userId, transactionData, id = null) {
     if (id) {
-        // Update an existing transaction
-        const transactionRef = doc(db, "users", userId, "transactions", id);
-        return setDoc(transactionRef, transactionData);
-    } else {
-        // Add a new transaction
-        const transactionsCol = collection(db, "users", userId, "transactions");
-        return addDoc(transactionsCol, transactionData);
+        return setDoc(doc(db, "users", userId, "transactions", id), transactionData);
     }
-}
-
-/**
- * Updates a specific transaction, often for adding payments.
- * @param {string} userId - The UID of the logged-in user.
- * @param {string} transactionId - The ID of the transaction to update.
- * @param {object} data - The data to merge into the existing document (e.g., { paymentsToSupplier: [...] }).
- * @returns {Promise} A promise that resolves when the update is complete.
- */
-export function updateTransaction(userId, transactionId, data) {
-    const transactionRef = doc(db, "users", userId, "transactions", transactionId);
-    return setDoc(transactionRef, data, { merge: true });
+    return addDoc(collection(db, "users", userId, "transactions"), transactionData);
 }
 
 /**
  * Deletes a transaction from the database.
- * @param {string} userId - The UID of the logged-in user.
- * @param {string} transactionId - The ID of the transaction to delete.
- * @returns {Promise} A promise that resolves when the deletion is complete.
+ * @param {string} userId
+ * @param {string} transactionId
  */
 export function deleteTransaction(userId, transactionId) {
+    return deleteDoc(doc(db, "users", userId, "transactions", transactionId));
+}
+
+/**
+ * Updates a specific field or fields in a transaction document.
+ * Used for adding payments without overwriting the whole document.
+ * @param {string} userId
+ * @param {string} transactionId
+ * @param {object} data
+ */
+export function updateTransaction(userId, transactionId, data) {
     const transactionRef = doc(db, "users", userId, "transactions", transactionId);
-    return deleteDoc(transactionRef);
+    return setDoc(transactionRef, data, { merge: true });
 }
