@@ -8,10 +8,14 @@ import { initializeAuthEventListeners } from './auth.js';
 import { animateCountUp } from './ui.js';
 import { showTransactionDetails, initializeDetailModalListeners } from './transactionDetail.js';
 
+// --- Page State ---
 let userState = null;
 let contactsState = [];
 let transactionsState = [];
 let chartInstance = null;
+// ✨ FIX: Add state for pagination
+let dashboardCurrentPage = 1;
+const DASHBOARD_ITEMS_PER_PAGE = 7;
 
 async function init() {
     onAuthStateChanged(auth, (user) => {
@@ -32,12 +36,15 @@ function loadDashboard() {
     renderHeaderAndNav('dashboard');
     updateUserEmail(userState.email);
     document.getElementById('app-content').innerHTML = getDashboardTemplate();
+    
     initializeDetailModalListeners();
     initializeDashboardListeners();
+
     listenToContacts(userState.uid, (contacts) => {
         contactsState = contacts || [];
         renderAllDashboardComponents();
     });
+    
     listenToTransactions(userState.uid, (transactions) => {
         transactionsState = transactions || [];
         renderAllDashboardComponents();
@@ -65,6 +72,8 @@ function getDashboardTemplate() {
         <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm">
             <div class="p-4 border-b dark:border-slate-800"><h2 class="text-xl font-bold">Recent Transactions</h2></div>
             <div id="transaction-history-body"></div>
+            
+            <div id="pagination-controls" class="p-4 flex justify-center items-center gap-2 border-t dark:border-slate-700"></div>
         </div>
     `;
 }
@@ -74,23 +83,47 @@ function renderProfitChart() { /* ... unchanged ... */ }
 
 function renderTransactionHistory() {
     const container = document.getElementById('transaction-history-body');
-    if (!container) return;
-    const recentTransactions = [...transactionsState].slice(0, 7);
-    if (recentTransactions.length === 0) {
+    const paginationEl = document.getElementById('pagination-controls');
+    if (!container || !paginationEl) return;
+
+    // Data is already sorted by date from api.js
+    const totalItems = transactionsState.length;
+    
+    if (totalItems === 0) {
         container.innerHTML = `<div class="p-4 text-center text-slate-500">No recent transactions.</div>`;
+        paginationEl.innerHTML = '';
         return;
     }
-    container.innerHTML = recentTransactions.map(t => {
+
+    const totalPages = Math.ceil(totalItems / DASHBOARD_ITEMS_PER_PAGE);
+    const startIndex = (dashboardCurrentPage - 1) * DASHBOARD_ITEMS_PER_PAGE;
+    const pageItems = transactionsState.slice(startIndex, startIndex + DASHBOARD_ITEMS_PER_PAGE);
+
+    container.innerHTML = pageItems.map(t => {
         const detail = t.type === 'trade' ? `${t.item || 'N/A'} (${t.supplierName || 'N/A'} → ${t.buyerName || 'N/A'})` : t.description || 'Direct Payment';
         const value = t.type === 'trade' ? (t.profit || 0) : (t.paymentType === 'made' ? -(t.amount || 0) : (t.amount || 0));
         const valueClass = value >= 0 ? 'text-green-600' : 'text-rose-500';
         return `<div data-id="${t.id}" class="flex justify-between items-center p-4 border-b last:border-b-0 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50"><div class="max-w-[70%] sm:max-w-none"><p class="font-semibold truncate">${detail}</p><p class="text-sm text-slate-500">${t.date || 'No Date'}</p></div><p class="font-bold shrink-0 ${valueClass}">৳${value.toFixed(2)}</p></div>`;
     }).join('');
+
+    // ✨ FIX: Render the pagination buttons
+    if (totalPages > 1) {
+        const prevDisabled = dashboardCurrentPage === 1 ? 'disabled' : '';
+        const nextDisabled = dashboardCurrentPage === totalPages ? 'disabled' : '';
+        paginationEl.innerHTML = `
+            <button data-page="${dashboardCurrentPage - 1}" class="px-3 py-1 text-sm rounded-md bg-slate-200 dark:bg-slate-700 disabled:opacity-50" ${prevDisabled}>Previous</button>
+            <span class="text-sm font-semibold">Page ${dashboardCurrentPage} of ${totalPages}</span>
+            <button data-page="${dashboardCurrentPage + 1}" class="px-3 py-1 text-sm rounded-md bg-slate-200 dark:bg-slate-700 disabled:opacity-50" ${nextDisabled}>Next</button>
+        `;
+    } else {
+        paginationEl.innerHTML = '';
+    }
 }
 
 function initializeDashboardListeners() {
     const container = document.getElementById('app-content');
     if (container.dataset.initialized) return;
+
     container.addEventListener('click', e => {
         const row = e.target.closest('div[data-id]');
         if (row) {
@@ -98,6 +131,13 @@ function initializeDashboardListeners() {
             if (transaction) {
                 showTransactionDetails(transaction, contactsState);
             }
+        }
+        
+        // ✨ FIX: Add listener for pagination clicks
+        const pageButton = e.target.closest('#pagination-controls button[data-page]');
+        if (pageButton && !pageButton.disabled) {
+            dashboardCurrentPage = parseInt(pageButton.dataset.page);
+            renderTransactionHistory();
         }
     });
     container.dataset.initialized = 'true';
