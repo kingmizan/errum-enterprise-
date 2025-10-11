@@ -5,18 +5,15 @@ import { auth } from './firebase.js';
 
 /**
  * Checks if a user is logged in. If not, it redirects them to the login page (index.html).
- * This acts as a "page guard" for all protected pages.
  * @returns {Promise<object|null>} A promise that resolves with the user object or null.
  */
 export function checkAuth() {
     return new Promise((resolve) => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
-            unsubscribe(); // Stop listening after the first check
+            unsubscribe(); 
             if (user) {
-                resolve(user); // User is logged in, continue.
+                resolve(user);
             } else {
-                // User is not logged in, redirect to the main page.
-                // Avoids an infinite redirect loop if already on the login page.
                 if (window.location.pathname !== '/index.html' && window.location.pathname !== '/') {
                     window.location.href = '/index.html';
                 }
@@ -34,7 +31,6 @@ export function renderHeaderAndNav(activePage) {
     const placeholder = document.getElementById('header-nav-placeholder');
     if (!placeholder) return;
 
-    // The navigation now uses <a> tags for multi-page navigation.
     const headerNavHTML = `
         <header class="flex justify-between items-center mb-8">
             <div class="flex items-center gap-2 sm:gap-4">
@@ -49,11 +45,12 @@ export function renderHeaderAndNav(activePage) {
             <a href="/index.html" class="nav-link ${activePage === 'dashboard' ? 'active' : ''} px-4 py-2 rounded-md font-semibold text-sm">Dashboard</a>
             <a href="/party.html" class="nav-link ${activePage === 'party' ? 'active' : ''} px-4 py-2 rounded-md font-semibold text-sm">Party</a>
             <a href="/transaction.html" class="nav-link ${activePage === 'transaction' ? 'active' : ''} px-4 py-2 rounded-md font-semibold text-sm">Add Transaction</a>
+            
+            <a href="/statement.html" class="nav-link ${activePage === 'statement' ? 'active' : ''} px-4 py-2 rounded-md font-semibold text-sm">Statement</a>
         </nav>
     `;
     placeholder.innerHTML = headerNavHTML;
 
-    // Attach listener for the logout button
     document.getElementById('logout-btn')?.addEventListener('click', () => {
         signOut(auth).catch(error => console.error("Logout Error:", error));
     });
