@@ -3,14 +3,10 @@
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { auth } from './firebase.js';
 
-/**
- * Checks if a user is logged in. If not, it redirects them to the login page (index.html).
- * @returns {Promise<object|null>} A promise that resolves with the user object or null.
- */
 export function checkAuth() {
     return new Promise((resolve) => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
-            unsubscribe(); 
+            unsubscribe();
             if (user) {
                 resolve(user);
             } else {
@@ -23,10 +19,6 @@ export function checkAuth() {
     });
 }
 
-/**
- * Injects the header and navigation into the page and sets the active link.
- * @param {string} activePage - The name of the current page (e.g., 'dashboard', 'party').
- */
 export function renderHeaderAndNav(activePage) {
     const placeholder = document.getElementById('header-nav-placeholder');
     if (!placeholder) return;
@@ -45,7 +37,6 @@ export function renderHeaderAndNav(activePage) {
             <a href="/index.html" class="nav-link ${activePage === 'dashboard' ? 'active' : ''} px-4 py-2 rounded-md font-semibold text-sm">Dashboard</a>
             <a href="/party.html" class="nav-link ${activePage === 'party' ? 'active' : ''} px-4 py-2 rounded-md font-semibold text-sm">Party</a>
             <a href="/transaction.html" class="nav-link ${activePage === 'transaction' ? 'active' : ''} px-4 py-2 rounded-md font-semibold text-sm">Add Transaction</a>
-            
             <a href="/statement.html" class="nav-link ${activePage === 'statement' ? 'active' : ''} px-4 py-2 rounded-md font-semibold text-sm">Statement</a>
         </nav>
     `;
@@ -56,10 +47,6 @@ export function renderHeaderAndNav(activePage) {
     });
 }
 
-/**
- * A simple helper to update the user's email in the header.
- * @param {string} email - The user's email address.
- */
 export function updateUserEmail(email) {
     const userEmailEl = document.getElementById('user-email');
     if(userEmailEl) userEmailEl.textContent = email;
