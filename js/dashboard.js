@@ -35,11 +35,11 @@ function loadDashboard() {
     initializeDetailModalListeners();
     initializeDashboardListeners();
     listenToContacts(userState.uid, (contacts) => {
-        contactsState = contacts;
+        contactsState = contacts || [];
         renderAllDashboardComponents();
     });
     listenToTransactions(userState.uid, (transactions) => {
-        transactionsState = transactions;
+        transactionsState = transactions || [];
         renderAllDashboardComponents();
     });
 }
