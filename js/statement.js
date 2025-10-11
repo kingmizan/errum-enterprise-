@@ -4,35 +4,40 @@ import { checkAuth, renderHeaderAndNav, updateUserEmail } from './shared.js';
 import { listenToContacts, listenToTransactions } from './api.js';
 import { showToast } from './ui.js';
 
-let contactsState = [];
-let transactionsState = [];
+// --- Page State ---
+let localContacts = [];
+let localTransactions = [];
 let statementCurrentPage = 1;
 const STATEMENT_ITEMS_PER_PAGE = 25;
 let currentStatementData = { type: null, data: [], name: '' };
 
-// Main entry point for the page
+/**
+ * Main entry point for the statement page.
+ */
 async function init() {
     const user = await checkAuth();
-    if (!user) return;
+    if (!user) return; // Guard clause
 
-    // A special navigation link is not active for the statement page
+    // Render static parts of the page first
     renderHeaderAndNav('statement');
     updateUserEmail(user.email);
-
     document.getElementById('app-content').innerHTML = getStatementPageTemplate();
     
-    // We need both contacts (for opening balances) and transactions
+    // Initialize listeners for elements that now exist on the page
+    initializeStatementListeners();
+
+    // ✨ FIX: Simplified data loading logic.
+    // Each listener now independently updates its local data and triggers a re-render.
+    // This eliminates the race condition.
     listenToContacts(user.uid, (contacts) => {
-        contactsState = contacts;
-        loadStatementData();
+        localContacts = contacts;
+        loadAndRenderData();
     });
 
     listenToTransactions(user.uid, (transactions) => {
-        transactionsState = transactions;
-        loadStatementData();
+        localTransactions = transactions;
+        loadAndRenderData();
     });
-    
-    initializeStatementListeners();
 }
 
 function getStatementPageTemplate() {
@@ -47,28 +52,33 @@ function getStatementPageTemplate() {
                 </div>
             </div>
             <div class="overflow-y-auto" id="statement-content-wrapper">
-                <div id="statement-content">
-                    <p class="p-8 text-center text-slate-500">Loading statement data...</p>
-                </div>
+                <div id="statement-content"><p class="p-8 text-center text-slate-500">Loading statement data...</p></div>
             </div>
             <div id="statement-pagination-controls" class="p-4 flex justify-center items-center gap-2 border-t dark:border-slate-700"></div>
         </div>
     `;
 }
 
-function loadStatementData() {
+/**
+ * Determines which statement to load based on URL, generates the data, and triggers rendering.
+ */
+function loadAndRenderData() {
+    // Don't try to render until both datasets have arrived at least once.
+    if (!localContacts || !localTransactions) return;
+
     const urlParams = new URLSearchParams(window.location.search);
     const contactId = urlParams.get('contactId');
-    
     const titleEl = document.getElementById('statement-title');
-    if (!titleEl) return;
 
     if (contactId) {
-        const contact = contactsState.find(c => c.id === contactId);
+        const contact = localContacts.find(c => c.id === contactId);
         if (contact) {
             titleEl.textContent = `Ledger: ${contact.name}`;
             const ledgerItems = generateLedgerItems(contact.name);
             currentStatementData = { type: 'contact', data: ledgerItems.reverse(), name: contact.name };
+        } else {
+            titleEl.textContent = 'Error: Contact Not Found';
+            currentStatementData = { data: [] };
         }
     } else {
         titleEl.textContent = 'Overall Statement';
@@ -77,14 +87,17 @@ function loadStatementData() {
     }
     
     statementCurrentPage = 1;
-    renderStatement();
+    renderStatementTable();
 }
 
 function generateLedgerItems(contactName = null) {
     let ledgerItems = [];
     const getPayments = (history) => (history || []).reduce((sum, p) => sum + p.amount, 0);
-    const contactsToProcess = contactName ? contactsState.filter(c => c.name === contactName) : contactsState;
-    const transactionsToProcess = contactName ? transactionsState.filter(t => t.supplierName === contactName || t.buyerName === contactName || t.name === contactName) : transactionsState;
+    
+    // ✨ FIX: Use the local page state, not the global state, for consistency.
+    const contactsToProcess = contactName ? localContacts.filter(c => c.name === contactName) : localContacts;
+    const transactionsToProcess = contactName ? localTransactions.filter(t => t.supplierName === contactName || t.buyerName === contactName || t.name === contactName) : localTransactions;
+
     contactsToProcess.forEach(c => { if (c.openingBalance?.amount > 0) ledgerItems.push({ date: '0000-01-01', description: 'Opening Balance', debit: c.openingBalance.type === 'receivable' ? c.openingBalance.amount : 0, credit: c.openingBalance.type === 'payable' ? c.openingBalance.amount : 0 }); });
     transactionsToProcess.forEach(t => { 
         if (t.type === 'trade') {
@@ -106,20 +119,18 @@ function generateLedgerItems(contactName = null) {
     return ledgerItems;
 }
 
-function renderStatement() {
+function renderStatementTable() {
     const contentEl = document.getElementById('statement-content');
     const paginationEl = document.getElementById('statement-pagination-controls');
     if (!contentEl || !paginationEl) return;
     const data = currentStatementData.data;
-    const totalItems = data.length;
-    if (totalItems === 0) {
+    if (data.length === 0) {
         contentEl.innerHTML = `<p class="p-8 text-center text-slate-500">No statement data found.</p>`;
         paginationEl.innerHTML = '';
         return;
     }
-    const totalPages = Math.ceil(totalItems / STATEMENT_ITEMS_PER_PAGE);
-    const startIndex = (statementCurrentPage - 1) * STATEMENT_ITEMS_PER_PAGE;
-    const pageItems = data.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(data.length / STATEMENT_ITEMS_PER_PAGE);
+    const pageItems = data.slice((statementCurrentPage - 1) * STATEMENT_ITEMS_PER_PAGE, statementCurrentPage * STATEMENT_ITEMS_PER_PAGE);
     const rowsHtml = pageItems.map(item => {
         const debitText = item.debit ? `৳${item.debit.toFixed(2)}` : '';
         const creditText = item.credit ? `৳${item.credit.toFixed(2)}` : '';
@@ -127,12 +138,10 @@ function renderStatement() {
         const balanceClass = item.balance < -0.01 ? 'text-rose-500' : 'text-slate-700 dark:text-slate-300';
         return `<tr class="border-b dark:border-slate-700 text-sm"><td class="p-2 whitespace-nowrap">${item.date === '0000-01-01' ? 'Initial' : item.date}</td><td class="p-2">${item.description}</td><td class="p-2 text-right text-green-600 dark:text-green-500">${debitText}</td><td class="p-2 text-right text-rose-500">${creditText}</td><td class="p-2 text-right font-semibold ${balanceClass}">${balanceText}</td></tr>`;
     }).join('');
-    contentEl.innerHTML = `<div id="statement-to-export" class="p-4 sm:p-6 bg-white dark:bg-slate-900"><div class="overflow-x-auto"><table class="min-w-full text-xs sm:text-sm"><thead><tr class="bg-slate-100 dark:bg-slate-800"><th class="text-left p-2 font-semibold">Date</th><th class="text-left p-2 font-semibold">Particulars</th><th class="text-right p-2 font-semibold">Debit</th><th class="text-right p-2 font-semibold">Credit</th><th class="text-right p-2 font-semibold">Balance</th></tr></thead><tbody>${rowsHtml}</tbody></table></div></div>`;
+    contentEl.innerHTML = `<div id="statement-to-export" class="p-4 sm:p-6"><div class="overflow-x-auto"><table class="min-w-full text-xs sm:text-sm"><thead><tr class="bg-slate-100 dark:bg-slate-800"><th class="text-left p-2 font-semibold">Date</th><th class="text-left p-2 font-semibold">Particulars</th><th class="text-right p-2 font-semibold">Debit</th><th class="text-right p-2 font-semibold">Credit</th><th class="text-right p-2 font-semibold">Balance</th></tr></thead><tbody>${rowsHtml}</tbody></table></div></div>`;
     if (totalPages > 1) {
-        paginationEl.innerHTML = `<button data-page="${statementCurrentPage - 1}" class="px-3 py-1 text-sm rounded-md bg-slate-200 dark:bg-slate-700 disabled:opacity-50" ${statementCurrentPage === 1 ? 'disabled' : ''}>Previous</button><span class="text-sm font-semibold">Page ${statementCurrentPage} of ${totalPages}</span><button data-page="${statementCurrentPage + 1}" class="px-3 py-1 text-sm rounded-md bg-slate-200 dark:bg-slate-700 disabled:opacity-50" ${statementCurrentPage === totalPages ? 'disabled' : ''}>Next</button>`;
-    } else {
-        paginationEl.innerHTML = '';
-    }
+        paginationEl.innerHTML = `<button data-page="${statementCurrentPage - 1}" class="px-3 py-1 text-sm rounded-md bg-slate-200 dark:bg-slate-700 disabled:opacity-50" ${statementCurrentPage === 1 ? 'disabled' : ''}>Prev</button><span class="text-sm font-semibold">Page ${statementCurrentPage} of ${totalPages}</span><button data-page="${statementCurrentPage + 1}" class="px-3 py-1 text-sm rounded-md bg-slate-200 dark:bg-slate-700 disabled:opacity-50" ${statementCurrentPage === totalPages ? 'disabled' : ''}>Next</button>`;
+    } else { paginationEl.innerHTML = ''; }
 }
 
 function initializeStatementListeners() {
@@ -143,7 +152,7 @@ function initializeStatementListeners() {
         const button = e.target.closest('button[data-page]');
         if (button && !button.disabled) {
             statementCurrentPage = parseInt(button.dataset.page);
-            renderStatement();
+            renderStatementTable();
         }
     });
 }
@@ -153,4 +162,5 @@ async function handleExportPNG() { /* ... same as before ... */ }
 function handleExportCSV() { /* ... same as before ... */ }
 function handleExportPDF() { /* ... same as before ... */ }
 
+// Start the page logic
 init();
