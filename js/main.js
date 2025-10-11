@@ -9,7 +9,8 @@ import { AppShellHTML, updateThemeIcon } from './ui.js';
 import { showDashboard } from './components/dashboard.js';
 import { showContacts } from './components/contacts.js';
 import { showTransactionForm } from './components/transactionForm.js';
-import { showPaginatedStatement, initializeDetailModalListeners } from './components/statement.js';
+import { showPaginatedStatement } from './components/statement.js';
+import { initializeDetailModalListeners } from './components/transactionDetail.js'; // Correctly imported
 
 // --- GLOBAL STATE ---
 export const state = {
@@ -88,7 +89,6 @@ function initializeGlobalListeners() {
 
     document.getElementById('logout-btn')?.addEventListener('click', handleLogout);
 
-    // ✨ FIX: This correctly attaches the listener for the statement button.
     document.getElementById('overall-statement-btn')?.addEventListener('click', () => {
         showPaginatedStatement();
     });
