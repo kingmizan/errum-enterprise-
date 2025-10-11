@@ -3,11 +3,10 @@
 import { state } from '../main.js';
 import { renderPage, showToast } from '../ui.js';
 import { saveContact, deleteContact } from '../api.js';
-// We assume you will create a statement.js module for this functionality
-// import { showContactLedger } from './statement.js'; 
+import { showContactLedger } from './statement.js';
 
 /**
- * Returns the HTML template for the contacts page.
+ * Returns the HTML template for the contacts page, including the modal.
  */
 function getContactsTemplate() {
     return `
@@ -26,13 +25,11 @@ function getContactsTemplate() {
                             <th class="text-left font-semibold py-3 px-4">Name</th>
                             <th class="text-left font-semibold py-3 px-4">Type</th>
                             <th class="text-left font-semibold py-3 px-4">Phone</th>
-                            <th class="text-left font-semibold py-3 px-4">Last Active</th>
                             <th class="text-right font-semibold py-3 px-4">Net Balance</th>
                             <th class="text-center font-semibold py-3 px-4">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="contacts-table-body">
-                        </tbody>
+                    <tbody id="contacts-table-body"></tbody>
                 </table>
             </div>
         </div>
@@ -41,7 +38,7 @@ function getContactsTemplate() {
             <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-800">
                 <form id="contact-form">
                     <div class="p-6">
-                        <h2 id="contact-form-title" class="text-xl font-bold mb-4 text-slate-900 dark:text-white">Add New Party</h2>
+                        <h2 id="contact-form-title" class="text-xl font-bold mb-4">Add New Party</h2>
                         <input type="hidden" id="contact-id">
                         <div class="space-y-4">
                             <div><label class="font-semibold text-sm">Party Type</label><div class="flex gap-4 mt-2"><label class="flex items-center gap-2"><input type="radio" name="contact-type" value="supplier" class="form-radio" checked> Supplier</label><label class="flex items-center gap-2"><input type="radio" name="contact-type" value="buyer" class="form-radio"> Buyer</label></div></div>
@@ -51,13 +48,13 @@ function getContactsTemplate() {
                                 <p class="font-semibold text-sm">Opening Balance</p>
                                 <div class="mt-2 space-y-2">
                                     <input type="number" step="any" id="contact-opening-balance" placeholder="0.00" class="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-700">
-                                    <div class="flex gap-4 text-sm"><label class="flex items-center gap-2"><input type="radio" name="opening-balance-type" value="receivable" class="form-radio" checked> Receivable</label><label class="flex items-center gap-2"><input type="radio" name="opening-balance-type" value="payable" class="form-radio"> Payable</label></div>
+                                    <div class="flex gap-4 text-sm"><label class="flex items-center gap-2"><input type="radio" name="opening-balance-type" value="receivable" class="form-radio" checked> Receivable (They Owe You)</label><label class="flex items-center gap-2"><input type="radio" name="opening-balance-type" value="payable" class="form-radio"> Payable (You Owe Them)</label></div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="bg-slate-50 dark:bg-slate-900/50 p-4 flex justify-end gap-3 rounded-b-lg border-t border-slate-200 dark:border-slate-800">
-                        <button type="button" id="cancel-contact-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm">Cancel</button>
+                        <button type="button" data-action="close-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm">Cancel</button>
                         <button type="submit" class="px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm">Save Party</button>
                     </div>
                 </form>
@@ -67,67 +64,59 @@ function getContactsTemplate() {
 }
 
 /**
- * Calculates balance and renders the list of contacts into the table.
+ * Renders the list of contacts into the table with calculated balances.
  */
 function renderContactsTable() {
     const tbody = document.getElementById('contacts-table-body');
     if (!tbody) return;
 
     if (state.contacts.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-500 dark:text-slate-400">No parties found. Add one to get started!</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-12 text-slate-500 dark:text-slate-400">No parties found. Add one to get started!</td></tr>`;
         return;
     }
 
     const getPayments = (history) => (history || []).reduce((sum, p) => sum + p.amount, 0);
     
-    const rowsHtml = state.contacts.map(c => {
+    const rowsHtml = state.contacts.map(contact => {
         // --- Calculate Net Balance ---
         let netBalance = 0;
-        if (c.openingBalance?.amount > 0) {
-            netBalance = c.openingBalance.type === 'receivable' ? c.openingBalance.amount : -c.openingBalance.amount;
+        if (contact.openingBalance?.amount > 0) {
+            netBalance = contact.openingBalance.type === 'receivable' ? contact.openingBalance.amount : -contact.openingBalance.amount;
         }
         
-        const relatedTransactions = state.transactions.filter(t => t.supplierName === c.name || t.buyerName === c.name || t.name === c.name);
+        const relatedTransactions = state.transactions.filter(t => t.supplierName === contact.name || t.buyerName === contact.name || t.name === contact.name);
         
         relatedTransactions.forEach(t => {
             if (t.type === 'trade') {
-                if (t.supplierName === c.name) netBalance -= (t.supplierTotal - getPayments(t.paymentsToSupplier));
-                if (t.buyerName === c.name) netBalance += (t.buyerTotal - getPayments(t.paymentsFromBuyer));
-            } else if (t.type === 'payment' && t.name === c.name) {
-                if (t.paymentType === 'made') netBalance += t.amount; // We paid them, our debt to them decreases OR their debt to us increases
-                else netBalance -= t.amount; // We received from them
+                if (t.supplierName === contact.name) netBalance -= (t.supplierTotal - getPayments(t.paymentsToSupplier));
+                if (t.buyerName === contact.name) netBalance += (t.buyerTotal - getPayments(t.paymentsFromBuyer));
+            } else if (t.type === 'payment' && t.name === contact.name) {
+                if (t.paymentType === 'made') netBalance += t.amount;
+                else netBalance -= t.amount;
             }
         });
 
-        // --- Determine Last Active Date ---
-        let lastTransactionDate = '<span class="text-slate-400">N/A</span>';
-        if (relatedTransactions.length > 0) {
-            relatedTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-            lastTransactionDate = relatedTransactions[0].date;
-        }
-
-        // --- Setup styles for Balance and Type Badge ---
+        // --- Setup styles ---
         const balanceText = `৳${Math.abs(netBalance).toFixed(2)}`;
         let balanceClass = 'text-slate-500';
         if (netBalance > 0.01) balanceClass = 'text-green-600 dark:text-green-500'; // Receivable
         else if (netBalance < -0.01) balanceClass = 'text-rose-500'; // Payable
 
-        const typeBadge = c.type === 'buyer'
+        const typeBadge = contact.type === 'buyer'
             ? `<span class="inline-flex items-center py-1 px-2.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-500/20 dark:text-teal-400">Buyer</span>`
             : `<span class="inline-flex items-center py-1 px-2.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300">Supplier</span>`;
 
         return `
-            <tr class="odd:bg-slate-50 dark:odd:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800/50 border-b dark:border-slate-800 md:border-b-0">
-                <td data-label="Name" class="py-4 px-4 align-middle font-medium text-slate-900 dark:text-slate-100">${c.name}</td>
+            <tr class="odd:bg-slate-50 dark:odd:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800/50">
+                <td data-label="Name" class="py-4 px-4 align-middle font-medium">${contact.name}</td>
                 <td data-label="Type" class="py-4 px-4 align-middle">${typeBadge}</td>
-                <td data-label="Phone" class="py-4 px-4 align-middle">${c.phone || 'N/A'}</td>
-                <td data-label="Last Active" class="py-4 px-4 align-middle font-medium text-slate-600 dark:text-slate-400">${lastTransactionDate}</td>
+                <td data-label="Phone" class="py-4 px-4 align-middle">${contact.phone || 'N/A'}</td>
                 <td data-label="Net Balance" class="py-4 px-4 align-middle font-bold text-right ${balanceClass}">${balanceText}</td>
                 <td data-label="Actions" class="py-4 px-4 align-middle actions-cell">
                     <div class="flex justify-end md:justify-center items-center gap-1">
-                        <button title="View Ledger" data-action="ledger" data-id="${c.id}" class="p-1 text-sky-600 hover:bg-sky-100 rounded-full">📄</button>
-                        <button title="Edit Contact" data-action="edit" data-id="${c.id}" class="p-1 text-blue-600 hover:bg-blue-100 rounded-full">✏️</button>
-                        <button title="Delete Contact" data-action="delete" data-id="${c.id}" class="p-1 text-rose-500 hover:bg-rose-100 rounded-full">🗑️</button>
+                        <button title="View Ledger" data-action="ledger" data-id="${contact.id}" class="p-2 text-sky-600 hover:bg-sky-100 dark:hover:bg-sky-900/50 rounded-full">📄</button>
+                        <button title="Edit Party" data-action="edit" data-id="${contact.id}" class="p-2 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-full">✏️</button>
+                        <button title="Delete Party" data-action="delete" data-id="${contact.id}" class="p-2 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/50 rounded-full">🗑️</button>
                     </div>
                 </td>
             </tr>
@@ -138,8 +127,7 @@ function renderContactsTable() {
 }
 
 /**
- * Shows the contact modal for creating or editing.
- * @param {string|null} contactId - The ID of the contact to edit, or null to create.
+ * Opens and prepares the contact modal for adding or editing.
  */
 function showContactModal(contactId = null) {
     const modal = document.getElementById('contact-modal');
@@ -149,7 +137,7 @@ function showContactModal(contactId = null) {
     form.reset();
 
     if (contactId) {
-        // --- Edit Mode ---
+        // Edit Mode
         const contact = state.contacts.find(c => c.id === contactId);
         if (!contact) return showToast('Error: Contact not found.');
         
@@ -158,11 +146,9 @@ function showContactModal(contactId = null) {
         document.getElementById('contact-name').value = contact.name;
         document.getElementById('contact-phone').value = contact.phone || '';
         document.querySelector(`input[name="contact-type"][value="${contact.type}"]`).checked = true;
-
-        // Hide and disable opening balance for existing contacts
-        openingBalanceSection.classList.add('hidden');
+        openingBalanceSection.classList.add('hidden'); // Cannot edit opening balance
     } else {
-        // --- Add Mode ---
+        // Add Mode
         title.textContent = 'Add New Party';
         document.getElementById('contact-id').value = '';
         openingBalanceSection.classList.remove('hidden');
@@ -171,7 +157,7 @@ function showContactModal(contactId = null) {
 }
 
 /**
- * Handles the submission of the contact form.
+ * Handles the contact form submission.
  */
 async function handleContactFormSubmit(e) {
     e.preventDefault();
@@ -179,24 +165,21 @@ async function handleContactFormSubmit(e) {
     const name = document.getElementById('contact-name').value.trim();
 
     if (!name) return showToast('Party name is required.');
-    
-    // Prevent creating a duplicate contact name
     if (!id && state.contacts.some(c => c.name.toLowerCase() === name.toLowerCase())) {
         return showToast('A party with this name already exists.');
     }
     
     const contactData = {
-        name: name,
+        name,
         type: document.querySelector('input[name="contact-type"]:checked').value,
         phone: document.getElementById('contact-phone').value.trim(),
     };
 
-    // Only add opening balance for new contacts
     if (!id) {
-        const openingBalanceAmount = parseFloat(document.getElementById('contact-opening-balance').value) || 0;
-        if (openingBalanceAmount > 0) {
+        const amount = parseFloat(document.getElementById('contact-opening-balance').value) || 0;
+        if (amount > 0) {
             contactData.openingBalance = {
-                amount: openingBalanceAmount,
+                amount,
                 type: document.querySelector('input[name="opening-balance-type"]:checked').value
             };
         }
@@ -213,25 +196,23 @@ async function handleContactFormSubmit(e) {
 }
 
 /**
- * Handles the deletion of a contact after confirmation.
+ * Handles deleting a contact after confirmation.
  */
 async function handleDeleteContact(contactId) {
     const contact = state.contacts.find(c => c.id === contactId);
     if (!contact) return;
 
-    // Critical check: Prevent deletion if transactions exist for this contact
     const hasTransactions = state.transactions.some(t => t.supplierName === contact.name || t.buyerName === contact.name || t.name === contact.name);
     if (hasTransactions) {
-        return showToast('Cannot delete party with existing transactions.');
+        return showToast('Cannot delete a party that has existing transactions.');
     }
 
-    if (confirm(`Are you sure you want to delete ${contact.name}? This action cannot be undone.`)) {
+    if (confirm(`Are you sure you want to delete ${contact.name}? This cannot be undone.`)) {
         try {
             await deleteContact(state.user.uid, contactId);
             showToast('Party deleted.');
         } catch (error) {
             showToast('Error: Could not delete party.');
-            console.error("Error deleting contact:", error);
         }
     }
 }
@@ -241,6 +222,8 @@ async function handleDeleteContact(contactId) {
  */
 function initializeContactsListeners() {
     document.getElementById('add-contact-btn')?.addEventListener('click', () => showContactModal());
+
+    // Event delegation for table actions
     document.getElementById('contacts-table-body')?.addEventListener('click', (e) => {
         const button = e.target.closest('button[data-action]');
         if (!button) return;
@@ -248,16 +231,12 @@ function initializeContactsListeners() {
         const { action, id } = button.dataset;
         if (action === 'edit') showContactModal(id);
         if (action === 'delete') handleDeleteContact(id);
-        if (action === 'ledger') {
-            // Placeholder for statement/ledger functionality
-            console.log(`Show ledger for contact ${id}`);
-            // showContactLedger(id); // This would be the actual function call
-            alert(`Ledger functionality for ${state.contacts.find(c=>c.id === id)?.name} would be shown here.`);
-        }
+        if (action === 'ledger') showContactLedger(id);
     });
 
+    // Modal listeners
     document.getElementById('contact-form')?.addEventListener('submit', handleContactFormSubmit);
-    document.getElementById('cancel-contact-btn')?.addEventListener('click', () => {
+    document.querySelector('#contact-modal [data-action="close-modal"]')?.addEventListener('click', () => {
         document.getElementById('contact-modal').classList.add('hidden');
     });
 }
