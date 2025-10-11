@@ -1,11 +1,16 @@
 // js/main.js
 
 // --- IMPORTS ---
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+// Firebase and Authentication
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { auth } from './firebase.js';
+
+// App Modules
 import { listenToContacts, listenToTransactions, stopListeners } from './api.js';
 import { initializeAuthEventListeners, handleLogout } from './auth.js';
 import { AppShellHTML, updateThemeIcon } from './ui.js';
+
+// Component Modules
 import { showDashboard } from './components/dashboard.js';
 import { showContacts } from './components/contacts.js';
 import { showTransactionForm } from './components/transactionForm.js';
@@ -21,6 +26,9 @@ export const state = {
 };
 
 // --- ROUTER & NAVIGATION ---
+/**
+ * Reads the URL hash and displays the corresponding page.
+ */
 function handleNavigation() {
     const page = window.location.hash.substring(1).split('?')[0] || 'dashboard';
 
@@ -45,6 +53,10 @@ function handleNavigation() {
 }
 
 // --- APP LIFECYCLE ---
+/**
+ * Sets up the application for a logged-in user.
+ * @param {object} user - The Firebase user object.
+ */
 function startApp(user) {
     state.user = user;
     document.getElementById('user-email').textContent = user.email;
@@ -67,6 +79,9 @@ function startApp(user) {
     handleNavigation(); // Load the initial page
 }
 
+/**
+ * Resets the application to the login state.
+ */
 function showLoginScreen() {
     state.user = null;
     state.contacts = [];
@@ -84,7 +99,10 @@ function showLoginScreen() {
 document.getElementById('app-root').innerHTML = AppShellHTML;
 
 // --- GLOBAL EVENT LISTENERS ---
-// Sets up event listeners for elements that are always present in the App Shell.
+/**
+ * Sets up event listeners for elements that are always present in the App Shell.
+ * This function is called only once.
+ */
 function initializeGlobalListeners() {
     initializeAuthEventListeners();
     initializeDetailModalListeners(); // Set up listeners for the transaction detail modal
