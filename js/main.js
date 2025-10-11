@@ -10,7 +10,7 @@ import { showDashboard } from './components/dashboard.js';
 import { showContacts } from './components/contacts.js';
 import { showTransactionForm } from './components/transactionForm.js';
 import { showPaginatedStatement } from './components/statement.js';
-import { initializeDetailModalListeners } from './components/transactionDetail.js'; // Correctly imported
+import { initializeDetailModalListeners } from './components/transactionDetail.js';
 
 // --- GLOBAL STATE ---
 export const state = {
@@ -39,6 +39,7 @@ function handleNavigation() {
             showTransactionForm();
             break;
         default:
+            // Fallback to the dashboard for any unknown URL hash
             window.location.hash = 'dashboard';
     }
 }
@@ -48,38 +49,45 @@ function startApp(user) {
     state.user = user;
     document.getElementById('user-email').textContent = user.email;
 
+    // Start listening for real-time database changes if not already active
     if (!state.listenersActive) {
         listenToContacts(user.uid, (contacts) => {
             state.contacts = contacts;
-            handleNavigation();
+            handleNavigation(); // Re-render the current page to reflect data changes
         });
         listenToTransactions(user.uid, (transactions) => {
             state.transactions = transactions;
-            handleNavigation();
+            handleNavigation(); // Re-render the current page to reflect data changes
         });
         state.listenersActive = true;
     }
 
     document.getElementById('app-container').classList.remove('hidden');
     document.getElementById('auth-container').classList.add('hidden');
-    handleNavigation();
+    handleNavigation(); // Load the initial page
 }
 
 function showLoginScreen() {
     state.user = null;
-    stopListeners();
+    state.contacts = [];
+    state.transactions = [];
+
+    stopListeners(); // Stop listening to the database when the user logs out
     state.listenersActive = false;
+
     document.getElementById('app-container').classList.add('hidden');
     document.getElementById('auth-container').classList.remove('hidden');
 }
 
 // --- INITIALIZATION ---
+// Inject the main HTML shell into the page as soon as the script loads.
 document.getElementById('app-root').innerHTML = AppShellHTML;
 
 // --- GLOBAL EVENT LISTENERS ---
+// Sets up event listeners for elements that are always present in the App Shell.
 function initializeGlobalListeners() {
     initializeAuthEventListeners();
-    initializeDetailModalListeners(); // Initialize listeners for the transaction detail modal
+    initializeDetailModalListeners(); // Set up listeners for the transaction detail modal
 
     document.getElementById('theme-toggle')?.addEventListener('click', () => {
         document.documentElement.classList.toggle('dark');
@@ -94,9 +102,10 @@ function initializeGlobalListeners() {
     });
 
     document.getElementById('settings-btn')?.addEventListener('click', () => {
-        alert('Settings modal would open here.');
+        alert('Settings / Change Password modal would open here.');
     });
 
+    // Use event delegation for the main navigation bar
     document.querySelector('nav')?.addEventListener('click', (e) => {
         const link = e.target.closest('.nav-link[data-section]');
         if (link) {
@@ -104,18 +113,22 @@ function initializeGlobalListeners() {
         }
     });
 
+    // Listen for URL hash changes to trigger navigation
     window.addEventListener('hashchange', handleNavigation);
 }
 
 // --- ENTRY POINT ---
+// This is the code that runs when the application starts.
 initializeGlobalListeners();
-updateThemeIcon();
+updateThemeIcon(); // Set the initial theme icon
 
+// The main Firebase listener that determines if the user sees the login screen or the app.
 onAuthStateChanged(auth, user => {
     if (user) {
         startApp(user);
     } else {
         showLoginScreen();
     }
+    // Hide the initial loading spinner once the state is determined
     document.getElementById('loading-container').classList.add('hidden');
 });
