@@ -10,10 +10,9 @@ import { showTransactionDetails, initializeDetailModalListeners } from './transa
 
 // --- Page State ---
 let userState = null;
-let contactsState = [];
-let transactionsState = [];
+let contactsState = null; // Use null to track initial load
+let transactionsState = null; // Use null to track initial load
 let chartInstance = null;
-// ✨ FIX: Add state for pagination
 let dashboardCurrentPage = 1;
 const DASHBOARD_ITEMS_PER_PAGE = 7;
 
@@ -40,6 +39,7 @@ function loadDashboard() {
     initializeDetailModalListeners();
     initializeDashboardListeners();
 
+    // Each listener will independently call the render function
     listenToContacts(userState.uid, (contacts) => {
         contactsState = contacts || [];
         renderAllDashboardComponents();
@@ -52,7 +52,10 @@ function loadDashboard() {
 }
 
 function renderAllDashboardComponents() {
-    if (!contactsState || !transactionsState) return;
+    // ✨ FIX: This guard clause now correctly waits for both initial fetches to complete.
+    if (contactsState === null || transactionsState === null) {
+        return; // Don't render until both datasets have arrived at least once.
+    }
     renderDashboardMetrics();
     renderProfitChart();
     renderTransactionHistory();
@@ -72,22 +75,65 @@ function getDashboardTemplate() {
         <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm">
             <div class="p-4 border-b dark:border-slate-800"><h2 class="text-xl font-bold">Recent Transactions</h2></div>
             <div id="transaction-history-body"></div>
-            
             <div id="pagination-controls" class="p-4 flex justify-center items-center gap-2 border-t dark:border-slate-700"></div>
         </div>
     `;
 }
 
-function renderDashboardMetrics() { /* ... unchanged ... */ }
-function renderProfitChart() { /* ... unchanged ... */ }
+function renderDashboardMetrics() {
+    let totalPayable = 0, totalReceivable = 0;
+    const getPayments = (history) => (history || []).reduce((sum, p) => sum + p.amount, 0);
+
+    (contactsState || []).forEach(c => {
+        if (c.openingBalance?.amount > 0) {
+            if (c.openingBalance.type === 'payable') totalPayable += c.openingBalance.amount;
+            else totalReceivable += c.openingBalance.amount;
+        }
+    });
+
+    (transactionsState || []).forEach(t => {
+        if (t.type === 'trade') {
+            totalPayable += (t.supplierTotal || 0) - getPayments(t.paymentsToSupplier);
+            totalReceivable += (t.buyerTotal || 0) - getPayments(t.paymentsFromBuyer);
+        } else if (t.type === 'payment') {
+            if (t.paymentType === 'made') totalPayable -= t.amount;
+            else totalReceivable -= t.amount;
+        }
+    });
+    
+    animateCountUp(document.getElementById('total-payable'), totalPayable);
+    animateCountUp(document.getElementById('total-receivable'), totalReceivable);
+    animateCountUp(document.getElementById('net-balance'), totalReceivable - totalPayable);
+}
+
+function renderProfitChart() {
+    const ctx = document.getElementById('profitChart')?.getContext('2d');
+    if (!ctx) return;
+    const monthlyData = {};
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    (transactionsState || []).forEach(t => {
+        if (t.type === 'trade' && new Date(t.date) >= sixMonthsAgo) {
+            const month = t.date.slice(0, 7);
+            monthlyData[month] = (monthlyData[month] || 0) + (t.profit || 0);
+        }
+    });
+    const labels = Object.keys(monthlyData).sort();
+    const data = labels.map(label => monthlyData[label]);
+    if (chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets: [{ label: 'Gross Profit', data, backgroundColor: 'rgba(20, 184, 166, 0.6)' }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+    });
+}
 
 function renderTransactionHistory() {
     const container = document.getElementById('transaction-history-body');
     const paginationEl = document.getElementById('pagination-controls');
     if (!container || !paginationEl) return;
-
-    // Data is already sorted by date from api.js
-    const totalItems = transactionsState.length;
+    
+    const totalItems = (transactionsState || []).length;
     
     if (totalItems === 0) {
         container.innerHTML = `<div class="p-4 text-center text-slate-500">No recent transactions.</div>`;
@@ -106,15 +152,10 @@ function renderTransactionHistory() {
         return `<div data-id="${t.id}" class="flex justify-between items-center p-4 border-b last:border-b-0 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50"><div class="max-w-[70%] sm:max-w-none"><p class="font-semibold truncate">${detail}</p><p class="text-sm text-slate-500">${t.date || 'No Date'}</p></div><p class="font-bold shrink-0 ${valueClass}">৳${value.toFixed(2)}</p></div>`;
     }).join('');
 
-    // ✨ FIX: Render the pagination buttons
     if (totalPages > 1) {
         const prevDisabled = dashboardCurrentPage === 1 ? 'disabled' : '';
         const nextDisabled = dashboardCurrentPage === totalPages ? 'disabled' : '';
-        paginationEl.innerHTML = `
-            <button data-page="${dashboardCurrentPage - 1}" class="px-3 py-1 text-sm rounded-md bg-slate-200 dark:bg-slate-700 disabled:opacity-50" ${prevDisabled}>Previous</button>
-            <span class="text-sm font-semibold">Page ${dashboardCurrentPage} of ${totalPages}</span>
-            <button data-page="${dashboardCurrentPage + 1}" class="px-3 py-1 text-sm rounded-md bg-slate-200 dark:bg-slate-700 disabled:opacity-50" ${nextDisabled}>Next</button>
-        `;
+        paginationEl.innerHTML = `<button data-page="${dashboardCurrentPage - 1}" class="px-3 py-1 text-sm rounded-md bg-slate-200 dark:bg-slate-700 disabled:opacity-50" ${prevDisabled}>Previous</button><span class="text-sm font-semibold">Page ${dashboardCurrentPage} of ${totalPages}</span><button data-page="${dashboardCurrentPage + 1}" class="px-3 py-1 text-sm rounded-md bg-slate-200 dark:bg-slate-700 disabled:opacity-50" ${nextDisabled}>Next</button>`;
     } else {
         paginationEl.innerHTML = '';
     }
@@ -123,7 +164,6 @@ function renderTransactionHistory() {
 function initializeDashboardListeners() {
     const container = document.getElementById('app-content');
     if (container.dataset.initialized) return;
-
     container.addEventListener('click', e => {
         const row = e.target.closest('div[data-id]');
         if (row) {
@@ -133,7 +173,6 @@ function initializeDashboardListeners() {
             }
         }
         
-        // ✨ FIX: Add listener for pagination clicks
         const pageButton = e.target.closest('#pagination-controls button[data-page]');
         if (pageButton && !pageButton.disabled) {
             dashboardCurrentPage = parseInt(pageButton.dataset.page);
