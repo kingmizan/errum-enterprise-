@@ -88,9 +88,9 @@
                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" /></svg>
                     <span class="whitespace-nowrap">Add Transaction</span>
                 </button>
-                <button id="overall-statement-btn" class="nav-link flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition text-slate-600 hover:bg-slate-100">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" /><path fill-rule="evenodd" d="M4 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h4a1 1 0 100-2H7zm0 4a1 1 0 100 2h4a1 1 0 100-2H7z" clip-rule="evenodd" /></svg>
-                    <span class="whitespace-nowrap">Statement</span>
+                <button data-section="statements" class="nav-link flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition text-slate-600 hover:bg-slate-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" /></svg>
+                    <span class="whitespace-nowrap">Statements</span>
                 </button>
             </nav>
 
@@ -107,25 +107,6 @@
             <span id="toast-message"></span>
         </div>
         
-        <div id="transaction-detail-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-xl shadow-lg w-full max-w-4xl h-[90vh] flex flex-col border border-slate-200">
-                <div class="p-4 flex justify-between items-center border-b border-slate-200 flex-shrink-0">
-                    <h2 id="transaction-detail-title" class="text-xl font-bold text-slate-800">Transaction Details</h2>
-                    <button data-close-modal="transaction-detail-modal" class="p-2 rounded-full hover:bg-slate-100 -mr-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                    </button>
-                </div>
-                <div class="overflow-y-auto flex-grow p-6">
-                    <div id="transaction-detail-content"></div>
-                    <div id="transaction-invoice-content" class="hidden"></div>
-                </div>
-                <div id="transaction-detail-footer" class="p-4 bg-slate-50 flex justify-end gap-3 rounded-b-xl border-t border-slate-200 flex-shrink-0">
-                    <button id="toggle-invoice-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">View Invoice</button>
-                    <button id="save-invoice-btn" class="hidden px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Save as PNG</button>
-                </div>
-            </div>
-        </div>
-
         <div id="payment-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
             <div class="bg-white rounded-xl shadow-lg w-full max-w-md border border-slate-200">
                 <div class="p-6">
@@ -158,26 +139,6 @@
                     </div>
                     <div class="bg-slate-50 p-4 flex justify-end gap-3 rounded-b-xl border-t border-slate-200"><button type="button" data-close-modal="direct-payment-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Save Payment</button></div>
                 </form>
-            </div>
-        </div>
-
-        <div id="statement-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-xl shadow-lg w-full max-w-7xl h-[90vh] flex flex-col border border-slate-200">
-                <div class="p-4 flex justify-between items-center border-b border-slate-200 flex-shrink-0">
-                    <h2 id="statement-title" class="text-xl font-bold text-slate-800">Statement</h2>
-                    <div class="flex items-center gap-2">
-                        <button id="statement-csv-btn" class="px-3 py-1.5 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300">CSV</button>
-                        <button id="statement-png-btn" class="px-3 py-1.5 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300">PNG</button>
-                        <button id="statement-pdf-btn" class="px-3 py-1.5 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300">PDF</button>
-                        <button data-close-modal="statement-modal" class="p-2 rounded-full hover:bg-slate-100 -mr-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="overflow-y-auto flex-grow" id="statement-content-wrapper">
-                    <div class="p-6" id="statement-content"></div>
-                </div>
-                 <div id="statement-pagination-controls" class="p-4 flex justify-center items-center gap-2 border-t border-slate-200 flex-shrink-0"></div>
             </div>
         </div>
 
