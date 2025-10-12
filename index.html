@@ -27,37 +27,37 @@
 </head>
 <body class="text-slate-800 dark:text-slate-200 transition-colors duration-300">
 
-    <div id="loading-container" class="fixed inset-0 bg-slate-50 dark:bg-slate-950 z-50 flex items-center justify-center p-4">
+    <div id="loading-container" class="fixed inset-0 bg-slate-50 dark:dark-bg-deep z-50 flex items-center justify-center p-4">
         <div class="flex flex-col items-center gap-4">
             <svg class="animate-spin h-8 w-8 text-teal-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-            <p class="text-slate-600 dark:text-slate-400">Connecting...</p>
+            <p class="text-slate-600 dark:dark-text-secondary">Connecting...</p>
         </div>
     </div>
 
-    <div id="auth-container" class="hidden fixed inset-0 bg-slate-50 dark:bg-slate-950 z-40 flex items-center justify-center p-4">
+    <div id="auth-container" class="hidden fixed inset-0 bg-slate-50 dark:dark-bg-deep z-40 flex items-center justify-center p-4">
         <div class="w-full max-w-md">
             <div class="flex flex-col items-center justify-center gap-4 mb-6">
                 <div class="bg-teal-600 p-3 rounded-xl text-white shadow-lg shadow-teal-500/20">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
                 </div>
                 <div class="text-center">
-                    <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Errum Enterprise</h1>
-                    <p class="text-slate-500 dark:text-slate-400">Please sign in to continue</p>
+                    <h1 class="text-3xl font-extrabold text-slate-900 dark:dark-text-primary tracking-tight">Errum Enterprise</h1>
+                    <p class="text-slate-500 dark:dark-text-secondary">Please sign in to continue</p>
                 </div>
             </div>
-            <div class="bg-white dark:bg-slate-900 p-8 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800">
+            <div class="bg-white dark:dark-bg-surface p-8 rounded-xl shadow-lg border border-slate-200 dark:dark-border-subtle">
                 <form id="login-form" class="space-y-4">
-                    <h2 class="text-2xl font-bold text-center text-slate-800 dark:text-white">Sign In</h2>
+                    <h2 class="text-2xl font-bold text-center text-slate-800 dark:dark-text-primary">Sign In</h2>
                     <div>
                         <label for="email" class="font-semibold text-sm text-slate-700 dark:text-slate-300">Email Address</label>
-                        <input type="email" id="email" class="w-full p-3 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-teal-500" required>
+                        <input type="email" id="email" class="w-full p-3 mt-1 border rounded-lg bg-slate-50 dark:dark-form-bg focus:ring-2 focus:ring-teal-500" required>
                     </div>
                     <div>
                         <label for="password" class="font-semibold text-sm text-slate-700 dark:text-slate-300">Password</label>
-                        <input type="password" id="password" class="w-full p-3 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-teal-500" required>
+                        <input type="password" id="password" class="w-full p-3 mt-1 border rounded-lg bg-slate-50 dark:dark-form-bg focus:ring-2 focus:ring-teal-500" required>
                     </div>
                     <p id="auth-error" class="text-rose-500 text-sm h-4"></p>
-                    <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-sm shadow-teal-500/20">Sign In</button>
+                    <button type="submit" class="button-hover w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-sm shadow-teal-500/20">Sign In</button>
                 </form>
             </div>
         </div>
@@ -71,8 +71,8 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-8 sm:w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
                     </div>
                     <div>
-                        <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Errum Enterprise</h1>
-                        <p id="user-email" class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 truncate">Welcome!</p>
+                        <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:dark-text-primary tracking-tight">Errum Enterprise</h1>
+                        <p id="user-email" class="text-xs sm:text-sm text-slate-500 dark:dark-text-secondary truncate">Welcome!</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-1 sm:gap-2">
@@ -89,7 +89,7 @@
                 </div>
             </header>
 
-            <nav class="bg-white/70 dark:bg-slate-900/80 backdrop-blur-sm border border-slate-200 dark:border-slate-800 shadow-sm rounded-lg p-2 mb-8 flex flex-nowrap justify-start sm:justify-center gap-2 overflow-x-auto">
+            <nav class="bg-white/70 dark:dark-bg-surface/80 backdrop-blur-sm border border-slate-200 dark:dark-border-subtle shadow-sm rounded-lg p-2 mb-8 flex flex-nowrap justify-start sm:justify-center gap-2 overflow-x-auto">
                 <button data-section="dashboard" class="nav-link active flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-md font-semibold text-sm transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
                     <span class="whitespace-nowrap">Dashboard</span>
@@ -110,7 +110,7 @@
 
             <main id="app-content"></main>
             
-            <footer class="text-center py-6 mt-8 text-xs text-slate-500 dark:text-slate-400">
+            <footer class="text-center py-6 mt-8 text-xs text-slate-500 dark:dark-text-secondary">
                 Coded and Developed By <a href="https://t.me/GoITBD" target="_blank" rel="noopener noreferrer" class="font-semibold text-teal-600 dark:text-teal-400 hover:underline">GoIT</a>.
             </footer>
         </div>
@@ -121,10 +121,10 @@
             <span id="toast-message"></span>
         </div>
         
-        <div id="transaction-detail-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg w-full max-w-4xl h-[90vh] flex flex-col border border-slate-200 dark:border-slate-800">
-                <div class="p-4 flex justify-between items-center border-b dark:border-slate-800 flex-shrink-0">
-                    <h2 id="transaction-detail-title" class="text-xl font-bold text-slate-900 dark:text-white">Transaction Details</h2>
+        <div id="transaction-detail-modal" class="modal-container hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
+            <div class="modal-panel bg-white dark:dark-bg-surface rounded-lg shadow-lg w-full max-w-4xl h-[90vh] flex flex-col border border-slate-200 dark:dark-border-subtle">
+                <div class="p-4 flex justify-between items-center border-b dark:dark-border-subtle flex-shrink-0">
+                    <h2 id="transaction-detail-title" class="text-xl font-bold text-slate-900 dark:dark-text-primary">Transaction Details</h2>
                     <button data-close-modal="transaction-detail-modal" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 -mr-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                     </button>
@@ -133,52 +133,52 @@
                     <div id="transaction-detail-content"></div>
                     <div id="transaction-invoice-content" class="hidden"></div>
                 </div>
-                <div id="transaction-detail-footer" class="p-4 bg-slate-50 dark:bg-slate-900/50 flex justify-end gap-3 rounded-b-lg border-t border-slate-200 dark:border-slate-800 flex-shrink-0">
+                <div id="transaction-detail-footer" class="p-4 bg-slate-50 dark:bg-slate-900/50 flex justify-end gap-3 rounded-b-lg border-t border-slate-200 dark:dark-border-subtle flex-shrink-0">
                     <button id="toggle-invoice-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm">View Invoice</button>
-                    <button id="save-invoice-btn" class="hidden px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm">Save as PNG</button>
+                    <button id="save-invoice-btn" class="button-hover hidden px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm">Save as PNG</button>
                 </div>
             </div>
         </div>
 
-        <div id="payment-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-800">
+        <div id="payment-modal" class="modal-container hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
+            <div class="modal-panel bg-white dark:dark-bg-surface rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:dark-border-subtle">
                 <div class="p-6">
-                    <h2 id="payment-modal-title" class="text-xl font-bold mb-1 text-slate-900 dark:text-white">Add Payment</h2>
-                    <p class="mb-4 text-sm text-slate-500 dark:text-slate-400">Amount Due: <span id="payment-due-amount" class="font-semibold"></span></p>
+                    <h2 id="payment-modal-title" class="text-xl font-bold mb-1 text-slate-900 dark:dark-text-primary">Add Payment</h2>
+                    <p class="mb-4 text-sm text-slate-500 dark:dark-text-secondary">Amount Due: <span id="payment-due-amount" class="font-semibold"></span></p>
                     <div class="space-y-4">
-                        <div><label for="payment-date" class="font-semibold text-sm">Date</label><input type="date" id="payment-date" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"></div>
-                        <div><label for="payment-amount" class="font-semibold text-sm">Amount</label><input type="number" id="payment-amount" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"></div>
-                        <div><label for="partial-payment-method" class="font-semibold text-sm">Method</label><select id="partial-payment-method" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
+                        <div><label for="payment-date" class="font-semibold text-sm">Date</label><input type="date" id="payment-date" class="w-full p-2 mt-1 border rounded-lg bg-slate-50 dark:dark-form-bg"></div>
+                        <div><label for="payment-amount" class="font-semibold text-sm">Amount</label><input type="number" id="payment-amount" placeholder="0.00" class="w-full p-2 mt-1 border rounded-lg bg-slate-50 dark:dark-form-bg"></div>
+                        <div><label for="partial-payment-method" class="font-semibold text-sm">Method</label><select id="partial-payment-method" class="w-full p-2 mt-1 border rounded-lg bg-slate-50 dark:dark-form-bg"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
                     </div>
                 </div>
-                <div class="bg-slate-50 dark:bg-slate-900/50 p-4 flex justify-end gap-3 rounded-b-lg border-t border-slate-200 dark:border-slate-800"><button data-close-modal="payment-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm">Cancel</button><button id="save-payment-btn" class="px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm">Save Payment</button></div>
+                <div class="bg-slate-50 dark:bg-slate-900/50 p-4 flex justify-end gap-3 rounded-b-lg border-t dark:dark-border-subtle"><button type="button" data-close-modal="payment-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm">Cancel</button><button id="save-payment-btn" class="button-hover px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm">Save Payment</button></div>
             </div>
         </div>
         
-        <div id="direct-payment-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-800">
+        <div id="direct-payment-modal" class="modal-container hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
+            <div class="modal-panel bg-white dark:dark-bg-surface rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:dark-border-subtle">
                 <form id="direct-payment-form">
                     <div class="p-6">
-                        <h2 id="direct-payment-modal-title" class="text-xl font-bold mb-4 text-slate-900 dark:text-white">Add Direct Payment</h2>
+                        <h2 id="direct-payment-modal-title" class="text-xl font-bold mb-4 text-slate-900 dark:dark-text-primary">Add Direct Payment</h2>
                         <input type="hidden" id="direct-payment-contact-id">
                         <input type="hidden" id="direct-payment-contact-name">
                         <div class="space-y-4">
-                            <div><label for="direct-payment-date" class="font-semibold text-sm">Date</label><input type="date" id="direct-payment-date" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800" required></div>
-                            <div><label for="direct-payment-amount" class="font-semibold text-sm">Amount</label><input type="number" step="any" id="direct-payment-amount" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800" required></div>
-                            <div><label for="direct-payment-method" class="font-semibold text-sm">Method</label><select id="direct-payment-method" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
-                            <div><label for="direct-payment-desc" class="font-semibold text-sm">Description / Note</label><input type="text" id="direct-payment-desc" placeholder="e.g., Advance Payment" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800" required></div>
+                            <div><label for="direct-payment-date" class="font-semibold text-sm">Date</label><input type="date" id="direct-payment-date" class="w-full p-2 mt-1 border rounded-lg bg-slate-50 dark:dark-form-bg" required></div>
+                            <div><label for="direct-payment-amount" class="font-semibold text-sm">Amount</label><input type="number" step="any" id="direct-payment-amount" placeholder="0.00" class="w-full p-2 mt-1 border rounded-lg bg-slate-50 dark:dark-form-bg" required></div>
+                            <div><label for="direct-payment-method" class="font-semibold text-sm">Method</label><select id="direct-payment-method" class="w-full p-2 mt-1 border rounded-lg bg-slate-50 dark:dark-form-bg"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
+                            <div><label for="direct-payment-desc" class="font-semibold text-sm">Description / Note</label><input type="text" id="direct-payment-desc" placeholder="e.g., Advance Payment" class="w-full p-2 mt-1 border rounded-lg bg-slate-50 dark:dark-form-bg" required></div>
                             <div><label class="font-semibold text-sm">Payment Type</label><div class="flex gap-4 mt-1"><label class="flex items-center gap-2"><input type="radio" name="direct-payment-type" value="made" class="form-radio"> Payment Made</label><label class="flex items-center gap-2"><input type="radio" name="direct-payment-type" value="received" class="form-radio"> Payment Received</label></div></div>
                         </div>
                     </div>
-                    <div class="bg-slate-50 dark:bg-slate-900/50 p-4 flex justify-end gap-3 rounded-b-lg border-t border-slate-200 dark:border-slate-800"><button type="button" data-close-modal="direct-payment-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm">Save Payment</button></div>
+                    <div class="bg-slate-50 dark:bg-slate-900/50 p-4 flex justify-end gap-3 rounded-b-lg border-t dark:dark-border-subtle"><button type="button" data-close-modal="direct-payment-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm">Cancel</button><button type="submit" class="button-hover px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm">Save Payment</button></div>
                 </form>
             </div>
         </div>
 
-        <div id="statement-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg w-full max-w-7xl h-[90vh] flex flex-col border border-slate-200 dark:border-slate-800">
-                <div class="p-4 flex justify-between items-center border-b dark:border-slate-800 flex-shrink-0">
-                    <h2 id="statement-title" class="text-xl font-bold text-slate-900 dark:text-white">Statement</h2>
+        <div id="statement-modal" class="modal-container hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
+            <div class="modal-panel bg-white dark:dark-bg-surface rounded-lg shadow-lg w-full max-w-7xl h-[90vh] flex flex-col border border-slate-200 dark:dark-border-subtle">
+                <div class="p-4 flex justify-between items-center border-b dark:dark-border-subtle flex-shrink-0">
+                    <h2 id="statement-title" class="text-xl font-bold text-slate-900 dark:dark-text-primary">Statement</h2>
                     <div class="flex items-center gap-2">
                         <button id="statement-csv-btn" class="px-3 py-1.5 text-sm rounded-md font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600">CSV</button>
                         <button id="statement-png-btn" class="px-3 py-1.5 text-sm rounded-md font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600">PNG</button>
@@ -191,28 +191,28 @@
                 <div class="overflow-y-auto flex-grow" id="statement-content-wrapper">
                     <div class="p-6" id="statement-content"></div>
                 </div>
-                 <div id="statement-pagination-controls" class="p-4 flex justify-center items-center gap-2 border-t dark:border-slate-800 flex-shrink-0"></div>
+                 <div id="statement-pagination-controls" class="p-4 flex justify-center items-center gap-2 border-t dark:dark-border-subtle flex-shrink-0"></div>
             </div>
         </div>
 
-        <div id="contact-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-800">
+        <div id="contact-modal" class="modal-container hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
+            <div class="modal-panel bg-white dark:dark-bg-surface rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:dark-border-subtle">
                 <form id="contact-form">
                     <div class="p-6">
-                        <h2 id="contact-form-title" class="text-xl font-bold mb-4 text-slate-900 dark:text-white">Add New Contact</h2>
+                        <h2 id="contact-form-title" class="text-xl font-bold mb-4 text-slate-900 dark:dark-text-primary">Add New Contact</h2>
                         <input type="hidden" id="contact-id">
                         <div class="space-y-4">
                             <div><label class="font-semibold text-sm">Party Type</label><div class="flex gap-4 mt-2"><label class="flex items-center gap-2"><input type="radio" name="contact-type" value="supplier" class="form-radio" checked> Supplier</label><label class="flex items-center gap-2"><input type="radio" name="contact-type" value="buyer" class="form-radio"> Buyer</label></div></div>
-                            <div><label for="contact-name" class="font-semibold text-sm">Full Name</label><input type="text" id="contact-name" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"></div>
-                            <div><label for="contact-phone" class="font-semibold text-sm">Phone Number</label><input type="tel" id="contact-phone" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"></div>
-                            <div><label for="contact-address" class="font-semibold text-sm">Address</label><textarea id="contact-address" rows="3" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800" placeholder="Contact's address"></textarea></div>
+                            <div><label for="contact-name" class="font-semibold text-sm">Full Name</label><input type="text" id="contact-name" class="w-full p-2 mt-1 border rounded-lg bg-slate-50 dark:dark-form-bg"></div>
+                            <div><label for="contact-phone" class="font-semibold text-sm">Phone Number</label><input type="tel" id="contact-phone" class="w-full p-2 mt-1 border rounded-lg bg-slate-50 dark:dark-form-bg"></div>
+                            <div><label for="contact-address" class="font-semibold text-sm">Address</label><textarea id="contact-address" rows="3" class="w-full p-2 mt-1 border rounded-lg bg-slate-50 dark:dark-form-bg" placeholder="Contact's address"></textarea></div>
                             
-                            <div id="opening-balance-section" class="pt-4 border-t dark:border-slate-700">
+                            <div id="opening-balance-section" class="pt-4 border-t dark:dark-border-subtle">
                                 <p class="font-semibold text-sm">Opening Balance</p>
                                 <div class="mt-2 space-y-2">
                                     <div>
                                         <label for="contact-opening-balance" class="sr-only">Amount</label>
-                                        <input type="number" step="any" id="contact-opening-balance" placeholder="0.00" class="w-full p-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800">
+                                        <input type="number" step="any" id="contact-opening-balance" placeholder="0.00" class="w-full p-2 border rounded-lg bg-slate-50 dark:dark-form-bg">
                                     </div>
                                     <div class="flex gap-4 text-sm">
                                         <label class="flex items-center gap-2"><input type="radio" name="opening-balance-type" value="receivable" class="form-radio" checked> Receivable (They Owe You)</label>
@@ -222,24 +222,24 @@
                             </div>
                         </div>
                     </div>
-                    <div class="bg-slate-50 dark:bg-slate-900/50 p-4 flex justify-end gap-3 rounded-b-lg border-t border-slate-200 dark:border-slate-800"><button type="button" data-close-modal="contact-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm">Save Contact</button></div>
+                    <div class="bg-slate-50 dark:bg-slate-900/50 p-4 flex justify-end gap-3 rounded-b-lg border-t dark:dark-border-subtle"><button type="button" data-close-modal="contact-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm">Cancel</button><button type="submit" class="button-hover px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm">Save Contact</button></div>
                 </form>
             </div>
         </div>
 
-        <div id="password-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-800">
+        <div id="password-modal" class="modal-container hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
+            <div class="modal-panel bg-white dark:dark-bg-surface rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:dark-border-subtle">
                 <form id="password-change-form">
                     <div class="p-6">
-                        <h2 class="text-xl font-bold mb-4 text-slate-900 dark:text-white">Change Password</h2>
+                        <h2 class="text-xl font-bold mb-4 text-slate-900 dark:dark-text-primary">Change Password</h2>
                         <div class="space-y-4">
-                            <div><label for="current-password" class="font-semibold text-sm">Current Password</label><input type="password" id="current-password" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800" required></div>
-                            <div><label for="new-password" class="font-semibold text-sm">New Password</label><input type="password" id="new-password" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800" required></div>
-                            <div><label for="confirm-password" class="font-semibold text-sm">Confirm New Password</label><input type="password" id="confirm-password" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800" required></div>
+                            <div><label for="current-password" class="font-semibold text-sm">Current Password</label><input type="password" id="current-password" class="w-full p-2 mt-1 border rounded-lg bg-slate-50 dark:dark-form-bg" required></div>
+                            <div><label for="new-password" class="font-semibold text-sm">New Password</label><input type="password" id="new-password" class="w-full p-2 mt-1 border rounded-lg bg-slate-50 dark:dark-form-bg" required></div>
+                            <div><label for="confirm-password" class="font-semibold text-sm">Confirm New Password</label><input type="password" id="confirm-password" class="w-full p-2 mt-1 border rounded-lg bg-slate-50 dark:dark-form-bg" required></div>
                             <p id="password-error" class="text-rose-500 text-sm h-4"></p>
                         </div>
                     </div>
-                    <div class="bg-slate-50 dark:bg-slate-900/50 p-4 flex justify-end gap-3 rounded-b-lg border-t border-slate-200 dark:border-slate-800"><button type="button" data-close-modal="password-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm">Save Changes</button></div>
+                    <div class="bg-slate-50 dark:bg-slate-900/50 p-4 flex justify-end gap-3 rounded-b-lg border-t dark:dark-border-subtle"><button type="button" data-close-modal="password-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm">Cancel</button><button type="submit" class="button-hover px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm">Save Changes</button></div>
                 </form>
             </div>
         </div>
