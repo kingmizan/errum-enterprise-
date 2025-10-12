@@ -1,11 +1,11 @@
 // --- firestore.js ---
-// Handles all interactions with the Firestore database
 
+// Make sure these start with './'
 import { db } from './firebase-config.js';
-import { collection, onSnapshot, addDoc, doc, setDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 import { state } from './state.js';
-import { renderAll, renderContacts } from './navigation.js'; // To trigger re-renders
+import { renderAll, renderContacts } from './navigation.js';
 import { populateTradeDropdowns } from './transactions.js';
+// ... rest of the file
 
 // Initializes the real-time listeners for transactions and contacts
 export function initFirestoreListeners() {
