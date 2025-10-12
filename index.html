@@ -79,7 +79,7 @@
         <div class="flex h-screen bg-slate-100 dark:bg-slate-950">
             <aside id="sidebar" class="fixed inset-y-0 left-0 bg-white dark:bg-slate-900 shadow-lg w-64 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 z-30">
                 <div class="p-4 flex items-center gap-3 border-b dark:border-slate-800">
-                    <div class="bg-teal-600 p-2 rounded-lg text-white"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-h-4a2 2 0 0 0-2 2v16"></path></svg></div>
+                    <div class="bg-teal-600 p-2 rounded-lg text-white"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></div>
                     <h1 class="text-xl font-extrabold">Errum Ent.</h1>
                 </div>
                 <nav class="mt-4 p-2 space-y-1">
@@ -88,7 +88,6 @@
                     <button data-section="transaction-form" class="nav-link w-full text-left flex items-center gap-3 px-3 py-2 rounded-md">Add Transaction</button>
                 </nav>
             </aside>
-
             <div class="flex-1 flex flex-col overflow-hidden">
                 <header class="bg-white/70 dark:bg-slate-900/80 backdrop-blur-sm border-b dark:border-slate-800 p-4 flex justify-between items-center">
                     <button id="hamburger-btn" class="md:hidden text-slate-600 dark:text-slate-300"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m4 18h16"></path></svg></button>
@@ -133,35 +132,26 @@
         let currentUserId = null;
         let contactsUnsubscribe = null;
         let transactionsUnsubscribe = null;
-        
         const mainContent = document.getElementById('app-content');
 
         // --- UI & HELPER FUNCTIONS ---
         const showToast = (message) => { /* ... same as before ... */ };
-        const showConfirmModal = (title, message) => {
-            return new Promise((resolve, reject) => {
-                const modalHTML = `<div id="confirm-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"><div class="bg-white dark:bg-slate-900 rounded-lg w-full max-w-sm"><div class="p-6"><h3 class="text-lg font-bold">${title}</h3><p class="text-sm mt-2">${message}</p></div><div class="bg-slate-50 dark:bg-slate-800 p-4 flex justify-end gap-3 rounded-b-lg"><button id="confirm-cancel-btn">Cancel</button><button id="confirm-ok-btn">Confirm</button></div></div></div>`;
-                document.body.insertAdjacentHTML('beforeend', modalHTML);
-                const modal = document.getElementById('confirm-modal');
-                document.getElementById('confirm-ok-btn').onclick = () => { modal.remove(); resolve(); };
-                document.getElementById('confirm-cancel-btn').onclick = () => { modal.remove(); reject(); };
-            });
-        };
+        const showConfirmModal = (title, message) => { /* ... same as before ... */ };
 
         // --- HTML TEMPLATES & SKELETONS ---
         const templates = {
-            dashboard: () => `...`, // Your full dashboard HTML template
-            contacts: () => `...`, // Your full contacts HTML template
-            'transaction-form': () => `...` // Your full transaction form HTML template
+            dashboard: `...`, // Your full dashboard HTML template
+            contacts: `...`, // Your full contacts HTML template
+            'transaction-form': `...` // Your full transaction form HTML template
         };
         const skeletons = {
             dashboard: `...`, // Your dashboard skeleton HTML
             contacts: `...` // Your contacts skeleton HTML
         };
-
+        
         // --- NAVIGATION & RENDERING ---
         function navigateTo(section) {
-            mainContent.innerHTML = skeletons[section] || ''; // Show skeleton while loading
+            mainContent.innerHTML = skeletons[section] || '<p class="text-center p-8">Loading...</p>';
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.toggle('active', link.dataset.section === section);
             });
@@ -169,16 +159,9 @@
         }
 
         function renderPageContent(section) {
-            if (contacts === null || transactions === null) return; // Wait for data
+            if (contacts === null || transactions === null) return;
             mainContent.innerHTML = templates[section]();
-            // Attach event listeners specific to the rendered section
-            if (section === 'dashboard') {
-                renderDashboardMetrics();
-                // ... etc.
-            } else if (section === 'contacts') {
-                renderContactsTable();
-                // ... etc.
-            }
+            // ... Attach listeners specific to the rendered section ...
         }
         
         // --- AUTHENTICATION & INITIALIZATION ---
@@ -195,19 +178,16 @@
                 document.getElementById('user-email').textContent = user.email;
                 document.getElementById('user-initial').textContent = user.email.charAt(0).toUpperCase();
 
-                // Initialize listeners for the main layout
                 document.getElementById('logout-btn').onclick = () => signOut(auth);
                 document.getElementById('profile-btn').onclick = () => document.getElementById('profile-menu').classList.toggle('hidden');
                 document.getElementById('hamburger-btn').onclick = () => document.getElementById('sidebar').classList.toggle('-translate-x-full');
                 document.querySelectorAll('.nav-link').forEach(link => link.onclick = () => navigateTo(link.dataset.section));
 
-                // Start fetching data
                 if (contactsUnsubscribe) contactsUnsubscribe();
                 contactsUnsubscribe = onSnapshot(query(collection(db, "users", user.uid, "contacts"), orderBy("name")), snapshot => {
                     contacts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     renderPageContent(document.querySelector('.nav-link.active')?.dataset.section || 'dashboard');
                 });
-
                 if (transactionsUnsubscribe) transactionsUnsubscribe();
                 transactionsUnsubscribe = onSnapshot(query(collection(db, "users", user.uid, "transactions"), orderBy("date", "desc")), snapshot => {
                     transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -216,22 +196,26 @@
                 
                 navigateTo('dashboard');
             } else {
-                // User is logged out
-                currentUserId = null;
                 if (contactsUnsubscribe) contactsUnsubscribe();
                 if (transactionsUnsubscribe) transactionsUnsubscribe();
                 contacts = null; transactions = null;
-                
                 appLayout.classList.add('hidden');
                 authContainer.classList.remove('hidden');
                 document.getElementById('login-form').onsubmit = async (e) => {
                     e.preventDefault();
-                    // ... your sign-in logic
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+                    const errorP = document.getElementById('auth-error');
+                    errorP.textContent = '';
+                    try {
+                        await signInWithEmailAndPassword(auth, email, password);
+                    } catch (error) {
+                        errorP.textContent = "Invalid email or password.";
+                    }
                 };
             }
             loadingContainer.classList.add('hidden');
         });
-
     </script>
 </body>
 </html>
