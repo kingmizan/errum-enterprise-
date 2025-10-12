@@ -24,11 +24,11 @@ export function checkAuth() {
 }
 
 /**
- * ✨ FIX: This function now correctly has the 'export' keyword.
+ * ✨ FIX: This function is now correctly EXPORTED.
  * Injects the header and navigation into the page and sets the active link.
- * @param {string} activePage - The name of the current page (e.g., 'dashboard', 'party').
+ * @param {string} activePage - The name of the current page.
  */
-export function renderHeaderAndNav(activePage) {
+export function renderAppLayout(activePage) {
     const placeholder = document.getElementById('header-nav-placeholder');
     if (!placeholder) return;
 
@@ -62,7 +62,7 @@ export function renderHeaderAndNav(activePage) {
 }
 
 /**
- * A helper to update the user's email in the header.
+ * Updates the user's email in the header.
  */
 export function updateUserEmail(email) {
     const userEmailEl = document.getElementById('user-email');
