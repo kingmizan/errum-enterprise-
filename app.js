@@ -30,12 +30,10 @@ const mainContent = document.getElementById('app-content');
 const appLogic = (() => {
     const getPayments = (history) => (history || []).reduce((sum, p) => sum + p.amount, 0);
 
-    // --- NEW HELPER: Create Avatar ---
     const createAvatar = (name) => {
         if (!name) return `<div class="avatar" style="background-color: #94a3b8;">?</div>`;
         const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2);
         
-        // Simple hash to get a consistent color
         let hash = 0;
         for (let i = 0; i < name.length; i++) {
             hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -95,7 +93,6 @@ const appLogic = (() => {
             }
         });
     };
-
 
     const renderDashboardMetrics = (data) => {
         let totalPayable = 0, totalReceivable = 0;
@@ -491,6 +488,13 @@ const appLogic = (() => {
     
     // ... (The rest of the app.js file from the previous step remains the same) ...
 
+    const handleDelete = async (id) => { 
+        if (confirm('Are you sure? This will permanently delete the transaction.')) { 
+            await deleteDoc(doc(db, "users", currentUserId, "transactions", id)); 
+            showToast('Transaction deleted.'); 
+        } 
+    };
+
     const showTransactionDetailsModal = (id) => {
         const t = transactions.find(tx => tx.id === id);
         if (!t) return;
@@ -644,7 +648,8 @@ const appLogic = (() => {
 
         modal.classList.remove('hidden');
     };
-
+    
+    // --- THIS IS THE FIX ---
     return { getPayments, getFilteredTransactions, renderDashboardMetrics, renderTransactionHistory, renderAll, renderContacts, resetContactForm, setupContactFormForEdit, handleSaveContact, handleDeleteContact, populateTradeDropdowns, updateTradeTotals, calculateNetWeight, resetTradeForm, setupTradeFormForEdit, handleTradeFormSubmit, handleDelete, openPaymentModal, handleSavePayment, openDirectPaymentModal, handleDirectPaymentSubmit, showContactLedger, generateOverallStatement, showPaginatedStatement, handleContentExport, handleContentExportCSV, handlePasswordChange, showTransactionDetailsModal };
 })();
 
