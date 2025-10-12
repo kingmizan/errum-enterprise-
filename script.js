@@ -821,7 +821,6 @@ const appLogic = (() => {
     const generateOverallStatement = (page, itemsPerPage) => {
         let ledgerItems = [];
 
-        // ***** FIX: ADD OPENING BALANCES TO THE CALCULATION *****
         contacts.forEach(c => {
             if (c.openingBalance && c.openingBalance.amount > 0) {
                 ledgerItems.push({
@@ -860,7 +859,6 @@ const appLogic = (() => {
             }
         });
 
-        // Calculate running balance on the full sorted list
         ledgerItems.sort((a, b) => new Date(a.date) - new Date(b.date));
         let runningBalance = 0;
         ledgerItems.forEach(item => {
@@ -995,23 +993,6 @@ const appLogic = (() => {
                     ]);
                 });
                 finalBalance = runningBalance;
-                
-                // ***** FIX STARTS HERE *****
-                // Add the final balance as the last row of the table body
-                const balanceStatus = finalBalance > 0.01 ? "Receivable" : (finalBalance < -0.01 ? "Payable" : "Settled");
-                body.push([
-                    { 
-                        content: `Final Balance (${balanceStatus}):`, 
-                        colSpan: 8, // Span across 8 of 9 columns
-                        styles: { halign: 'right', fontStyle: 'bold', fontSize: 10 } 
-                    },
-                    { 
-                        content: `৳${Math.abs(finalBalance).toFixed(2)}`, 
-                        styles: { halign: 'right', fontStyle: 'bold', fontSize: 10 } 
-                    }
-                ]);
-                // ***** FIX ENDS HERE *****
-
             } else { // 'overall' type
                 head.push([
                     { content: 'Date', rowSpan: 2 },
@@ -1043,26 +1024,11 @@ const appLogic = (() => {
                     ]);
                 });
                 finalBalance = chronologicalData.length > 0 ? chronologicalData[chronologicalData.length - 1].balance : 0;
-                
-                // ***** FIX STARTS HERE *****
-                // Add the final balance as the last row of the table body
-                const balanceStatus = finalBalance >= 0 ? "Net Receivable" : "Net Payable";
-                 body.push([
-                    { 
-                        content: `Final Net Balance (${balanceStatus}):`, 
-                        colSpan: 12, // Span across 12 of 13 columns
-                        styles: { halign: 'right', fontStyle: 'bold', fontSize: 10 } 
-                    },
-                    { 
-                        content: `৳${Math.abs(finalBalance).toFixed(2)}`, 
-                        styles: { halign: 'right', fontStyle: 'bold', fontSize: 10 } 
-                    }
-                ]);
-                // ***** FIX ENDS HERE *****
             }
 
             doc.autoTable({
-                head: head, body: body,
+                head: head, 
+                body: body,
                 didDrawPage: (data) => {
                     // Header
                     doc.setFontSize(20);
@@ -1081,6 +1047,28 @@ const appLogic = (() => {
                 styles: { font: 'Inter', fontSize: 8 },
                 headStyles: { halign: 'center', valign: 'middle' }
             });
+
+            // --- PDF FINAL BALANCE FIX ---
+            const finalY = doc.lastAutoTable.finalY;
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const margin = data.settings.margin.right;
+            let balanceText, balanceValue;
+
+            if (type === 'contact') {
+                const balanceStatus = finalBalance > 0.01 ? "Receivable" : (finalBalance < -0.01 ? "Payable" : "Settled");
+                balanceText = `Final Balance (${balanceStatus}):`;
+                balanceValue = `৳${Math.abs(finalBalance).toFixed(2)}`;
+            } else { // 'overall' type
+                const balanceStatus = finalBalance >= 0 ? "Net Receivable" : "Net Payable";
+                balanceText = `Final Net Balance (${balanceStatus}):`;
+                balanceValue = `৳${Math.abs(finalBalance).toFixed(2)}`;
+            }
+
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            doc.text(balanceText, pageWidth - margin - 100, finalY + 25, { align: 'right' });
+            doc.text(balanceValue, pageWidth - margin, finalY + 25, { align: 'right' });
+            // --- END OF FIX ---
 
             doc.save(`${filename}.pdf`);
         }
