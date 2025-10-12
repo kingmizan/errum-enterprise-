@@ -19,14 +19,16 @@ export function checkAuth() {
     });
 }
 
+/**
+ * ✨ FIX: This function is correctly named 'renderAppLayout' and is EXPORTED.
+ */
 export function renderAppLayout(activePage) {
-    // This function replaces the old renderHeaderAndNav
     const body = document.body;
     body.innerHTML = `
         <div class="flex h-screen bg-slate-100 dark:bg-slate-950">
             <aside id="sidebar" class="fixed inset-y-0 left-0 bg-white dark:bg-slate-900 shadow-lg w-64 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out z-30">
                 <div class="p-4 flex items-center gap-3 border-b dark:border-slate-800">
-                    <div class="bg-teal-600 p-2 rounded-lg text-white"><svg class="h-6 w-6" viewBox="0 0 24 24"><path fill="currentColor" d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16h8z M4 7h16v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7z"/></svg></div>
+                    <div class="bg-teal-600 p-2 rounded-lg text-white"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></div>
                     <h1 class="text-xl font-extrabold">Errum Ent.</h1>
                 </div>
                 <nav class="mt-4 p-2 space-y-1">
