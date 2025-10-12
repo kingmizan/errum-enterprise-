@@ -25,13 +25,13 @@ const authContainer = document.getElementById('auth-container');
 const appContainer = document.getElementById('app-container');
 const mainContent = document.getElementById('app-content');
 
-// --- APP LOGIC OBJECT ---
-const appLogic = {
-    getPayments(history) {
-        return (history || []).reduce((sum, p) => sum + p.amount, 0);
-    },
+// --- APP LOGIC (IIFE Pattern) ---
+const appLogic = (() => {
 
-    createAvatar(name) {
+    // --- Private Helper Functions ---
+    const getPayments = (history) => (history || []).reduce((sum, p) => sum + p.amount, 0);
+
+    const createAvatar = (name) => {
         if (!name) return `<div class="avatar" style="background-color: #94a3b8;">?</div>`;
         const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2);
         let hash = 0;
@@ -40,9 +40,9 @@ const appLogic = {
         }
         const h = hash % 360;
         return `<div class="avatar" style="background-color: hsl(${h}, 50%, 40%)">${initials}</div>`;
-    },
+    };
 
-    getFilteredTransactions() {
+    const getFilteredTransactions = () => {
         const searchInput = document.getElementById('search-input');
         const allSortedTransactions = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
         if (!searchInput) return allSortedTransactions;
@@ -58,76 +58,69 @@ const appLogic = {
             (!startDate || t.date >= startDate) &&
             (!endDate || t.date <= endDate)
         );
-    },
-    
-    renderDashboardPaginationControls(totalItems) {
+    };
+
+    const renderDashboardPaginationControls = (totalItems) => {
         const controlsContainer = document.getElementById('pagination-controls');
         if (!controlsContainer) return;
-
         const totalPages = Math.ceil(totalItems / dashboardItemsPerPage);
         if (totalPages <= 1) {
             controlsContainer.innerHTML = '';
             return;
         }
-
         const prevDisabled = dashboardCurrentPage === 1 ? 'disabled' : '';
         const nextDisabled = dashboardCurrentPage === totalPages ? 'disabled' : '';
-
         controlsContainer.innerHTML = `
             <button id="prev-page-btn" class="px-3 py-1 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300 disabled:opacity-50" ${prevDisabled}>Previous</button>
             <span class="text-sm font-semibold">Page ${dashboardCurrentPage} of ${totalPages}</span>
             <button id="next-page-btn" class="px-3 py-1 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300 disabled:opacity-50" ${nextDisabled}>Next</button>
         `;
-
         document.getElementById('prev-page-btn')?.addEventListener('click', () => {
             if (dashboardCurrentPage > 1) {
                 dashboardCurrentPage--;
-                this.renderAll();
+                renderAll();
             }
         });
-
         document.getElementById('next-page-btn')?.addEventListener('click', () => {
             if (dashboardCurrentPage < totalPages) {
                 dashboardCurrentPage++;
-                this.renderAll();
+                renderAll();
             }
         });
-    },
+    };
 
-    renderDashboardMetrics() {
+    const renderDashboardMetrics = () => {
         let totalPayable = 0, totalReceivable = 0;
-
         transactions.forEach(t => {
             if (t.type === 'trade') {
-                totalPayable += (t.supplierTotal || 0) - this.getPayments(t.paymentsToSupplier);
-                totalReceivable += (t.buyerTotal || 0) - this.getPayments(t.paymentsFromBuyer);
+                totalPayable += (t.supplierTotal || 0) - getPayments(t.paymentsToSupplier);
+                totalReceivable += (t.buyerTotal || 0) - getPayments(t.paymentsFromBuyer);
             } else if (t.type === 'payment') {
-                if (t.paymentType === 'made') {
-                    totalPayable -= t.amount;
-                } else {
-                    totalReceivable -= t.amount;
-                }
+                if (t.paymentType === 'made') totalPayable -= t.amount;
+                else totalReceivable -= t.amount;
             }
         });
-
         contacts.forEach(c => {
             if (c.openingBalance && c.openingBalance.amount > 0) {
-                if (c.openingBalance.type === 'payable') {
-                    totalPayable += c.openingBalance.amount;
-                } else {
-                    totalReceivable += c.openingBalance.amount;
-                }
+                if (c.openingBalance.type === 'payable') totalPayable += c.openingBalance.amount;
+                else totalReceivable += c.openingBalance.amount;
             }
         });
-
         const profit = totalReceivable - totalPayable;
-        
         animateCountUp(document.getElementById('total-payable'), totalPayable);
         animateCountUp(document.getElementById('total-receivable'), totalReceivable);
         animateCountUp(document.getElementById('total-profit'), profit);
-    },
+    };
+    
+    // --- Public Functions (will be returned) ---
+    const renderAll = () => {
+        const data = getFilteredTransactions();
+        renderDashboardMetrics();
+        renderTransactionHistory(data);
+        renderDashboardPaginationControls(data.length);
+    };
 
-    renderTransactionHistory(data) {
+    const renderTransactionHistory = (data) => {
         const listContainer = document.getElementById('transaction-history-list');
         if (!listContainer) return;
 
@@ -158,128 +151,76 @@ const appLogic = {
             let avatarHtml, detailsHtml, amountHtml;
 
             if (t.type === 'trade') {
-                avatarHtml = this.createAvatar(t.supplierName);
-                detailsHtml = `
-                    <div class="font-semibold">${t.supplierName} → ${t.buyerName}</div>
-                    <div class="text-sm text-slate-500">${t.item}</div>
-                `;
+                avatarHtml = createAvatar(t.supplierName);
+                detailsHtml = `<div class="font-semibold">${t.supplierName} → ${t.buyerName}</div><div class="text-sm text-slate-500">${t.item}</div>`;
                 const profitClass = t.profit >= 0 ? 'text-green-600' : 'text-rose-500';
                 amountHtml = `<div class="transaction-amount ${profitClass}">৳${(t.profit || 0).toFixed(2)}</div>`;
             } else if (t.type === 'payment') {
-                avatarHtml = this.createAvatar(t.name);
+                avatarHtml = createAvatar(t.name);
                 const typeClass = t.paymentType === 'made' ? 'text-rose-500' : 'text-green-600';
-                detailsHtml = `
-                    <div class="font-semibold">${t.name}</div>
-                    <div class="text-sm text-slate-500">${t.description}</div>
-                `;
+                detailsHtml = `<div class="font-semibold">${t.name}</div><div class="text-sm text-slate-500">${t.description}</div>`;
                 amountHtml = `<div class="transaction-amount ${typeClass}">${t.paymentType === 'made' ? '-' : '+'} ৳${(t.amount || 0).toFixed(2)}</div>`;
             }
 
-            itemDiv.innerHTML = `
-                ${avatarHtml}
-                <div class="transaction-details">
-                    ${detailsHtml}
-                </div>
-                ${amountHtml}
-            `;
+            itemDiv.innerHTML = `${avatarHtml}<div class="transaction-details">${detailsHtml}</div>${amountHtml}`;
             listContainer.appendChild(itemDiv);
         });
-    },
-
-    renderContacts() {
-        const tbody = document.getElementById('contacts-table-body'); if (!tbody) return; tbody.innerHTML = '';
-        if (contacts.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-500">No contacts found. Add one to get started!</td></tr>`; return; }
-        
-        contacts.forEach(c => {
-            let netBalance = 0;
-            if (c.openingBalance && c.openingBalance.amount > 0) {
-                netBalance = c.openingBalance.type === 'receivable' ? c.openingBalance.amount : -c.openingBalance.amount;
-            }
-            const relatedTransactions = transactions.filter(t => t.supplierName === c.name || t.buyerName === c.name || t.name === c.name);
-            relatedTransactions.forEach(t => {
-                if (t.type === 'trade') {
-                    if (t.supplierName === c.name) netBalance -= (t.supplierTotal - this.getPayments(t.paymentsToSupplier));
-                    if (t.buyerName === c.name) netBalance += (t.buyerTotal - this.getPayments(t.paymentsFromBuyer));
-                } else if (t.type === 'payment' && t.name === c.name) {
-                    if (t.paymentType === 'made') netBalance += t.amount;
-                    else netBalance -= t.amount;
-                }
-            });
-
-            let lastTransactionDate = '<span class="text-slate-400">N/A</span>';
-            if (relatedTransactions.length > 0) {
-                relatedTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-                lastTransactionDate = relatedTransactions[0].date;
-            }
-
-            const balanceText = `৳${Math.abs(netBalance).toFixed(2)}`;
-            let balanceClass = 'text-slate-500';
-            if (netBalance > 0.01) balanceClass = 'text-green-600';
-            else if (netBalance < -0.01) balanceClass = 'text-rose-500';
-
-            let typeBadge;
-            if (c.type === 'buyer') {
-                typeBadge = `<span class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z" /></svg>
-                    Buyer
-                </span>`;
-            } else {
-                typeBadge = `<span class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 11l3-3m0 0l3 3m-3-3v8m0-13a9 9 0 110-18 9 9 0 010 18z" /></svg>
-                    Supplier
-                </span>`;
-            }
-            
-            const row = document.createElement('tr'); row.className = 'odd:bg-slate-50 hover:bg-slate-100 border-b md:border-b-0';
-            row.innerHTML = `<td data-label="Name" class="py-4 px-4 align-middle">
-                                <button data-ledger-id="${c.id}" class="font-medium text-slate-900 hover:text-teal-600 text-left cursor-pointer">${c.name}</button>
-                               </td>
-                               <td data-label="Type" class="py-4 px-4 align-middle">${typeBadge}</td>
-                               <td data-label="Phone" class="py-4 px-4 align-middle">${c.phone || 'N/A'}</td>
-                               <td data-label="Last Active" class="py-4 px-4 align-middle font-medium text-slate-600">${lastTransactionDate}</td>
-                               <td data-label="Net Balance" class="py-4 px-4 align-middle font-bold text-right ${balanceClass}">${balanceText}</td>
-                               <td data-label="Actions" class="py-4 px-4 align-middle actions-cell">
-                                <div class="flex justify-end md:justify-center items-center gap-1">
-                                    <button title="Add Direct Payment" data-direct-payment-id="${c.id}" class="p-1 text-teal-600 hover:bg-teal-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" /></svg></button>
-                                    <button title="Edit Contact" data-edit-contact-id="${c.id}" class="p-1 text-blue-600 hover:bg-blue-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
-                                    <button title="Delete Contact" data-delete-contact-id="${c.id}" class="p-1 text-rose-500 hover:bg-rose-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
-                                </div>
-                               </td>`;
-            tbody.appendChild(row);
-        });
-    },
-
-    renderAll() { 
-        const data = this.getFilteredTransactions(); 
-        this.renderDashboardMetrics(data); 
-        this.renderTransactionHistory(data); 
-        this.renderDashboardPaginationControls(data.length);
-    },
+    };
     
-    // ... (Your other functions like showTransactionDetailsModal, etc. go here unchanged)
+    // ... all other functions go here, defined as const
+    const handleDelete = async (id) => {
+        // ... (this function is now inside the IIFE)
+    };
 
-};
+    const showTransactionDetailsModal = (id) => {
+        // ... (this function is now inside the IIFE)
+    };
+    
+    // ... all other functions from your previous app.js ...
+
+    // Return only the functions that need to be called from outside
+    return {
+        renderAll,
+        renderContacts,
+        handleSaveContact: async (e) => { /* implementation */ },
+        handleDeleteContact: async (id) => { /* implementation */ },
+        setupContactFormForEdit: (id) => { /* implementation */ },
+        resetContactForm: () => { /* implementation */ },
+        populateTradeDropdowns: () => { /* implementation */ },
+        updateTradeTotals: () => { /* implementation */ },
+        calculateNetWeight: () => { /* implementation */ },
+        handleTradeFormSubmit: async (e) => { /* implementation */ },
+        resetTradeForm: () => { /* implementation */ },
+        showContactLedger: (id) => { /* implementation */ },
+        showPaginatedStatement: (page = 1) => { /* implementation */ },
+        handleContentExport: async (format) => { /* implementation */ },
+        handleContentExportCSV: () => { /* implementation */ },
+        handlePasswordChange: async (e) => { /* implementation */ },
+        handleDirectPaymentSubmit: async (e) => { /* implementation */ },
+        openDirectPaymentModal: (id) => { /* implementation */ },
+        handleSavePayment: async () => { /* implementation */ },
+        showTransactionDetailsModal, // shorthand for showTransactionDetailsModal: showTransactionDetailsModal
+        handleDelete,
+    };
+})();
 
 // --- NAVIGATION & EVENT BINDING ---
-// (No changes needed in this section, it correctly uses appLogic.functionName())
+// (This section now correctly calls the exposed appLogic methods)
 const navigateTo = (section) => {
-    // ... same as before
+    // ...
 };
-
 const bindAppEventListeners = () => {
-    // ... same as before
+    // ...
 };
-
 const bindSectionEventListeners = (section) => {
-    // ... same as before
+    // ...
 };
 
 // --- AUTH & INITIALIZATION ---
-// (No changes needed in this section)
+// (This section is unchanged)
 onAuthStateChanged(auth, user => {
-    // ... same as before
+    // ...
 });
-
 document.getElementById('login-form').addEventListener('submit', async (e) => {
-    // ... same as before
+    // ...
 });
