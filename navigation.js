@@ -11,7 +11,54 @@ import * as statements from './statements.js';
 
 const mainContent = document.getElementById('app-content');
 
-// Main navigation function (no changes needed here)
+/**
+ * This is the new central function to refresh the user interface.
+ * It checks which screen is currently active and calls the appropriate
+ * rendering functions. This resolves the race condition.
+ */
+export function updateUI() {
+    const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
+    if (!currentSection) return; // Exit if no section is active
+
+    switch (currentSection) {
+        case 'dashboard':
+            renderAll();
+            break;
+        case 'contacts':
+            renderContacts();
+            break;
+        case 'transaction-form':
+            // If contacts data changes while on the form, refresh dropdowns
+            transactions.populateTradeDropdowns();
+            break;
+        // Add cases for other sections if they need real-time updates
+    }
+}
+
+/**
+ * Renders all components for the dashboard.
+ */
+export function renderAll() {
+    if (document.getElementById('transaction-history-body')) {
+        const data = dashboard.getFilteredTransactions();
+        dashboard.renderDashboardMetrics();
+        dashboard.renderTransactionHistory(data);
+        dashboard.renderDashboardPaginationControls(data.length);
+    }
+}
+
+/**
+ * Renders the contacts table.
+ */
+export function renderContacts() {
+    if (document.getElementById('contacts-table-body')) {
+        contacts.renderContacts();
+    }
+}
+
+/**
+ * Navigates to a new section by rendering its template and binding events.
+ */
 export const navigateTo = (section, context = null) => {
     return new Promise((resolve) => {
         document.querySelectorAll('.nav-link').forEach(link => {
@@ -33,17 +80,17 @@ export const navigateTo = (section, context = null) => {
     });
 };
 
-// Binds event listeners that are always present in the app shell
+/**
+ * Binds event listeners to the main application shell (elements that never change).
+ */
 export function bindAppEventListeners() {
-    // This function is called only once and binds to elements in index.html
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', (e) => navigateTo(e.currentTarget.dataset.section));
     });
 
     document.getElementById('logout-btn')?.addEventListener('click', handleSignOut);
     document.getElementById('settings-btn')?.addEventListener('click', () => document.getElementById('password-modal')?.classList.remove('hidden'));
-    
-    // Bind to forms and modals safely
+
     document.getElementById('save-payment-btn')?.addEventListener('click', transactions.handleSavePayment);
     document.getElementById('contact-form')?.addEventListener('submit', contacts.handleSaveContact);
     document.getElementById('password-change-form')?.addEventListener('submit', handlePasswordChange);
@@ -57,27 +104,14 @@ export function bindAppEventListeners() {
     });
 }
 
-// Renders all dashboard components
-export function renderAll() {
-    if (document.getElementById('transaction-history-body')) {
-        const data = dashboard.getFilteredTransactions();
-        dashboard.renderDashboardMetrics(data);
-        dashboard.renderTransactionHistory(data);
-        dashboard.renderDashboardPaginationControls(data.length);
-    }
-}
+/**
+ * Binds event listeners specific to the section that was just rendered.
+ */
+function bindSectionEventListeners(section, context) {
+    // After navigating, immediately call updateUI to populate the new view with data.
+    updateUI();
 
-// Renders the contacts table
-export function renderContacts() {
-    if (document.getElementById('contacts-table-body')) {
-        contacts.renderContacts();
-    }
-}
-
-// Binds event listeners specific to the currently displayed section
-export function bindSectionEventListeners(section, context) {
     if (section === 'dashboard') {
-        renderAll();
         document.getElementById('search-input')?.addEventListener('input', () => { state.dashboardCurrentPage = 1; renderAll(); });
         document.getElementById('filter-start-date')?.addEventListener('change', () => { state.dashboardCurrentPage = 1; renderAll(); });
         document.getElementById('filter-end-date')?.addEventListener('change', () => { state.dashboardCurrentPage = 1; renderAll(); });
@@ -94,7 +128,6 @@ export function bindSectionEventListeners(section, context) {
         });
 
     } else if (section === 'contacts') {
-        renderContacts();
         document.getElementById('add-contact-btn')?.addEventListener('click', () => { contacts.resetContactForm(); document.getElementById('contact-modal').classList.remove('hidden'); });
         document.getElementById('contacts-table-body')?.addEventListener('click', e => {
             const target = e.target.closest('button');
@@ -107,8 +140,7 @@ export function bindSectionEventListeners(section, context) {
         });
 
     } else if (section === 'transaction-form') {
-        transactions.populateTradeDropdowns();
-        transactions.resetTradeForm();
+        transactions.resetTradeForm(); // Reset form on navigation
         document.getElementById('transaction-form')?.addEventListener('submit', transactions.handleTradeFormSubmit);
         document.getElementById('reset-form-btn')?.addEventListener('click', transactions.resetTradeForm);
         document.getElementById('cancel-transaction-btn')?.addEventListener('click', () => navigateTo('dashboard'));
@@ -122,7 +154,7 @@ export function bindSectionEventListeners(section, context) {
                 const option = document.createElement('option');
                 option.value = c.id;
                 option.textContent = c.name;
-                partySelect.appendChild(option); // This is now safe
+                partySelect.appendChild(option);
             });
             document.getElementById('generate-overall-statement-btn')?.addEventListener('click', statements.renderOverallStatement);
             partySelect.addEventListener('change', (e) => {
