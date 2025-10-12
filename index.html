@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Errum Enterprise</title>
+    <title>Errum Enterprise - Professional</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -15,207 +15,237 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <script>
+        // Manages dark mode persistence
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
         }
     </script>
-
-    <style>
-        :root {
-            --color-primary-500: #14b8a6; --color-primary-600: #0d9488;
-            --color-bg-light: #f1f5f9; --color-surface-light: #ffffff;
-            --color-bg-dark: #020617; --color-surface-dark: #0f172a;
-            --color-border-dark: #1e293b;
-            --color-success: #16a34a; --color-error: #dc2626;
-        }
-        body { font-family: 'Inter', sans-serif; background-color: var(--color-bg-light); -webkit-font-smoothing: antialiased; }
-        .dark body { background-color: var(--color-bg-dark); }
-        .nav-link.active { background-color: var(--color-primary-600); color: white; }
-        .dark .nav-link.active { background-color: var(--color-primary-500); }
-        
-        @keyframes content-enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .content-enter { animation: content-enter 0.4s ease-out forwards; }
-
-        @keyframes skeleton-loading { 0% { background-color: #e2e8f0; } 100% { background-color: #cbd5e1; } }
-        .dark @keyframes skeleton-loading { 0% { background-color: #1e293b; } 100% { background-color: #334155; } }
-        .skeleton { animation: skeleton-loading 1s linear infinite alternate; border-radius: 0.25rem; }
-        
-        @media (max-width: 768px) {
-            .responsive-table thead { display: none; }
-            .responsive-table tr { display: block; border: 1px solid #e2e8f0; border-radius: 0.5rem; margin-bottom: 1rem; padding: 1rem; }
-            .dark .responsive-table tr { border-color: #334155; }
-            .responsive-table td { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; text-align: right; border-bottom: 1px solid #f1f5f9; }
-            .dark .responsive-table td { border-bottom-color: #334155; }
-            .responsive-table td:last-child { border-bottom: none; }
-            .responsive-table td::before { content: attr(data-label); font-weight: 600; text-align: left; margin-right: 1rem; color: #64748b; }
-            .dark .responsive-table td::before { color: #94a3b8; }
-            .responsive-table td.actions-cell { justify-content: flex-end; }
-        }
-    </style>
+    
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="text-slate-900 dark:text-slate-100">
+<body class="text-slate-800 dark:text-slate-200 transition-colors duration-300">
 
-    <div id="loading-container" class="fixed inset-0 bg-slate-100 dark:bg-slate-950 z-50 flex items-center justify-center">
-        <svg class="animate-spin h-8 w-8 text-teal-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+    <div id="loading-container" class="fixed inset-0 bg-slate-50 dark:bg-slate-950 z-50 flex items-center justify-center p-4">
+        <div class="flex flex-col items-center gap-4">
+            <svg class="animate-spin h-8 w-8 text-teal-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <p class="text-slate-600 dark:text-slate-400">Connecting...</p>
+        </div>
     </div>
 
-    <div id="auth-container" class="hidden min-h-screen flex items-center justify-center p-4 bg-slate-100 dark:bg-slate-950">
+    <div id="auth-container" class="hidden fixed inset-0 bg-slate-50 dark:bg-slate-950 z-40 flex items-center justify-center p-4">
         <div class="w-full max-w-md">
-            <div class="bg-white dark:bg-slate-900 p-8 rounded-xl shadow-lg">
+            <div class="flex flex-col items-center justify-center gap-4 mb-6">
+                <div class="bg-teal-600 p-3 rounded-xl text-white shadow-lg shadow-teal-500/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                </div>
+                <div class="text-center">
+                    <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Errum Enterprise</h1>
+                    <p class="text-slate-500 dark:text-slate-400">Please sign in to continue</p>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800">
                 <form id="login-form" class="space-y-4">
-                    <h2 class="text-2xl font-bold text-center">Sign In</h2>
-                    <div><label for="email" class="font-semibold text-sm">Email</label><input type="email" id="email" class="w-full p-3 mt-1 border rounded-lg bg-slate-50 dark:bg-slate-800" required></div>
-                    <div><label for="password" class="font-semibold text-sm">Password</label><input type="password" id="password" class="w-full p-3 mt-1 border rounded-lg bg-slate-50 dark:bg-slate-800" required></div>
-                    <p id="auth-error" class="text-red-600 text-sm h-4"></p>
-                    <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg">Sign In</button>
+                    <h2 class="text-2xl font-bold text-center text-slate-800 dark:text-white">Sign In</h2>
+                    <div>
+                        <label for="email" class="font-semibold text-sm text-slate-700 dark:text-slate-300">Email Address</label>
+                        <input type="email" id="email" class="w-full p-3 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-teal-500" required>
+                    </div>
+                    <div>
+                        <label for="password" class="font-semibold text-sm text-slate-700 dark:text-slate-300">Password</label>
+                        <input type="password" id="password" class="w-full p-3 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-teal-500" required>
+                    </div>
+                    <p id="auth-error" class="text-rose-500 text-sm h-4"></p>
+                    <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-sm shadow-teal-500/20">Sign In</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <div id="app-layout" class="hidden">
-        <div class="flex h-screen bg-slate-100 dark:bg-slate-950">
-            <aside id="sidebar" class="fixed inset-y-0 left-0 bg-white dark:bg-slate-900 shadow-lg w-64 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 z-30">
-                <div class="p-4 flex items-center gap-3 border-b dark:border-slate-800">
-                    <div class="bg-teal-600 p-2 rounded-lg text-white"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></div>
-                    <h1 class="text-xl font-extrabold">Errum Ent.</h1>
-                </div>
-                <nav class="mt-4 p-2 space-y-1">
-                    <button data-section="dashboard" class="nav-link w-full text-left flex items-center gap-3 px-3 py-2 rounded-md">Dashboard</button>
-                    <button data-section="contacts" class="nav-link w-full text-left flex items-center gap-3 px-3 py-2 rounded-md">Party</button>
-                    <button data-section="transaction-form" class="nav-link w-full text-left flex items-center gap-3 px-3 py-2 rounded-md">Add Transaction</button>
-                </nav>
-            </aside>
-            <div class="flex-1 flex flex-col overflow-hidden">
-                <header class="bg-white/70 dark:bg-slate-900/80 backdrop-blur-sm border-b dark:border-slate-800 p-4 flex justify-between items-center">
-                    <button id="hamburger-btn" class="md:hidden text-slate-600 dark:text-slate-300"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m4 18h16"></path></svg></button>
-                    <div class="flex-1"></div>
-                    <div class="relative">
-                        <button id="profile-btn" class="flex items-center gap-2">
-                            <span id="user-email" class="text-sm font-medium hidden sm:inline"></span>
-                            <div class="h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold text-teal-600" id="user-initial"></div>
-                        </button>
-                        <div id="profile-menu" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-md shadow-lg py-1 z-20">
-                            <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">Logout</a>
-                        </div>
+    <div id="app-container" class="hidden">
+        <div class="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
+            <header class="flex justify-between items-center mb-8">
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <div class="bg-teal-600 p-2 sm:p-3 rounded-xl text-white shadow-lg shadow-teal-500/20 flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-8 sm:w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
                     </div>
-                </header>
-                <main id="app-content" class="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8"></main>
-            </div>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Errum Enterprise</h1>
+                        <p id="user-email" class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 truncate">Welcome!</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1 sm:gap-2">
+                    <button id="settings-btn" class="p-2 rounded-full text-slate-500 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors" title="Settings">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </button>
+                    <button id="theme-toggle" class="p-2 rounded-full text-slate-500 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors" title="Toggle Theme">
+                        <svg id="theme-icon-light" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        <svg id="theme-icon-dark" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                    </button>
+                    <button id="logout-btn" class="p-2 rounded-full text-slate-500 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors" title="Logout">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                    </button>
+                </div>
+            </header>
+
+            <nav class="bg-white/70 dark:bg-slate-900/80 backdrop-blur-sm border border-slate-200 dark:border-slate-800 shadow-sm rounded-lg p-2 mb-8 flex flex-nowrap justify-start sm:justify-center gap-2 overflow-x-auto">
+                <button data-section="dashboard" class="nav-link active flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-md font-semibold text-sm transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
+                    <span class="whitespace-nowrap">Dashboard</span>
+                </button>
+                <button data-section="contacts" class="nav-link flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-md font-semibold text-sm transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg>
+                    <span class="whitespace-nowrap">Party</span>
+                </button>
+                <button data-section="transaction-form" class="nav-link flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-md font-semibold text-sm transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" /></svg>
+                    <span class="whitespace-nowrap">Add Transaction</span>
+                </button>
+                <button id="overall-statement-btn" class="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-md font-semibold text-sm transition text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" /></svg>
+                    <span class="whitespace-nowrap">Statement</span>
+                </button>
+            </nav>
+
+            <main id="app-content"></main>
+            
+            <footer class="text-center py-6 mt-8 text-xs text-slate-500 dark:text-slate-400">
+                Coded and Developed By <a href="https://t.me/GoITBD" target="_blank" rel="noopener noreferrer" class="font-semibold text-teal-600 dark:text-teal-400 hover:underline">GoIT</a>.
+            </footer>
         </div>
     </div>
     
-    <script type="module">
-        // --- FIREBASE SETUP ---
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, addDoc, doc, setDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAvjLh6aRRUyrJDUtywBbOUwTLH4hWX9e4",
-            authDomain: "milon-ltd.firebaseapp.com",
-            projectId: "milon-ltd",
-            storageBucket: "milon-ltd.appspot.com",
-            messagingSenderId: "780532796920",
-            appId: "1:780532796920:web:433cb112e3836c79e35a0d"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // --- GLOBAL STATE ---
-        let contacts = null;
-        let transactions = null;
-        let currentUserId = null;
-        let contactsUnsubscribe = null;
-        let transactionsUnsubscribe = null;
-        const mainContent = document.getElementById('app-content');
-
-        // --- UI & HELPER FUNCTIONS ---
-        const showToast = (message) => { /* ... same as before ... */ };
-        const showConfirmModal = (title, message) => { /* ... same as before ... */ };
-
-        // --- HTML TEMPLATES & SKELETONS ---
-        const templates = {
-            dashboard: `...`, // Your full dashboard HTML template
-            contacts: `...`, // Your full contacts HTML template
-            'transaction-form': `...` // Your full transaction form HTML template
-        };
-        const skeletons = {
-            dashboard: `...`, // Your dashboard skeleton HTML
-            contacts: `...` // Your contacts skeleton HTML
-        };
+    <div id="modals-and-helpers">
+        <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 dark:bg-slate-200 text-white dark:text-slate-900 py-2 px-5 rounded-lg shadow-xl text-sm font-semibold opacity-0 translate-y-10 transition-all duration-300">
+            <span id="toast-message"></span>
+        </div>
         
-        // --- NAVIGATION & RENDERING ---
-        function navigateTo(section) {
-            mainContent.innerHTML = skeletons[section] || '<p class="text-center p-8">Loading...</p>';
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.toggle('active', link.dataset.section === section);
-            });
-            renderPageContent(section);
-        }
+        <div id="transaction-detail-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg w-full max-w-4xl h-[90vh] flex flex-col border border-slate-200 dark:border-slate-800">
+                <div class="p-4 flex justify-between items-center border-b dark:border-slate-800 flex-shrink-0">
+                    <h2 id="transaction-detail-title" class="text-xl font-bold text-slate-900 dark:text-white">Transaction Details</h2>
+                    <button data-close-modal="transaction-detail-modal" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 -mr-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                    </button>
+                </div>
+                <div class="overflow-y-auto flex-grow p-6">
+                    <div id="transaction-detail-content"></div>
+                    <div id="transaction-invoice-content" class="hidden"></div>
+                </div>
+                <div id="transaction-detail-footer" class="p-4 bg-slate-50 dark:bg-slate-900/50 flex justify-end gap-3 rounded-b-lg border-t border-slate-200 dark:border-slate-800 flex-shrink-0">
+                    <button id="toggle-invoice-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm">View Invoice</button>
+                    <button id="save-invoice-btn" class="hidden px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm">Save as PNG</button>
+                </div>
+            </div>
+        </div>
 
-        function renderPageContent(section) {
-            if (contacts === null || transactions === null) return;
-            mainContent.innerHTML = templates[section]();
-            // ... Attach listeners specific to the rendered section ...
-        }
+        <div id="payment-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-800">
+                <div class="p-6">
+                    <h2 id="payment-modal-title" class="text-xl font-bold mb-1 text-slate-900 dark:text-white">Add Payment</h2>
+                    <p class="mb-4 text-sm text-slate-500 dark:text-slate-400">Amount Due: <span id="payment-due-amount" class="font-semibold"></span></p>
+                    <div class="space-y-4">
+                        <div><label for="payment-date" class="font-semibold text-sm">Date</label><input type="date" id="payment-date" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"></div>
+                        <div><label for="payment-amount" class="font-semibold text-sm">Amount</label><input type="number" id="payment-amount" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"></div>
+                        <div><label for="partial-payment-method" class="font-semibold text-sm">Method</label><select id="partial-payment-method" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
+                    </div>
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-900/50 p-4 flex justify-end gap-3 rounded-b-lg border-t border-slate-200 dark:border-slate-800"><button data-close-modal="payment-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm">Cancel</button><button id="save-payment-btn" class="px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm">Save Payment</button></div>
+            </div>
+        </div>
         
-        // --- AUTHENTICATION & INITIALIZATION ---
-        onAuthStateChanged(auth, user => {
-            const loadingContainer = document.getElementById('loading-container');
-            const authContainer = document.getElementById('auth-container');
-            const appLayout = document.getElementById('app-layout');
+        <div id="direct-payment-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-800">
+                <form id="direct-payment-form">
+                    <div class="p-6">
+                        <h2 id="direct-payment-modal-title" class="text-xl font-bold mb-4 text-slate-900 dark:text-white">Add Direct Payment</h2>
+                        <input type="hidden" id="direct-payment-contact-id">
+                        <input type="hidden" id="direct-payment-contact-name">
+                        <div class="space-y-4">
+                            <div><label for="direct-payment-date" class="font-semibold text-sm">Date</label><input type="date" id="direct-payment-date" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800" required></div>
+                            <div><label for="direct-payment-amount" class="font-semibold text-sm">Amount</label><input type="number" step="any" id="direct-payment-amount" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800" required></div>
+                            <div><label for="direct-payment-method" class="font-semibold text-sm">Method</label><select id="direct-payment-method" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
+                            <div><label for="direct-payment-desc" class="font-semibold text-sm">Description / Note</label><input type="text" id="direct-payment-desc" placeholder="e.g., Advance Payment" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800" required></div>
+                            <div><label class="font-semibold text-sm">Payment Type</label><div class="flex gap-4 mt-1"><label class="flex items-center gap-2"><input type="radio" name="direct-payment-type" value="made" class="form-radio"> Payment Made</label><label class="flex items-center gap-2"><input type="radio" name="direct-payment-type" value="received" class="form-radio"> Payment Received</label></div></div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-900/50 p-4 flex justify-end gap-3 rounded-b-lg border-t border-slate-200 dark:border-slate-800"><button type="button" data-close-modal="direct-payment-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm">Save Payment</button></div>
+                </form>
+            </div>
+        </div>
 
-            if (user) {
-                currentUserId = user.uid;
-                appLayout.classList.remove('hidden');
-                authContainer.classList.add('hidden');
-                
-                document.getElementById('user-email').textContent = user.email;
-                document.getElementById('user-initial').textContent = user.email.charAt(0).toUpperCase();
+        <div id="statement-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg w-full max-w-7xl h-[90vh] flex flex-col border border-slate-200 dark:border-slate-800">
+                <div class="p-4 flex justify-between items-center border-b dark:border-slate-800 flex-shrink-0">
+                    <h2 id="statement-title" class="text-xl font-bold text-slate-900 dark:text-white">Statement</h2>
+                    <div class="flex items-center gap-2">
+                        <button id="statement-csv-btn" class="px-3 py-1.5 text-sm rounded-md font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600">CSV</button>
+                        <button id="statement-png-btn" class="px-3 py-1.5 text-sm rounded-md font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600">PNG</button>
+                        <button id="statement-pdf-btn" class="px-3 py-1.5 text-sm rounded-md font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600">PDF</button>
+                        <button data-close-modal="statement-modal" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 -mr-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-y-auto flex-grow" id="statement-content-wrapper">
+                    <div class="p-6" id="statement-content"></div>
+                </div>
+                 <div id="statement-pagination-controls" class="p-4 flex justify-center items-center gap-2 border-t dark:border-slate-800 flex-shrink-0"></div>
+            </div>
+        </div>
 
-                document.getElementById('logout-btn').onclick = () => signOut(auth);
-                document.getElementById('profile-btn').onclick = () => document.getElementById('profile-menu').classList.toggle('hidden');
-                document.getElementById('hamburger-btn').onclick = () => document.getElementById('sidebar').classList.toggle('-translate-x-full');
-                document.querySelectorAll('.nav-link').forEach(link => link.onclick = () => navigateTo(link.dataset.section));
+        <div id="contact-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-800">
+                <form id="contact-form">
+                    <div class="p-6">
+                        <h2 id="contact-form-title" class="text-xl font-bold mb-4 text-slate-900 dark:text-white">Add New Contact</h2>
+                        <input type="hidden" id="contact-id">
+                        <div class="space-y-4">
+                            <div><label class="font-semibold text-sm">Party Type</label><div class="flex gap-4 mt-2"><label class="flex items-center gap-2"><input type="radio" name="contact-type" value="supplier" class="form-radio" checked> Supplier</label><label class="flex items-center gap-2"><input type="radio" name="contact-type" value="buyer" class="form-radio"> Buyer</label></div></div>
+                            <div><label for="contact-name" class="font-semibold text-sm">Full Name</label><input type="text" id="contact-name" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"></div>
+                            <div><label for="contact-phone" class="font-semibold text-sm">Phone Number</label><input type="tel" id="contact-phone" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"></div>
+                            <div><label for="contact-address" class="font-semibold text-sm">Address</label><textarea id="contact-address" rows="3" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800" placeholder="Contact's address"></textarea></div>
+                            
+                            <div id="opening-balance-section" class="pt-4 border-t dark:border-slate-700">
+                                <p class="font-semibold text-sm">Opening Balance</p>
+                                <div class="mt-2 space-y-2">
+                                    <div>
+                                        <label for="contact-opening-balance" class="sr-only">Amount</label>
+                                        <input type="number" step="any" id="contact-opening-balance" placeholder="0.00" class="w-full p-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800">
+                                    </div>
+                                    <div class="flex gap-4 text-sm">
+                                        <label class="flex items-center gap-2"><input type="radio" name="opening-balance-type" value="receivable" class="form-radio" checked> Receivable (They Owe You)</label>
+                                        <label class="flex items-center gap-2"><input type="radio" name="opening-balance-type" value="payable" class="form-radio"> Payable (You Owe Them)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-900/50 p-4 flex justify-end gap-3 rounded-b-lg border-t border-slate-200 dark:border-slate-800"><button type="button" data-close-modal="contact-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm">Save Contact</button></div>
+                </form>
+            </div>
+        </div>
 
-                if (contactsUnsubscribe) contactsUnsubscribe();
-                contactsUnsubscribe = onSnapshot(query(collection(db, "users", user.uid, "contacts"), orderBy("name")), snapshot => {
-                    contacts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    renderPageContent(document.querySelector('.nav-link.active')?.dataset.section || 'dashboard');
-                });
-                if (transactionsUnsubscribe) transactionsUnsubscribe();
-                transactionsUnsubscribe = onSnapshot(query(collection(db, "users", user.uid, "transactions"), orderBy("date", "desc")), snapshot => {
-                    transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    renderPageContent(document.querySelector('.nav-link.active')?.dataset.section || 'dashboard');
-                });
-                
-                navigateTo('dashboard');
-            } else {
-                if (contactsUnsubscribe) contactsUnsubscribe();
-                if (transactionsUnsubscribe) transactionsUnsubscribe();
-                contacts = null; transactions = null;
-                appLayout.classList.add('hidden');
-                authContainer.classList.remove('hidden');
-                document.getElementById('login-form').onsubmit = async (e) => {
-                    e.preventDefault();
-                    const email = document.getElementById('email').value;
-                    const password = document.getElementById('password').value;
-                    const errorP = document.getElementById('auth-error');
-                    errorP.textContent = '';
-                    try {
-                        await signInWithEmailAndPassword(auth, email, password);
-                    } catch (error) {
-                        errorP.textContent = "Invalid email or password.";
-                    }
-                };
-            }
-            loadingContainer.classList.add('hidden');
-        });
-    </script>
+        <div id="password-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-800">
+                <form id="password-change-form">
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold mb-4 text-slate-900 dark:text-white">Change Password</h2>
+                        <div class="space-y-4">
+                            <div><label for="current-password" class="font-semibold text-sm">Current Password</label><input type="password" id="current-password" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800" required></div>
+                            <div><label for="new-password" class="font-semibold text-sm">New Password</label><input type="password" id="new-password" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800" required></div>
+                            <div><label for="confirm-password" class="font-semibold text-sm">Confirm New Password</label><input type="password" id="confirm-password" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800" required></div>
+                            <p id="password-error" class="text-rose-500 text-sm h-4"></p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-900/50 p-4 flex justify-end gap-3 rounded-b-lg border-t border-slate-200 dark:border-slate-800"><button type="button" data-close-modal="password-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm">Save Changes</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+    
 </body>
 </html>
