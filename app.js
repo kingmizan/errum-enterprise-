@@ -29,7 +29,21 @@ const mainContent = document.getElementById('app-content');
 // --- ALL APP FUNCTIONS ---
 const appLogic = (() => {
     const getPayments = (history) => (history || []).reduce((sum, p) => sum + p.amount, 0);
-    
+
+    // --- NEW HELPER: Create Avatar ---
+    const createAvatar = (name) => {
+        if (!name) return `<div class="avatar" style="background-color: #94a3b8;">?</div>`;
+        const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2);
+        
+        // Simple hash to get a consistent color
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) {
+            hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const h = hash % 360;
+        return `<div class="avatar" style="background-color: hsl(${h}, 50%, 40%)">${initials}</div>`;
+    };
+
     const getFilteredTransactions = () => {
         const searchInput = document.getElementById('search-input');
         const allSortedTransactions = [...transactions].sort((a,b) => new Date(b.date) - new Date(a.date));
@@ -116,66 +130,71 @@ const appLogic = (() => {
         animateCountUp(document.getElementById('total-profit'), profit);
     };
 
+    // --- REWRITTEN: renderTransactionHistory ---
     const renderTransactionHistory = (data) => {
-        const tbody = document.getElementById('transaction-history-body'); if(!tbody) return; 
-        
+        const listContainer = document.getElementById('transaction-history-list');
+        if (!listContainer) return;
+
         const startIndex = (dashboardCurrentPage - 1) * dashboardItemsPerPage;
         const endIndex = startIndex + dashboardItemsPerPage;
         const pageData = data.slice(startIndex, endIndex);
 
-        tbody.innerHTML = '';
-        if (pageData.length === 0) { 
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-500 dark:text-slate-400"><div class="flex flex-col items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg><h3 class="font-semibold mt-2">No Transactions Found</h3><p>Your recorded transactions will appear here.</p></div></td></tr>`; 
-            return; 
+        listContainer.innerHTML = '';
+        if (pageData.length === 0) {
+            listContainer.innerHTML = `<div class="text-center py-12 text-slate-500 dark:dark-text-secondary"><div class="flex flex-col items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg><h3 class="font-semibold mt-2">No Transactions Found</h3><p>Your recorded transactions will appear here.</p></div></div>`;
+            return;
         }
-        
-        pageData.forEach(t => {
-            const row = document.createElement('tr'); 
-            row.className = 'odd:bg-slate-50 dark:odd:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800/50 border-b dark:border-slate-800 md:border-b-0 cursor-pointer';
-            row.dataset.id = t.id;
 
-            let detailsHtml, valueHtml, payableBalHtml, receivableBalHtml, actionsHtml;
+        let lastDate = null;
+        pageData.forEach(t => {
+            // Group by Date
+            if (t.date !== lastDate) {
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'date-header';
+                dateHeader.textContent = t.date;
+                listContainer.appendChild(dateHeader);
+                lastDate = t.date;
+            }
+
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'transaction-item';
+            itemDiv.dataset.id = t.id;
+
+            let avatarHtml, detailsHtml, amountHtml;
 
             if (t.type === 'trade') {
-                const paidToSupplier = getPayments(t.paymentsToSupplier);
-                const receivedFromBuyer = getPayments(t.paymentsFromBuyer);
-                const payableBalance = t.supplierTotal - paidToSupplier;
-                const receivableBalance = t.buyerTotal - receivedFromBuyer;
-                detailsHtml = `<div class="font-medium text-slate-900 dark:text-slate-100">${t.item}</div><div class="text-xs text-slate-500">${t.supplierName} → ${t.buyerName}</div>`;
-                valueHtml = `৳${(t.profit || 0).toFixed(2)}`;
-                payableBalHtml = `<span class="font-semibold ${payableBalance > 0.01 ? 'text-rose-500' : 'text-slate-500'}">৳${payableBalance.toFixed(2)}</span>`;
-                receivableBalHtml = `<span class="font-semibold ${receivableBalance > 0.01 ? 'text-green-600' : 'text-slate-500'}">৳${receivableBalance.toFixed(2)}</span>`;
-                actionsHtml = `<div class="flex justify-end md:justify-center items-center gap-2">
-                    ${payableBalance > 0.01 ? `<button title="Pay Supplier" data-payment-id="${t.id}" data-payment-type="toSupplier" class="px-2 py-1 text-xs rounded font-semibold text-rose-700 bg-rose-100 hover:bg-rose-200">Pay</button>` : ''}
-                    ${receivableBalance > 0.01 ? `<button title="Receive from Buyer" data-payment-id="${t.id}" data-payment-type="fromBuyer" class="px-2 py-1 text-xs rounded font-semibold text-green-700 bg-green-100 hover:bg-green-200">Receive</button>` : ''}
-                    <button title="Edit" data-edit-id="${t.id}" class="p-1 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
-                    <button title="Delete" data-delete-id="${t.id}" class="p-1 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/50 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
-                </div>`;
+                avatarHtml = createAvatar(t.supplierName);
+                detailsHtml = `
+                    <div class="font-semibold dark:dark-text-primary">${t.supplierName} → ${t.buyerName}</div>
+                    <div class="text-sm text-slate-500 dark:dark-text-secondary">${t.item}</div>
+                `;
+                const profitClass = t.profit >= 0 ? 'text-green-600' : 'text-rose-500';
+                amountHtml = `<div class="transaction-amount ${profitClass}">৳${(t.profit || 0).toFixed(2)}</div>`;
             } else if (t.type === 'payment') {
-                detailsHtml = `<div class="font-medium text-slate-900 dark:text-slate-100">${t.description} (${t.paymentType})</div><div class="text-xs text-slate-500">${t.name}</div>`;
-                valueHtml = `৳${(t.amount || 0).toFixed(2)}`;
-                payableBalHtml = '<span class="text-slate-400">-</span>';
-                receivableBalHtml = '<span class="text-slate-400">-</span>';
-                actionsHtml = `<div class="flex justify-end md:justify-center items-center gap-1">
-                    <button title="Delete" data-delete-id="${t.id}" class="p-1 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/50 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
-                </div>`;
+                avatarHtml = createAvatar(t.name);
+                const typeClass = t.paymentType === 'made' ? 'text-rose-500' : 'text-green-600';
+                detailsHtml = `
+                    <div class="font-semibold dark:dark-text-primary">${t.name}</div>
+                    <div class="text-sm text-slate-500 dark:dark-text-secondary">${t.description}</div>
+                `;
+                amountHtml = `<div class="transaction-amount ${typeClass}">${t.paymentType === 'made' ? '-' : '+'} ৳${(t.amount || 0).toFixed(2)}</div>`;
             }
-            
-            row.innerHTML = `
-                <td data-label="Date" class="py-4 px-4 align-top">${t.date}</td>
-                <td data-label="Details" class="py-4 px-4 align-top">${detailsHtml}</td>
-                <td data-label="Profit/Value" class="py-4 px-4 align-top text-right font-medium">${valueHtml}</td>
-                <td data-label="Payable Bal" class="py-4 px-4 align-top text-right">${payableBalHtml}</td>
-                <td data-label="Receivable Bal" class="py-4 px-4 align-top text-right">${receivableBalHtml}</td>
-                <td data-label="Actions" class="py-4 px-4 align-top actions-cell">${actionsHtml}</td>
+
+            itemDiv.innerHTML = `
+                ${avatarHtml}
+                <div class="transaction-details">
+                    ${detailsHtml}
+                </div>
+                ${amountHtml}
             `;
-            tbody.appendChild(row);
+            listContainer.appendChild(itemDiv);
         });
     };
 
+
     const renderContacts = () => {
         const tbody = document.getElementById('contacts-table-body'); if (!tbody) return; tbody.innerHTML = '';
-        if (contacts.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-500 dark:text-slate-400">No contacts found. Add one to get started!</td></tr>`; return; }
+        if (contacts.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-500 dark:dark-text-secondary">No contacts found. Add one to get started!</td></tr>`; return; }
         
         contacts.forEach(c => {
             // --- Calculate Net Balance ---
@@ -221,13 +240,13 @@ const appLogic = (() => {
             }
             
             // --- Render the Row ---
-            const row = document.createElement('tr'); row.className = 'odd:bg-slate-50 dark:odd:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800/50 border-b dark:border-slate-800 md:border-b-0';
+            const row = document.createElement('tr'); row.className = 'odd:bg-slate-50 dark:odd:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800/50 border-b dark:dark-border-subtle md:border-b-0';
             row.innerHTML = `<td data-label="Name" class="py-4 px-4 align-middle">
-                                <button data-ledger-id="${c.id}" class="font-medium text-slate-900 dark:text-slate-100 hover:text-teal-600 dark:hover:text-teal-400 text-left cursor-pointer">${c.name}</button>
+                                <button data-ledger-id="${c.id}" class="font-medium text-slate-900 dark:dark-text-primary hover:text-teal-600 dark:hover:text-teal-400 text-left cursor-pointer">${c.name}</button>
                                </td>
                                <td data-label="Type" class="py-4 px-4 align-middle">${typeBadge}</td>
                                <td data-label="Phone" class="py-4 px-4 align-middle">${c.phone || 'N/A'}</td>
-                               <td data-label="Last Active" class="py-4 px-4 align-middle font-medium text-slate-600 dark:text-slate-400">${lastTransactionDate}</td>
+                               <td data-label="Last Active" class="py-4 px-4 align-middle font-medium text-slate-600 dark:dark-text-secondary">${lastTransactionDate}</td>
                                <td data-label="Net Balance" class="py-4 px-4 align-middle font-bold text-right ${balanceClass}">${balanceText}</td>
                                <td data-label="Actions" class="py-4 px-4 align-middle actions-cell">
                                 <div class="flex justify-end md:justify-center items-center gap-1">
@@ -924,7 +943,6 @@ const appLogic = (() => {
                 headStyles: { halign: 'center', valign: 'middle' }
             });
 
-            // --- PDF FINAL BALANCE FIX ---
             const finalY = doc.lastAutoTable.finalY;
             const pageWidth = doc.internal.pageSize.getWidth();
             const margin = doc.lastAutoTable.settings.margin.right;
@@ -944,7 +962,6 @@ const appLogic = (() => {
             doc.setFont(undefined, 'bold');
             doc.text(balanceText, pageWidth - margin - 100, finalY + 25, { align: 'right' });
             doc.text(balanceValue, pageWidth - margin, finalY + 25, { align: 'right' });
-            // --- END OF FIX ---
 
             doc.save(`${filename}.pdf`);
         }
@@ -1075,7 +1092,7 @@ const appLogic = (() => {
                               <p><strong class="w-24 inline-block text-slate-500">Net Weight:</strong> ${t.netWeight.toFixed(2)} kg</p>
                          </div>
                      </div>
-                    <div class="p-4 rounded-lg border dark:border-slate-700">
+                    <div class="p-4 rounded-lg border dark:dark-border-subtle">
                          <h3 class="font-bold text-lg text-teal-600 mb-2">Financial Summary</h3>
                          <div class="text-sm space-y-1">
                              <p><strong class="w-24 inline-block text-slate-500">Gross Profit:</strong> ৳${t.profit.toFixed(2)}</p>
@@ -1092,8 +1109,8 @@ const appLogic = (() => {
                      <div class="flex justify-between items-start mb-8">
                          <div>
                              <h1 class="text-2xl font-bold text-slate-900">Errum Enterprise</h1>
-                             <p class="text-slate-500">Poradah, Kushtia</p>
-                             <p class="text-slate-500">Khulna, Bangladesh</p>
+                             <p class="text-slate-500">Your Company Address</p>
+                             <p class="text-slate-500">Chattogram, Bangladesh</p>
                          </div>
                          <div class="text-right">
                              <h2 class="text-3xl font-bold text-slate-400 uppercase">Invoice</h2>
@@ -1238,20 +1255,11 @@ const bindSectionEventListeners = (section) => {
         document.getElementById('filter-start-date').addEventListener('change', () => { dashboardCurrentPage = 1; appLogic.renderAll(); });
         document.getElementById('filter-end-date').addEventListener('change', () => { dashboardCurrentPage = 1; appLogic.renderAll(); });
         
-        const tbody = document.getElementById('transaction-history-body');
-        tbody.addEventListener('click', (e) => {
-            const button = e.target.closest('button');
-            if (button && button.closest('td')?.classList.contains('actions-cell')) { 
-                e.stopPropagation();
-                const { editId, deleteId, paymentId, paymentType } = button.dataset;
-                if (editId) { navigateTo('transaction-form').then(() => appLogic.setupTradeFormForEdit(editId)); }
-                if (deleteId) appLogic.handleDelete(deleteId); 
-                if (paymentId) appLogic.openPaymentModal(paymentId, paymentType); 
-            } else { 
-                const row = e.target.closest('tr[data-id]');
-                if (row) {
-                    appLogic.showTransactionDetailsModal(row.dataset.id);
-                }
+        const list = document.getElementById('transaction-history-list');
+        list.addEventListener('click', (e) => {
+            const item = e.target.closest('.transaction-item');
+            if (item && item.dataset.id) {
+                appLogic.showTransactionDetailsModal(item.dataset.id);
             }
         });
     } else if (section === 'contacts') {
