@@ -1,6 +1,4 @@
 // --- state.js ---
-// Centralized state for the entire application
-
 export let state = {
     transactions: [],
     contacts: [],
@@ -10,5 +8,7 @@ export let state = {
     currentPaymentInfo: { id: null, type: null },
     dashboardCurrentPage: 1,
     dashboardItemsPerPage: 7,
+    statementCurrentPage: 1,
+    statementItemsPerPage: 10,
     currentStatementData: { type: null, data: [], name: '' }
 };
