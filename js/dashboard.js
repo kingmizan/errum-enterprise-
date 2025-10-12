@@ -2,8 +2,8 @@
 
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { auth } from './firebase.js';
-// ✨ FIX: This import was missing or incorrect, causing the error.
-import { renderAppLayout, updateUserEmail } from './shared.js';
+import { renderHeaderAndNav, updateUserEmail } from './shared.js'; 
+// ... other imports
 import { listenToContacts, listenToTransactions } from './api.js';
 import { initializeAuthEventListeners } from './auth.js';
 import { animateCountUp } from './ui.js';
