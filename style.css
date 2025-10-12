@@ -66,7 +66,7 @@ body {
     .responsive-table tr {
         display: block; 
         border: 1px solid #e2e8f0; 
-        border-radius: 0.75rem; /* More rounded */
+        border-radius: 0.75rem;
         margin-bottom: 1rem; 
         padding: 1rem;
         background-color: white;
