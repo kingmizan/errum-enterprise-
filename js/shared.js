@@ -4,7 +4,8 @@ import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/
 import { auth } from './firebase.js';
 
 /**
- * Checks if a user is logged in. If not, it redirects them to the login page.
+ * Checks if a user is logged in and redirects if not.
+ * This function IS EXPORTED.
  * @returns {Promise<object|null>}
  */
 export function checkAuth() {
@@ -24,11 +25,11 @@ export function checkAuth() {
 }
 
 /**
- * ✨ FIX: This function is now correctly EXPORTED.
- * Injects the header and navigation into the page and sets the active link.
+ * Renders the header and navigation.
+ * ✨ THIS IS THE CRITICAL FIX: The 'export' keyword makes this function available.
  * @param {string} activePage - The name of the current page.
  */
-export function renderAppLayout(activePage) {
+export function renderHeaderAndNav(activePage) {
     const placeholder = document.getElementById('header-nav-placeholder');
     if (!placeholder) return;
 
@@ -55,7 +56,6 @@ export function renderAppLayout(activePage) {
     document.getElementById('logout-btn')?.addEventListener('click', () => {
         signOut(auth).catch(error => console.error("Logout Error:", error));
     });
-
     document.getElementById('settings-btn')?.addEventListener('click', () => {
         alert('Settings / Change Password modal would open here.');
     });
@@ -63,6 +63,7 @@ export function renderAppLayout(activePage) {
 
 /**
  * Updates the user's email in the header.
+ * This function IS EXPORTED.
  */
 export function updateUserEmail(email) {
     const userEmailEl = document.getElementById('user-email');
