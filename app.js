@@ -256,6 +256,8 @@ const appLogic = (() => {
                 valueHtml = `৳${(t.profit || 0).toFixed(2)}`;
                 payableBalHtml = `<span class="font-semibold ${payableBalance > 0.01 ? 'text-rose-500' : 'text-slate-500'}">৳${payableBalance.toFixed(2)}</span>`;
                 receivableBalHtml = `<span class="font-semibold ${receivableBalance > 0.01 ? 'text-green-600' : 'text-slate-500'}">৳${receivableBalance.toFixed(2)}</span>`;
+                
+                // FIX: Ensure all action buttons are generated here
                 actionsHtml = `<div class="flex justify-end md:justify-center items-center gap-2">
                     ${payableBalance > 0.01 ? `<button title="Pay Supplier" data-payment-id="${t.id}" data-payment-type="toSupplier" class="px-2 py-1 text-xs rounded font-semibold text-rose-700 bg-rose-100 hover:bg-rose-200">Pay</button>` : ''}
                     ${receivableBalance > 0.01 ? `<button title="Receive from Buyer" data-payment-id="${t.id}" data-payment-type="fromBuyer" class="px-2 py-1 text-xs rounded font-semibold text-green-700 bg-green-100 hover:bg-green-200">Receive</button>` : ''}
@@ -808,7 +810,6 @@ const appLogic = (() => {
     const generateOverallStatement = (page, itemsPerPage) => {
         let ledgerItems = [];
 
-        // ***** FIX: ADD OPENING BALANCES TO THE CALCULATION *****
         contacts.forEach(c => {
             if (c.openingBalance && c.openingBalance.amount > 0) {
                 ledgerItems.push({
@@ -847,17 +848,15 @@ const appLogic = (() => {
             }
         });
 
-        // Calculate running balance on the full sorted list
         ledgerItems.sort((a, b) => new Date(a.date) - new Date(b.date));
         let runningBalance = 0;
         ledgerItems.forEach(item => {
             runningBalance += (item.debit || 0) - (item.credit || 0);
             item.balance = runningBalance;
         });
-        ledgerItems.reverse(); // Newest first for display
+        ledgerItems.reverse();
         currentStatementData = { type: 'overall', data: ledgerItems, name: 'Overall' };
 
-        // Paginate the results
         const totalItems = ledgerItems.length;
         const totalPages = Math.ceil(totalItems / itemsPerPage);
         const startIndex = (page - 1) * itemsPerPage;
@@ -960,8 +959,7 @@ const appLogic = (() => {
             showToast(`Generating PDF...`);
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'l', unit: 'pt', format: 'a4' });
-            doc.setFont('Inter', 'normal');
-
+            
             const head = [];
             const body = [];
             let finalBalance = 0;
@@ -969,7 +967,9 @@ const appLogic = (() => {
             if (type === 'contact') {
                 head.push(['Date', 'Description', 'Vehicle', 'Net Wt.', 'Rate', 'Debit', 'Credit', 'Balance']);
                 let runningBalance = 0;
-                data.forEach(item => {
+                // Use a chronological copy for PDF
+                const chronologicalData = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
+                chronologicalData.forEach(item => {
                     runningBalance += (item.debit || 0) - (item.credit || 0);
                     const bal = runningBalance > 0.01 ? `${runningBalance.toFixed(2)} Dr` : runningBalance < -0.01 ? `${Math.abs(runningBalance).toFixed(2)} Cr` : '0.00';
                     body.push([
@@ -983,22 +983,19 @@ const appLogic = (() => {
                 });
                 finalBalance = runningBalance;
                 
-                // ***** FIX STARTS HERE *****
-                // Add the final balance as the last row of the table body
+                // FIX: Add the final balance as the last row of the table body
                 const balanceStatus = finalBalance > 0.01 ? "Receivable" : (finalBalance < -0.01 ? "Payable" : "Settled");
                 body.push([
                     { 
                         content: `Final Balance (${balanceStatus}):`, 
-                        colSpan: 8, // Span across 8 of 9 columns
-                        styles: { halign: 'right', fontStyle: 'bold', fontSize: 10 } 
+                        colSpan: 8,
+                        styles: { halign: 'right', fontStyle: 'bold' } 
                     },
                     { 
                         content: `৳${Math.abs(finalBalance).toFixed(2)}`, 
-                        styles: { halign: 'right', fontStyle: 'bold', fontSize: 10 } 
+                        styles: { halign: 'right', fontStyle: 'bold' } 
                     }
                 ]);
-                // ***** FIX ENDS HERE *****
-
             } else { // 'overall' type
                 head.push([
                     { content: 'Date', rowSpan: 2 },
@@ -1011,7 +1008,7 @@ const appLogic = (() => {
                 ]);
                 head.push(['Name / Particulars', 'Net Wt', 'Rate', 'Value', 'Name', 'Net Wt', 'Rate', 'Value']);
                 
-                const chronologicalData = [...data].reverse(); // Use a copy
+                const chronologicalData = [...data].reverse();
                 chronologicalData.forEach(item => {
                     body.push([
                         item.date === '0000-01-01' ? 'Opening' : item.date,
@@ -1031,30 +1028,33 @@ const appLogic = (() => {
                 });
                 finalBalance = chronologicalData.length > 0 ? chronologicalData[chronologicalData.length - 1].balance : 0;
                 
-                // ***** FIX STARTS HERE *****
-                // Add the final balance as the last row of the table body
+                // FIX: Add the final balance as the last row
                 const balanceStatus = finalBalance >= 0 ? "Net Receivable" : "Net Payable";
                  body.push([
                     { 
                         content: `Final Net Balance (${balanceStatus}):`, 
-                        colSpan: 12, // Span across 12 of 13 columns
-                        styles: { halign: 'right', fontStyle: 'bold', fontSize: 10 } 
+                        colSpan: 12,
+                        styles: { halign: 'right', fontStyle: 'bold' } 
                     },
                     { 
                         content: `৳${Math.abs(finalBalance).toFixed(2)}`, 
-                        styles: { halign: 'right', fontStyle: 'bold', fontSize: 10 } 
+                        styles: { halign: 'right', fontStyle: 'bold' } 
                     }
                 ]);
-                // ***** FIX ENDS HERE *****
             }
 
             doc.autoTable({
-                head: head, body: body,
+                head: head, 
+                body: body,
+                theme: 'striped',
+                headStyles: { fillColor: [13, 148, 136] }, // Teal color from theme
                 didDrawPage: (data) => {
                     // Header
                     doc.setFontSize(20);
+                    doc.setFont('helvetica', 'bold');
                     doc.text('Errum Enterprise', data.settings.margin.left, 40);
                     doc.setFontSize(12);
+                    doc.setFont('helvetica', 'normal');
                     doc.text(type === 'contact' ? `Account Ledger for: ${name}` : 'Overall Transaction Statement', data.settings.margin.left, 58);
                     
                     // Footer
@@ -1065,8 +1065,15 @@ const appLogic = (() => {
                     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, doc.internal.pageSize.width - data.settings.margin.right, footerY, { align: 'right' });
                 },
                 margin: { top: 70 },
-                styles: { font: 'Inter', fontSize: 8 },
-                headStyles: { halign: 'center', valign: 'middle' }
+                styles: { fontSize: 8 },
+                // FIX: Highlight the final balance row
+                didParseCell: function (data) {
+                    if (data.row.index === body.length - 1) {
+                        data.cell.styles.fontStyle = 'bold';
+                        data.cell.styles.fillColor = '#f1f5f9'; // slate-100
+                        data.cell.styles.textColor = '#0f172a'; // slate-900
+                    }
+                }
             });
 
             doc.save(`${filename}.pdf`);
