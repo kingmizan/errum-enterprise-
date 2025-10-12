@@ -12,8 +12,6 @@ let contactsUnsubscribe = null;
 let currentPaymentInfo = { id: null, type: null };
 let dashboardCurrentPage = 1;
 const dashboardItemsPerPage = 7;
-let statementCurrentPage = 1;
-const statementItemsPerPage = 10;
 let currentStatementData = { type: null, data: [], name: '' };
 
 // --- DOM ELEMENTS ---
@@ -39,9 +37,7 @@ const animateCountUp = (el, endValue) => {
     let startValue = 0;
     const duration = 1500;
     const startTime = performance.now();
-
     const formatNumber = (value) => `৳${value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
-
     const step = (currentTime) => {
         const elapsedTime = currentTime - startTime;
         if (elapsedTime > duration) {
@@ -92,7 +88,6 @@ const templates = {
                     <div><label for="less" class="font-semibold text-sm">Less (kg)</label><input type="number" step="any" id="less" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50"></div>
                     <div><label for="net-weight" class="font-semibold text-sm">Net Weight (kg)</label><input type="number" step="any" id="net-weight" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-100" readonly></div>
                 </div>
-
                 <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                     <div class="space-y-4 p-4 rounded-lg bg-slate-50 border border-slate-200">
                         <h3 class="font-bold text-lg text-rose-500">Supplier Details</h3>
@@ -114,21 +109,47 @@ const templates = {
                         </div>
                     </div>
                 </div>
-                
                 <div class="mt-6 pt-6 border-t border-slate-200 space-y-2">
                     <div><label for="date" class="font-semibold text-sm">Transaction Date</label><input type="date" id="date" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50" required></div>
                     <div class="flex justify-between items-center text-lg"><span class="font-semibold text-slate-500">Total Payable:</span><span id="supplier-total" class="font-bold text-rose-500">৳0.00</span></div>
                     <div class="flex justify-between items-center text-lg"><span class="font-semibold text-slate-500">Total Receivable:</span><span id="buyer-total" class="font-bold text-green-600">৳0.00</span></div>
                     <div class="flex justify-between items-center text-xl"><span class="font-semibold text-slate-800">Gross Profit on Deal:</span><span id="transaction-profit" class="font-bold text-cyan-600">৳0.00</span></div>
                 </div>
-
                 <div class="flex justify-end gap-3 pt-6 mt-4 border-t border-slate-200">
                     <button type="button" id="cancel-transaction-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Cancel</button>
                     <button type="button" id="reset-form-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Reset</button>
                     <button type="submit" class="px-6 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Save Transaction</button>
                 </div>
             </form>
-        </div>`
+        </div>`,
+    statements: `
+        <div>
+            <div class="bg-white rounded-xl shadow-md border border-slate-200 p-6 mb-8">
+                <h2 class="text-xl font-bold text-slate-800 mb-4">Generate a Statement</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <h3 class="font-semibold mb-2">Overall Business Statement</h3>
+                        <p class="text-sm text-slate-500 mb-4">View a complete ledger of all transactions.</p>
+                        <button id="generate-overall-statement-btn" class="px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Generate Overall</button>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <h3 class="font-semibold mb-2">Statement by Party</h3>
+                        <p class="text-sm text-slate-500 mb-4">Select a specific party to view their ledger.</p>
+                        <select id="party-ledger-select" class="w-full p-2 border border-slate-300 rounded-lg bg-white">
+                            <option value="">-- Select a Party --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="statement-output">
+                <div class="text-center py-12 text-slate-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    <h3 class="font-semibold mt-2">No Statement Generated</h3>
+                    <p>Select an option above to view a statement.</p>
+                </div>
+            </div>
+        </div>
+    `
 };
 
 // --- ALL APP FUNCTIONS ---
@@ -186,7 +207,6 @@ const appLogic = (() => {
             }
         });
     };
-
 
     const renderDashboardMetrics = (data) => {
         let totalPayable = 0, totalReceivable = 0;
@@ -284,7 +304,6 @@ const appLogic = (() => {
         if (contacts.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-500">No contacts found. Add one to get started!</td></tr>`; return; }
         
         contacts.forEach(c => {
-            // --- Calculate Net Balance ---
             let netBalance = 0;
             if (c.openingBalance && c.openingBalance.amount > 0) {
                 netBalance = c.openingBalance.type === 'receivable' ? c.openingBalance.amount : -c.openingBalance.amount;
@@ -300,14 +319,12 @@ const appLogic = (() => {
                 }
             });
 
-            // --- Determine Last Active Date ---
             let lastTransactionDate = '<span class="text-slate-400">N/A</span>';
             if (relatedTransactions.length > 0) {
                 relatedTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 lastTransactionDate = relatedTransactions[0].date;
             }
 
-            // --- Setup styles for Type Badge and Balance ---
             const balanceText = `৳${Math.abs(netBalance).toFixed(2)}`;
             let balanceClass = 'text-slate-500';
             if (netBalance > 0.01) balanceClass = 'text-green-600';
@@ -326,7 +343,6 @@ const appLogic = (() => {
                 </span>`;
             }
             
-            // --- Render the Row ---
             const row = document.createElement('tr'); row.className = 'hover:bg-slate-50 border-b border-slate-200 md:border-b-0';
             row.innerHTML = `<td data-label="Name" class="py-4 px-4 align-middle">
                                 <button data-ledger-id="${c.id}" class="font-medium text-slate-800 hover:text-cyan-600 text-left cursor-pointer">${c.name}</button>
@@ -690,12 +706,11 @@ const appLogic = (() => {
         }
     };
     
-    const showContactLedger = (id) => {
+    const renderContactLedger = (id) => {
         const contact = contacts.find(c => c.id === id);
         if (!contact) return;
 
         let ledgerItems = [];
-
         if (contact.openingBalance && contact.openingBalance.amount > 0) {
             ledgerItems.push({
                 date: '0000-01-01', description: 'Opening Balance', vehicleNo: '-', scaleWeight: 0, netWeight: 0, rate: 0,
@@ -703,34 +718,18 @@ const appLogic = (() => {
                 credit: contact.openingBalance.type === 'payable' ? contact.openingBalance.amount : 0,
             });
         }
-
         transactions.forEach(t => {
             if (t.type === 'trade') {
                 if (t.supplierName === contact.name) {
-                    ledgerItems.push({ 
-                        date: t.date, description: `Purchase: ${t.item}`, vehicleNo: t.vehicleNo || '-',
-                        scaleWeight: t.scaleWeight || 0, netWeight: t.netWeight || t.weight || 0, rate: t.supplierRate || 0,
-                        debit: 0, credit: t.supplierTotal 
-                    });
-                    (t.paymentsToSupplier || []).forEach(p => {
-                        ledgerItems.push({ date: p.date, description: `Payment Made (${p.method})`, vehicleNo: '-', scaleWeight: 0, netWeight: 0, rate: 0, debit: p.amount, credit: 0 });
-                    });
+                    ledgerItems.push({ date: t.date, description: `Purchase: ${t.item}`, vehicleNo: t.vehicleNo || '-', scaleWeight: t.scaleWeight || 0, netWeight: t.netWeight || t.weight || 0, rate: t.supplierRate || 0, debit: 0, credit: t.supplierTotal });
+                    (t.paymentsToSupplier || []).forEach(p => ledgerItems.push({ date: p.date, description: `Payment Made (${p.method})`, vehicleNo: '-', scaleWeight: 0, netWeight: 0, rate: 0, debit: p.amount, credit: 0 }));
                 }
                 if (t.buyerName === contact.name) {
-                    ledgerItems.push({ 
-                        date: t.date, description: `Sale: ${t.item}`, vehicleNo: t.vehicleNo || '-',
-                        scaleWeight: t.scaleWeight || 0, netWeight: t.netWeight || t.weight || 0, rate: t.buyerRate || 0,
-                        debit: t.buyerTotal, credit: 0 
-                    });
-                    (t.paymentsFromBuyer || []).forEach(p => {
-                        ledgerItems.push({ date: p.date, description: `Payment Received (${p.method})`, vehicleNo: '-', scaleWeight: 0, netWeight: 0, rate: 0, debit: 0, credit: p.amount });
-                    });
+                    ledgerItems.push({ date: t.date, description: `Sale: ${t.item}`, vehicleNo: t.vehicleNo || '-', scaleWeight: t.scaleWeight || 0, netWeight: t.netWeight || t.weight || 0, rate: t.buyerRate || 0, debit: t.buyerTotal, credit: 0 });
+                    (t.paymentsFromBuyer || []).forEach(p => ledgerItems.push({ date: p.date, description: `Payment Received (${p.method})`, vehicleNo: '-', scaleWeight: 0, netWeight: 0, rate: 0, debit: 0, credit: p.amount }));
                 }
             } else if (t.type === 'payment' && t.name === contact.name) {
-                ledgerItems.push({
-                    date: t.date, description: `Direct Payment - ${t.description}`, vehicleNo: '-', scaleWeight: 0, netWeight: 0, rate: 0,
-                    debit: t.paymentType === 'made' ? t.amount : 0, credit: t.paymentType === 'received' ? t.amount : 0,
-                });
+                ledgerItems.push({ date: t.date, description: `Direct Payment - ${t.description}`, vehicleNo: '-', scaleWeight: 0, netWeight: 0, rate: 0, debit: t.paymentType === 'made' ? t.amount : 0, credit: t.paymentType === 'received' ? t.amount : 0 });
             }
         });
         
@@ -742,15 +741,10 @@ const appLogic = (() => {
             runningBalance += (item.debit - item.credit);
             const bal = runningBalance > 0.01 ? `৳${runningBalance.toFixed(2)} Dr` : runningBalance < -0.01 ? `৳${Math.abs(runningBalance).toFixed(2)} Cr` : '৳0.00';
             return `<tr class="border-b border-slate-200 text-sm">
-                <td class="p-2 whitespace-nowrap">${item.date === '0000-01-01' ? 'Initial' : item.date}</td>
-                <td class="p-2">${item.description}</td>
-                <td class="p-2">${item.vehicleNo}</td>
-                <td class="p-2 text-right">${item.scaleWeight > 0 ? item.scaleWeight.toFixed(2) : ''}</td>
-                <td class="p-2 text-right">${item.netWeight > 0 ? item.netWeight.toFixed(2) : ''}</td>
-                <td class="p-2 text-right">${item.rate > 0 ? `＠${item.rate.toFixed(2)}` : ''}</td>
-                <td class="p-2 text-right text-green-600">${item.debit > 0 ? `৳${item.debit.toFixed(2)}` : ''}</td>
-                <td class="p-2 text-right text-rose-500">${item.credit > 0 ? `৳${item.credit.toFixed(2)}` : ''}</td>
-                <td class="p-2 text-right font-semibold">${bal}</td>
+                <td class="p-2 whitespace-nowrap">${item.date === '0000-01-01' ? 'Initial' : item.date}</td><td class="p-2">${item.description}</td><td class="p-2">${item.vehicleNo}</td>
+                <td class="p-2 text-right">${item.scaleWeight > 0 ? item.scaleWeight.toFixed(2) : ''}</td><td class="p-2 text-right">${item.netWeight > 0 ? item.netWeight.toFixed(2) : ''}</td>
+                <td class="p-2 text-right">${item.rate > 0 ? `＠${item.rate.toFixed(2)}` : ''}</td><td class="p-2 text-right text-green-600">${item.debit > 0 ? `৳${item.debit.toFixed(2)}` : ''}</td>
+                <td class="p-2 text-right text-rose-500">${item.credit > 0 ? `৳${item.credit.toFixed(2)}` : ''}</td><td class="p-2 text-right font-semibold">${bal}</td>
             </tr>`;
         }).join('');
         
@@ -758,174 +752,114 @@ const appLogic = (() => {
         const balanceStatus = finalBalance > 0.01 ? "Receivable" : (finalBalance < -0.01 ? "Payable" : "Settled");
         const balanceClass = finalBalance > 0.01 ? 'text-green-500' : (finalBalance < -0.01 ? 'text-rose-500' : 'text-slate-500');
 
-        const html = `<div id="statement-to-export" class="bg-white text-slate-800">
-            <div class="text-center mb-6 border-b border-slate-200 pb-4">
-                <h2 class="text-3xl font-bold">Account Ledger</h2>
-                <p class="text-lg">${contact.name}</p>
-                <p class="text-sm text-slate-500">${contact.type.charAt(0).toUpperCase() + contact.type.slice(1)}</p>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full text-xs sm:text-sm mb-6">
-                    <thead class="bg-slate-100"><tr>
-                        <th class="text-left p-2">Date</th>
-                        <th class="text-left p-2">Product</th>
-                        <th class="text-left p-2">Vehicle</th>
-                        <th class="text-right p-2">Scale Wt.</th>
-                        <th class="text-right p-2">Net Wt.</th>
-                        <th class="text-right p-2">Rate</th>
-                        <th class="text-right p-2">Debit (+)</th>
-                        <th class="text-right p-2">Credit (-)</th>
-                        <th class="text-right p-2">Balance</th>
-                    </tr></thead>
-                    <tbody>${ledgerRows}</tbody>
-                </table>
-            </div>
-            <div class="flex justify-end"><div class="w-full md:w-1/2 text-right">
-                <div class="flex justify-between font-bold text-lg border-t border-slate-200 pt-2 mt-2">
-                    <span>Final Balance (${balanceStatus}):</span>
-                    <span class="${balanceClass}">৳${Math.abs(finalBalance).toFixed(2)}</span>
+        document.getElementById('statement-output').innerHTML = `
+            <div id="statement-to-export" class="bg-white rounded-xl shadow-md border border-slate-200 p-6">
+                <div class="flex justify-between items-center mb-4 border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">Account Ledger: ${contact.name}</h2>
+                        <p class="text-sm text-slate-500">${contact.type.charAt(0).toUpperCase() + contact.type.slice(1)}</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="statement-csv-btn" class="px-3 py-1.5 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300">CSV</button>
+                        <button id="statement-png-btn" class="px-3 py-1.5 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300">PNG</button>
+                        <button id="statement-pdf-btn" class="px-3 py-1.5 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300">PDF</button>
+                    </div>
                 </div>
-            </div></div>
-        </div>`;
-
-        document.getElementById('statement-title').textContent = `Ledger: ${contact.name}`;
-        document.getElementById('statement-content').innerHTML = html;
-        document.getElementById('statement-pagination-controls').innerHTML = '';
-        document.getElementById('statement-modal').classList.remove('hidden');
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-xs sm:text-sm mb-6">
+                        <thead class="bg-slate-100"><tr>
+                            <th class="text-left p-2">Date</th><th class="text-left p-2">Product</th><th class="text-left p-2">Vehicle</th>
+                            <th class="text-right p-2">Scale Wt.</th><th class="text-right p-2">Net Wt.</th><th class="text-right p-2">Rate</th>
+                            <th class="text-right p-2">Debit (+)</th><th class="text-right p-2">Credit (-)</th><th class="text-right p-2">Balance</th>
+                        </tr></thead>
+                        <tbody>${ledgerRows}</tbody>
+                    </table>
+                </div>
+                <div class="flex justify-end"><div class="w-full md:w-1/2 text-right">
+                    <div class="flex justify-between font-bold text-lg border-t border-slate-200 pt-2 mt-2">
+                        <span>Final Balance (${balanceStatus}):</span><span class="${balanceClass}">৳${Math.abs(finalBalance).toFixed(2)}</span>
+                    </div>
+                </div></div>
+            </div>`;
+        bindStatementExportButtons();
     };
     
-    const showPaginatedStatement = (page = 1) => {
-        statementCurrentPage = page;
-        generateOverallStatement(statementCurrentPage, statementItemsPerPage);
-        document.getElementById('statement-modal').classList.remove('hidden');
-    }
-
-    const generateOverallStatement = (page, itemsPerPage) => {
+    const renderOverallStatement = () => {
         let ledgerItems = [];
-
         contacts.forEach(c => {
             if (c.openingBalance && c.openingBalance.amount > 0) {
                 ledgerItems.push({
-                    date: '0000-01-01',
-                    supplierName: `Opening Balance - ${c.name}`,
+                    date: '0000-01-01', supplierName: `Opening Balance - ${c.name}`,
                     debit: c.openingBalance.type === 'receivable' ? c.openingBalance.amount : 0,
                     credit: c.openingBalance.type === 'payable' ? c.openingBalance.amount : 0,
                 });
             }
         });
-
         transactions.forEach(t => {
             if (t.type === 'trade') {
-                const initialDebit = (t.paymentsFromBuyer && t.paymentsFromBuyer.length > 0 && t.paymentsFromBuyer[0].date === t.date) ? t.paymentsFromBuyer[0].amount : 0;
-                const initialCredit = (t.paymentsToSupplier && t.paymentsToSupplier.length > 0 && t.paymentsToSupplier[0].date === t.date) ? t.paymentsToSupplier[0].amount : 0;
-                
-                ledgerItems.push({
-                    date: t.date, supplierName: t.supplierName, supplierNetWeight: t.netWeight, supplierRate: t.supplierRate, supplierValue: t.supplierTotal,
-                    buyerName: t.buyerName, buyerNetWeight: t.netWeight, buyerRate: t.buyerRate, buyerValue: t.buyerTotal, profit: t.profit,
-                    debit: initialDebit, credit: initialCredit,
-                });
-
-                (t.paymentsFromBuyer || []).slice(initialDebit ? 1 : 0).forEach(p => {
-                    ledgerItems.push({ date: p.date, supplierName: `(Payment from ${t.buyerName})`, debit: p.amount, credit: 0 });
-                });
-                (t.paymentsToSupplier || []).slice(initialCredit ? 1 : 0).forEach(p => {
-                    ledgerItems.push({ date: p.date, supplierName: `(Payment to ${t.supplierName})`, debit: 0, credit: p.amount });
-                });
-
+                const initialDebit = (t.paymentsFromBuyer?.[0]?.date === t.date) ? t.paymentsFromBuyer[0].amount : 0;
+                const initialCredit = (t.paymentsToSupplier?.[0]?.date === t.date) ? t.paymentsToSupplier[0].amount : 0;
+                ledgerItems.push({ date: t.date, supplierName: t.supplierName, supplierNetWeight: t.netWeight, supplierRate: t.supplierRate, supplierValue: t.supplierTotal, buyerName: t.buyerName, buyerNetWeight: t.netWeight, buyerRate: t.buyerRate, buyerValue: t.buyerTotal, profit: t.profit, debit: initialDebit, credit: initialCredit });
+                (t.paymentsFromBuyer || []).slice(initialDebit ? 1 : 0).forEach(p => ledgerItems.push({ date: p.date, supplierName: `(Payment from ${t.buyerName})`, debit: p.amount, credit: 0 }));
+                (t.paymentsToSupplier || []).slice(initialCredit ? 1 : 0).forEach(p => ledgerItems.push({ date: p.date, supplierName: `(Payment to ${t.supplierName})`, debit: 0, credit: p.amount }));
             } else if (t.type === 'payment') {
-                ledgerItems.push({
-                    date: t.date, supplierName: `(${t.description}) - ${t.name}`,
-                    debit: t.paymentType === 'received' ? t.amount : 0,
-                    credit: t.paymentType === 'made' ? t.amount : 0,
-                });
+                ledgerItems.push({ date: t.date, supplierName: `(${t.description}) - ${t.name}`, debit: t.paymentType === 'received' ? t.amount : 0, credit: t.paymentType === 'made' ? t.amount : 0 });
             }
         });
-
+        
         ledgerItems.sort((a, b) => new Date(a.date) - new Date(b.date));
         let runningBalance = 0;
         ledgerItems.forEach(item => {
             runningBalance += (item.debit || 0) - (item.credit || 0);
             item.balance = runningBalance;
         });
-        ledgerItems.reverse();
+        
         currentStatementData = { type: 'overall', data: ledgerItems, name: 'Overall' };
 
-        const totalItems = ledgerItems.length;
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
-        const startIndex = (page - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        const pageItems = ledgerItems.slice(startIndex, endIndex);
-
-        const rows = pageItems.map(item => {
+        const rows = ledgerItems.map(item => {
             const bal = item.balance >= 0 ? `৳${item.balance.toFixed(2)}` : `(৳${Math.abs(item.balance).toFixed(2)})`;
-
             return `<tr class="border-b border-slate-200 text-sm">
-                <td class="p-2 whitespace-nowrap">${item.date === '0000-01-01' ? 'Opening' : item.date}</td>
-                <td class="p-2">${item.supplierName || ''}</td>
-                <td class="p-2 text-right">${item.supplierNetWeight ? item.supplierNetWeight.toFixed(2) : ''}</td>
-                <td class="p-2 text-right">${item.supplierRate ? `＠${item.supplierRate.toFixed(2)}` : ''}</td>
-                <td class="p-2 text-right">${item.supplierValue ? `৳${item.supplierValue.toFixed(2)}` : ''}</td>
-                <td class="p-2">${item.buyerName || ''}</td>
-                <td class="p-2 text-right">${item.buyerNetWeight ? item.buyerNetWeight.toFixed(2) : ''}</td>
-                <td class="p-2 text-right">${item.buyerRate ? `＠${item.buyerRate.toFixed(2)}` : ''}</td>
-                <td class="p-2 text-right">${item.buyerValue ? `৳${item.buyerValue.toFixed(2)}` : ''}</td>
-                <td class="p-2 text-right">${item.profit !== undefined ? `৳${item.profit.toFixed(2)}` : ''}</td>
-                <td class="p-2 text-right text-green-600">${item.debit ? `৳${item.debit.toFixed(2)}` : ''}</td>
-                <td class="p-2 text-right text-rose-500">${item.credit ? `৳${item.credit.toFixed(2)}` : ''}</td>
+                <td class="p-2 whitespace-nowrap">${item.date === '0000-01-01' ? 'Opening' : item.date}</td><td class="p-2">${item.supplierName || ''}</td>
+                <td class="p-2 text-right">${item.supplierNetWeight ? item.supplierNetWeight.toFixed(2) : ''}</td><td class="p-2 text-right">${item.supplierRate ? `＠${item.supplierRate.toFixed(2)}` : ''}</td>
+                <td class="p-2 text-right">${item.supplierValue ? `৳${item.supplierValue.toFixed(2)}` : ''}</td><td class="p-2">${item.buyerName || ''}</td>
+                <td class="p-2 text-right">${item.buyerNetWeight ? item.buyerNetWeight.toFixed(2) : ''}</td><td class="p-2 text-right">${item.buyerRate ? `＠${item.buyerRate.toFixed(2)}` : ''}</td>
+                <td class="p-2 text-right">${item.buyerValue ? `৳${item.buyerValue.toFixed(2)}` : ''}</td><td class="p-2 text-right">${item.profit !== undefined ? `৳${item.profit.toFixed(2)}` : ''}</td>
+                <td class="p-2 text-right text-green-600">${item.debit ? `৳${item.debit.toFixed(2)}` : ''}</td><td class="p-2 text-right text-rose-500">${item.credit ? `৳${item.credit.toFixed(2)}` : ''}</td>
                 <td class="p-2 text-right font-semibold">${bal}</td>
             </tr>`;
         }).join('');
 
-        const html = `<div id="statement-to-export" class="bg-white text-slate-800">
-            <div class="text-center mb-6 border-b border-slate-200 pb-4">
-                <h2 class="text-3xl font-bold">Statement</h2>
-                <p class="text-lg">Full Transaction History</p>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full text-xs sm:text-sm mb-6">
-                    <thead class="bg-slate-100">
-                        <tr>
-                            <th rowspan="2" class="text-left p-2 border border-slate-200">Date</th>
-                            <th colspan="4" class="text-center p-2 border border-slate-200">Supplier Details</th>
-                            <th colspan="4" class="text-center p-2 border border-slate-200">Buyer Details</th>
-                            <th rowspan="2" class="text-right p-2 border border-slate-200">Profit</th>
-                            <th rowspan="2" class="text-right p-2 border border-slate-200">Debit (In)</th>
-                            <th rowspan="2" class="text-right p-2 border border-slate-200">Credit (Out)</th>
-                            <th rowspan="2" class="text-right p-2 border border-slate-200">Balance</th>
-                        </tr>
-                        <tr>
-                            <th class="text-left p-2 border border-slate-200">Name / Particulars</th>
-                            <th class="text-right p-2 border border-slate-200">Net Wt.</th>
-                            <th class="text-right p-2 border border-slate-200">Rate</th>
-                            <th class="text-right p-2 border border-slate-200">Value</th>
-                            <th class="text-left p-2 border border-slate-200">Name</th>
-                            <th class="text-right p-2 border border-slate-200">Net Wt.</th>
-                            <th class="text-right p-2 border border-slate-200">Rate</th>
-                            <th class="text-right p-2 border border-slate-200">Value</th>
-                        </tr>
-                    </thead>
-                    <tbody>${rows}</tbody>
-                </table>
-            </div>
-        </div>`;
-        
-        document.getElementById('statement-title').textContent = `Statement`;
-        document.getElementById('statement-content').innerHTML = html;
-
-        const controlsContainer = document.getElementById('statement-pagination-controls');
-        if (totalPages > 1) {
-            const prevDisabled = page === 1 ? 'disabled' : '';
-            const nextDisabled = page === totalPages ? 'disabled' : '';
-            controlsContainer.innerHTML = `
-                <button id="statement-prev-btn" class="px-3 py-1 text-xs rounded-md font-semibold bg-slate-200 disabled:opacity-50" ${prevDisabled}>Previous</button>
-                <span class="text-xs font-semibold">Page ${page} of ${totalPages}</span>
-                <button id="statement-next-btn" class="px-3 py-1 text-xs rounded-md font-semibold bg-slate-200 disabled:opacity-50" ${nextDisabled}>Next</button>
-            `;
-            document.getElementById('statement-prev-btn')?.addEventListener('click', () => showPaginatedStatement(page - 1));
-            document.getElementById('statement-next-btn')?.addEventListener('click', () => showPaginatedStatement(page + 1));
-        } else {
-            controlsContainer.innerHTML = '';
-        }
+        document.getElementById('statement-output').innerHTML = `
+            <div id="statement-to-export" class="bg-white rounded-xl shadow-md border border-slate-200 p-6">
+                <div class="flex justify-between items-center mb-4 border-b border-slate-200 pb-4">
+                    <h2 class="text-xl font-bold text-slate-800">Overall Statement</h2>
+                    <div class="flex items-center gap-2">
+                        <button id="statement-csv-btn" class="px-3 py-1.5 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300">CSV</button>
+                        <button id="statement-png-btn" class="px-3 py-1.5 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300">PNG</button>
+                        <button id="statement-pdf-btn" class="px-3 py-1.5 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300">PDF</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-xs sm:text-sm mb-6">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th rowspan="2" class="text-left p-2 border border-slate-200">Date</th><th colspan="4" class="text-center p-2 border border-slate-200">Supplier Details</th>
+                                <th colspan="4" class="text-center p-2 border border-slate-200">Buyer Details</th><th rowspan="2" class="text-right p-2 border border-slate-200">Profit</th>
+                                <th rowspan="2" class="text-right p-2 border border-slate-200">Debit (In)</th><th rowspan="2" class="text-right p-2 border border-slate-200">Credit (Out)</th>
+                                <th rowspan="2" class="text-right p-2 border border-slate-200">Balance</th>
+                            </tr>
+                            <tr>
+                                <th class="text-left p-2 border border-slate-200">Name / Particulars</th><th class="text-right p-2 border border-slate-200">Net Wt.</th>
+                                <th class="text-right p-2 border border-slate-200">Rate</th><th class="text-right p-2 border border-slate-200">Value</th>
+                                <th class="text-left p-2 border border-slate-200">Name</th><th class="text-right p-2 border border-slate-200">Net Wt.</th>
+                                <th class="text-right p-2 border border-slate-200">Rate</th><th class="text-right p-2 border border-slate-200">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            </div>`;
+        bindStatementExportButtons();
     };
 
     const handleContentExport = async (format) => {
@@ -959,8 +893,7 @@ const appLogic = (() => {
             if (type === 'contact') {
                 head.push(['Date', 'Description', 'Vehicle', 'Net Wt.', 'Rate', 'Debit', 'Credit', 'Balance']);
                 let runningBalance = 0;
-                const chronologicalData = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
-                chronologicalData.forEach(item => {
+                data.forEach(item => {
                     runningBalance += (item.debit || 0) - (item.credit || 0);
                     const bal = runningBalance > 0.01 ? `${runningBalance.toFixed(2)} Dr` : runningBalance < -0.01 ? `${Math.abs(runningBalance).toFixed(2)} Cr` : '0.00';
                     body.push([
@@ -992,25 +925,16 @@ const appLogic = (() => {
                 ]);
                 head.push(['Name / Particulars', 'Net Wt', 'Rate', 'Value', 'Name', 'Net Wt', 'Rate', 'Value']);
                 
-                const chronologicalData = [...data].reverse();
-                chronologicalData.forEach(item => {
+                data.forEach(item => {
                     body.push([
                         item.date === '0000-01-01' ? 'Opening' : item.date,
-                        item.supplierName || '',
-                        item.supplierNetWeight ? item.supplierNetWeight.toFixed(2) : '',
-                        item.supplierRate ? `@${item.supplierRate.toFixed(2)}` : '',
-                        item.supplierValue ? ` ${item.supplierValue.toFixed(2)}` : '',
-                        item.buyerName || '',
-                        item.buyerNetWeight ? item.buyerNetWeight.toFixed(2) : '',
-                        item.buyerRate ? `@${item.buyerRate.toFixed(2)}` : '',
-                        item.buyerValue ? ` ${item.buyerValue.toFixed(2)}` : '',
-                        item.profit !== undefined ? ` ${item.profit.toFixed(2)}` : '',
-                        item.debit ? ` ${item.debit.toFixed(2)}` : '',
-                        item.credit ? ` ${item.credit.toFixed(2)}` : '',
+                        item.supplierName || '', item.supplierNetWeight ? item.supplierNetWeight.toFixed(2) : '', item.supplierRate ? `@${item.supplierRate.toFixed(2)}` : '', item.supplierValue ? ` ${item.supplierValue.toFixed(2)}` : '',
+                        item.buyerName || '', item.buyerNetWeight ? item.buyerNetWeight.toFixed(2) : '', item.buyerRate ? `@${item.buyerRate.toFixed(2)}` : '', item.buyerValue ? ` ${item.buyerValue.toFixed(2)}` : '',
+                        item.profit !== undefined ? ` ${item.profit.toFixed(2)}` : '', item.debit ? ` ${item.debit.toFixed(2)}` : '', item.credit ? ` ${item.credit.toFixed(2)}` : '',
                         item.balance >= 0 ? ` ${item.balance.toFixed(2)}` : `(${Math.abs(item.balance).toFixed(2)})`
                     ]);
                 });
-                finalBalance = chronologicalData.length > 0 ? chronologicalData[chronologicalData.length - 1].balance : 0;
+                finalBalance = data.length > 0 ? data[data.length - 1].balance : 0;
                 
                 const balanceStatus = finalBalance >= 0 ? "Net Receivable" : "Net Payable";
                  body.push([
@@ -1025,11 +949,9 @@ const appLogic = (() => {
                 theme: 'striped',
                 headStyles: { fillColor: [8, 145, 178] }, // Cyan-600
                 didDrawPage: (data) => {
-                    doc.setFontSize(20);
-                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(20); doc.setFont('helvetica', 'bold');
                     doc.text('Errum Enterprise', data.settings.margin.left, 40);
-                    doc.setFontSize(12);
-                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(12); doc.setFont('helvetica', 'normal');
                     doc.text(type === 'contact' ? `Account Ledger for: ${name}` : 'Overall Transaction Statement', data.settings.margin.left, 58);
                     
                     const pageCount = doc.internal.getNumberOfPages();
@@ -1071,23 +993,15 @@ const appLogic = (() => {
         };
 
         if (type === 'contact') {
-            headers = ["Date", "Description", "Vehicle", "Scale Wt", "Net Wt", "Rate", "Debit", "Credit"];
+            headers = ["Date", "Description", "Vehicle", "Scale Wt", "Net Wt", "Rate", "Debit", "Credit", "Balance"];
             let runningBalance = 0;
             rows = data.map(item => {
                 runningBalance += (item.debit || 0) - (item.credit || 0);
-                return [
-                    item.date === '0000-01-01' ? 'Opening Balance' : item.date,
-                    item.description, item.vehicleNo, item.scaleWeight, item.netWeight, item.rate, item.debit, item.credit, runningBalance.toFixed(2)
-                ].map(escapeCSV);
+                return [ item.date === '0000-01-01' ? 'Opening Balance' : item.date, item.description, item.vehicleNo, item.scaleWeight, item.netWeight, item.rate, item.debit, item.credit, runningBalance.toFixed(2) ].map(escapeCSV);
             });
-            headers.push("Balance");
         } else { // overall
             headers = ["Date", "Supplier/Particulars", "Sup Net Wt", "Sup Rate", "Sup Value", "Buyer", "Buy Net Wt", "Buy Rate", "Buy Value", "Profit", "Debit(In)", "Credit(Out)", "Balance"];
-            rows = data.slice().reverse().map(item => [ // reverse back to chronological
-                item.date, item.supplierName, item.supplierNetWeight, item.supplierRate, item.supplierValue,
-                item.buyerName, item.buyerNetWeight, item.buyerRate, item.buyerValue, item.profit,
-                item.debit, item.credit, item.balance.toFixed(2)
-            ].map(escapeCSV));
+            rows = data.map(item => [ item.date, item.supplierName, item.supplierNetWeight, item.supplierRate, item.supplierValue, item.buyerName, item.buyerNetWeight, item.buyerRate, item.buyerValue, item.profit, item.debit, item.credit, item.balance.toFixed(2) ].map(escapeCSV));
         }
 
         const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
@@ -1139,165 +1053,17 @@ const appLogic = (() => {
         }
     };
 
-    const showTransactionDetailsModal = (id) => {
-        const t = transactions.find(tx => tx.id === id);
-        if (!t) return;
-
-        const detailsContent = document.getElementById('transaction-detail-content');
-        const invoiceContent = document.getElementById('transaction-invoice-content');
-        const modalFooter = document.getElementById('transaction-detail-footer');
-        const toggleBtn = document.getElementById('toggle-invoice-btn');
-
-        if(t.type === 'trade') {
-            const buyer = contacts.find(c => c.name === t.buyerName) || {};
-            detailsContent.innerHTML = `
-                <div class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                       <div class="bg-slate-50 p-4 rounded-lg">
-                           <h3 class="font-bold text-lg text-rose-500 mb-2">Supplier Details</h3>
-                           <div class="text-sm space-y-1">
-                               <p><strong class="w-24 inline-block text-slate-500">Name:</strong> ${t.supplierName}</p>
-                               <p><strong class="w-24 inline-block text-slate-500">Rate:</strong> ৳${t.supplierRate.toFixed(2)} / kg</p>
-                               <p><strong class="w-24 inline-block text-slate-500">Total:</strong> ৳${t.supplierTotal.toFixed(2)}</p>
-                           </div>
-                       </div>
-                       <div class="bg-slate-50 p-4 rounded-lg">
-                           <h3 class="font-bold text-lg text-green-600 mb-2">Buyer Details</h3>
-                           <div class="text-sm space-y-1">
-                               <p><strong class="w-24 inline-block text-slate-500">Name:</strong> ${t.buyerName}</p>
-                               <p><strong class="w-24 inline-block text-slate-500">Rate:</strong> ৳${t.buyerRate.toFixed(2)} / kg</p>
-                               <p><strong class="w-24 inline-block text-slate-500">Total:</strong> ৳${t.buyerTotal.toFixed(2)}</p>
-                           </div>
-                       </div>
-                    </div>
-                     <div class="bg-slate-50 p-4 rounded-lg">
-                         <h3 class="font-bold text-lg text-slate-800 mb-2">Item & Weight</h3>
-                         <div class="text-sm space-y-1">
-                              <p><strong class="w-24 inline-block text-slate-500">Item:</strong> ${t.item}</p>
-                              <p><strong class="w-24 inline-block text-slate-500">Vehicle No:</strong> ${t.vehicleNo || 'N/A'}</p>
-                              <p><strong class="w-24 inline-block text-slate-500">Net Weight:</strong> ${t.netWeight.toFixed(2)} kg</p>
-                         </div>
-                     </div>
-                    <div class="p-4 rounded-lg border border-slate-200">
-                        <h3 class="font-bold text-lg text-cyan-600 mb-2">Financial Summary</h3>
-                        <div class="text-sm space-y-1">
-                              <p><strong class="w-24 inline-block text-slate-500">Gross Profit:</strong> ৳${t.profit.toFixed(2)}</p>
-                              <p><strong class="w-24 inline-block text-slate-500">Paid to Sup:</strong> ৳${getPayments(t.paymentsToSupplier).toFixed(2)}</p>
-                              <p><strong class="w-24 inline-block text-slate-500">Rcvd from Buy:</strong> ৳${getPayments(t.paymentsFromBuyer).toFixed(2)}</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            const balanceDue = t.buyerTotal - getPayments(t.paymentsFromBuyer);
-            invoiceContent.innerHTML = `
-                <div id="invoice-to-export" class="bg-white text-slate-800 p-8 mx-auto max-w-3xl">
-                     <div class="flex justify-between items-start mb-8">
-                         <div>
-                             <h1 class="text-2xl font-bold text-slate-900">Errum Enterprise</h1>
-                             <p class="text-slate-500">Your Company Address</p>
-                             <p class="text-slate-500">Chattogram, Bangladesh</p>
-                         </div>
-                         <div class="text-right">
-                             <h2 class="text-3xl font-bold text-slate-400 uppercase">Invoice</h2>
-                             <p class="text-slate-500"><strong>Invoice #:</strong> ${t.id.slice(0, 8).toUpperCase()}</p>
-                             <p class="text-slate-500"><strong>Date:</strong> ${t.date}</p>
-                         </div>
-                     </div>
-                     <div class="mb-8">
-                         <h3 class="text-sm font-semibold text-slate-500 mb-1">BILL TO</h3>
-                         <p class="font-bold text-slate-800">${t.buyerName}</p>
-                         <p class="text-slate-600">${buyer.address || 'N/A'}</p>
-                         <p class="text-slate-600">${buyer.phone || 'N/A'}</p>
-                     </div>
-                     <table class="w-full mb-8">
-                         <thead class="bg-slate-50">
-                             <tr>
-                                 <th class="text-left font-semibold p-2">Description</th>
-                                 <th class="text-right font-semibold p-2">Quantity (kg)</th>
-                                 <th class="text-right font-semibold p-2">Rate</th>
-                                 <th class="text-right font-semibold p-2">Amount</th>
-                             </tr>
-                         </thead>
-                         <tbody>
-                             <tr class="border-b border-slate-200">
-                                 <td class="p-2">${t.item} (${t.vehicleNo || 'N/A'})</td>
-                                 <td class="text-right p-2">${t.netWeight.toFixed(2)}</td>
-                                 <td class="text-right p-2">৳${t.buyerRate.toFixed(2)}</td>
-                                 <td class="text-right p-2">৳${t.buyerTotal.toFixed(2)}</td>
-                             </tr>
-                         </tbody>
-                     </table>
-                     <div class="flex justify-end">
-                         <div class="w-full md:w-1/2 space-y-2 text-slate-600">
-                             <div class="flex justify-between"><span class="font-semibold">Subtotal:</span><span>৳${t.buyerTotal.toFixed(2)}</span></div>
-                             <div class="flex justify-between"><span class="font-semibold">Amount Paid:</span><span>- ৳${getPayments(t.paymentsFromBuyer).toFixed(2)}</span></div>
-                             <div class="flex justify-between font-bold text-xl text-slate-900 border-t border-slate-200 pt-2 mt-2"><span class="text-cyan-600">Balance Due:</span><span class="text-cyan-600">৳${balanceDue.toFixed(2)}</span></div>
-                         </div>
-                     </div>
-                     <div class="text-center mt-12 text-xs text-slate-400">
-                         <p>Thank you for your business!</p>
-                     </div>
-                </div>
-            `;
-            modalFooter.style.display = 'flex';
-            toggleBtn.disabled = false;
-            toggleBtn.title = '';
-        } else if (t.type === 'payment') {
-            detailsContent.innerHTML = `
-                <div class="bg-slate-50 p-4 rounded-lg">
-                    <h3 class="font-bold text-lg text-slate-800 mb-2">Payment Details</h3>
-                    <div class="text-sm space-y-1">
-                        <p><strong class="w-28 inline-block text-slate-500">Date:</strong> ${t.date}</p>
-                        <p><strong class="w-28 inline-block text-slate-500">Party Name:</strong> ${t.name}</p>
-                        <p><strong class="w-28 inline-block text-slate-500">Type:</strong> <span class="capitalize font-semibold ${t.paymentType === 'made' ? 'text-rose-500' : 'text-green-600'}">${t.paymentType}</span></p>
-                        <p><strong class="w-28 inline-block text-slate-500">Amount:</strong> ৳${t.amount.toFixed(2)}</p>
-                        <p><strong class="w-28 inline-block text-slate-500">Method:</strong> ${t.method}</p>
-                        <p><strong class="w-28 inline-block text-slate-500">Description:</strong> ${t.description}</p>
-                    </div>
-               </div>
-            `;
-            invoiceContent.innerHTML = '';
-            modalFooter.style.display = 'flex';
-            toggleBtn.disabled = true;
-            toggleBtn.title = 'Invoices are only available for trade transactions.';
-        }
-        
-        const modal = document.getElementById('transaction-detail-modal');
-        const saveBtn = document.getElementById('save-invoice-btn');
-        
-        detailsContent.classList.remove('hidden');
-        invoiceContent.classList.add('hidden');
-        toggleBtn.textContent = 'View Invoice';
-        saveBtn.classList.add('hidden');
-
-        toggleBtn.onclick = () => {
-            if (toggleBtn.disabled) return;
-            detailsContent.classList.toggle('hidden');
-            invoiceContent.classList.toggle('hidden');
-            saveBtn.classList.toggle('hidden');
-            toggleBtn.textContent = detailsContent.classList.contains('hidden') ? 'View Details' : 'View Invoice';
-        };
-        
-        saveBtn.onclick = async () => {
-            showToast(`Generating PNG...`);
-            const content = document.getElementById('invoice-to-export');
-            if (!content) return;
-            const canvas = await html2canvas(content, { scale: 2, backgroundColor: '#ffffff' });
-            const link = document.createElement('a');
-            link.download = `Invoice-${t.id.slice(0, 8)}-${t.date}.png`;
-            link.href = canvas.toDataURL();
-            link.click();
-        };
-
-        modal.classList.remove('hidden');
+    const bindStatementExportButtons = () => {
+        document.getElementById('statement-csv-btn')?.addEventListener('click', () => handleContentExportCSV());
+        document.getElementById('statement-png-btn')?.addEventListener('click', () => handleContentExport('png'));
+        document.getElementById('statement-pdf-btn')?.addEventListener('click', () => handleContentExport('pdf'));
     };
 
-    return { getPayments, getFilteredTransactions, renderDashboardMetrics, renderTransactionHistory, renderAll, renderContacts, resetContactForm, setupContactFormForEdit, handleSaveContact, handleDeleteContact, populateTradeDropdowns, updateTradeTotals, calculateNetWeight, resetTradeForm, setupTradeFormForEdit, handleTradeFormSubmit, handleDelete, openPaymentModal, handleSavePayment, openDirectPaymentModal, handleDirectPaymentSubmit, showContactLedger, generateOverallStatement, showPaginatedStatement, handleContentExport, handleContentExportCSV, handlePasswordChange, showTransactionDetailsModal };
+    return { renderAll, renderContacts, resetContactForm, setupContactFormForEdit, handleSaveContact, handleDeleteContact, populateTradeDropdowns, updateTradeTotals, calculateNetWeight, resetTradeForm, setupTradeFormForEdit, handleTradeFormSubmit, handleDelete, openPaymentModal, handleSavePayment, openDirectPaymentModal, handleDirectPaymentSubmit, renderContactLedger, renderOverallStatement, handlePasswordChange };
 })();
 
 // --- NAVIGATION & EVENT BINDING ---
-const navigateTo = (section) => {
+const navigateTo = (section, context = null) => {
     return new Promise((resolve) => {
         document.querySelectorAll('.nav-link').forEach(link => {
             link.classList.toggle('active', link.dataset.section === section);
@@ -1312,7 +1078,7 @@ const navigateTo = (section) => {
             dashboardCurrentPage = 1;
         }
         setTimeout(() => {
-            bindSectionEventListeners(section);
+            bindSectionEventListeners(section, context);
             resolve();
         }, 0);
     });
@@ -1323,25 +1089,20 @@ const bindAppEventListeners = () => {
     document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
     document.getElementById('save-payment-btn').addEventListener('click', appLogic.handleSavePayment);
     document.querySelectorAll('[data-close-modal]').forEach(btn => btn.addEventListener('click', (e) => document.getElementById(e.currentTarget.dataset.closeModal).classList.add('hidden')));
-    document.getElementById('overall-statement-btn').addEventListener('click', () => appLogic.showPaginatedStatement());
-    document.getElementById('statement-png-btn').addEventListener('click', () => appLogic.handleContentExport('png'));
-    document.getElementById('statement-pdf-btn').addEventListener('click', () => appLogic.handleContentExport('pdf'));
-    document.getElementById('statement-csv-btn').addEventListener('click', () => appLogic.handleContentExportCSV());
     document.getElementById('contact-form').addEventListener('submit', appLogic.handleSaveContact);
     document.getElementById('settings-btn').addEventListener('click', () => document.getElementById('password-modal').classList.remove('hidden'));
     document.getElementById('password-change-form').addEventListener('submit', appLogic.handlePasswordChange);
     document.getElementById('direct-payment-form').addEventListener('submit', appLogic.handleDirectPaymentSubmit);
 };
 
-const bindSectionEventListeners = (section) => {
+const bindSectionEventListeners = (section, context) => {
     if (section === 'dashboard') {
         appLogic.renderAll();
         document.getElementById('search-input').addEventListener('input', () => { dashboardCurrentPage = 1; appLogic.renderAll(); });
         document.getElementById('filter-start-date').addEventListener('change', () => { dashboardCurrentPage = 1; appLogic.renderAll(); });
         document.getElementById('filter-end-date').addEventListener('change', () => { dashboardCurrentPage = 1; appLogic.renderAll(); });
         
-        const tbody = document.getElementById('transaction-history-body');
-        tbody.addEventListener('click', (e) => {
+        document.getElementById('transaction-history-body').addEventListener('click', (e) => {
             const button = e.target.closest('button');
             if (button && button.closest('td')?.classList.contains('actions-cell')) { 
                 e.stopPropagation();
@@ -1349,11 +1110,6 @@ const bindSectionEventListeners = (section) => {
                 if (editId) { navigateTo('transaction-form').then(() => appLogic.setupTradeFormForEdit(editId)); }
                 if (deleteId) appLogic.handleDelete(deleteId); 
                 if (paymentId) appLogic.openPaymentModal(paymentId, paymentType); 
-            } else { 
-                const row = e.target.closest('tr[data-id]');
-                if (row) {
-                    appLogic.showTransactionDetailsModal(row.dataset.id);
-                }
             }
         });
     } else if (section === 'contacts') {
@@ -1364,7 +1120,7 @@ const bindSectionEventListeners = (section) => {
             const { editContactId, deleteContactId, ledgerId, directPaymentId } = target.dataset;
             if (editContactId) appLogic.setupContactFormForEdit(editContactId); 
             if (deleteContactId) appLogic.handleDeleteContact(deleteContactId); 
-            if (ledgerId) appLogic.showContactLedger(ledgerId);
+            if (ledgerId) navigateTo('statements', { contactId: ledgerId });
             if (directPaymentId) appLogic.openDirectPaymentModal(directPaymentId);
         });
     } else if (section === 'transaction-form') {
@@ -1375,6 +1131,24 @@ const bindSectionEventListeners = (section) => {
         document.getElementById('cancel-transaction-btn').addEventListener('click', () => navigateTo('dashboard'));
         ['scale-weight', 'less'].forEach(id => document.getElementById(id).addEventListener('input', appLogic.calculateNetWeight));
         ['supplier-rate', 'buyer-rate'].forEach(id => document.getElementById(id).addEventListener('input', appLogic.updateTradeTotals));
+    } else if (section === 'statements') {
+        const partySelect = document.getElementById('party-ledger-select');
+        contacts.forEach(c => {
+            const option = document.createElement('option');
+            option.value = c.id;
+            option.textContent = c.name;
+            partySelect.appendChild(option);
+        });
+        document.getElementById('generate-overall-statement-btn').addEventListener('click', appLogic.renderOverallStatement);
+        partySelect.addEventListener('change', (e) => {
+            if (e.target.value) {
+                appLogic.renderContactLedger(e.target.value);
+            }
+        });
+        if (context?.contactId) {
+            partySelect.value = context.contactId;
+            appLogic.renderContactLedger(context.contactId);
+        }
     }
 };
 
