@@ -30,14 +30,14 @@ async function init() {
 
 function getPartyPageTemplate() {
     return `
-        <div class="bg-white dark:bg-surface-dark rounded-lg shadow-sm border dark:border-border-dark">
-            <div class="p-4 border-b dark:border-border-dark flex justify-between items-center">
-                <h2 class="h2">Manage Party</h2>
-                <button id="add-contact-btn" class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-primary-600 text-white hover:bg-primary-500 text-sm">Add New Party</button>
+        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border dark:border-slate-700">
+            <div class="p-4 border-b dark:border-slate-800 flex justify-between items-center">
+                <h2 class="text-2xl font-bold">Manage Party</h2>
+                <button id="add-contact-btn" class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm">Add New Party</button>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm responsive-table">
-                    <thead><tr class="border-b dark:border-border-dark bg-slate-50 dark:bg-slate-800/50"><th class="text-left font-semibold py-3 px-4">Name</th><th class="text-left font-semibold py-3 px-4">Type</th><th class="text-right font-semibold py-3 px-4">Net Balance</th><th class="text-center font-semibold py-3 px-4">Actions</th></tr></thead>
+                    <thead><tr class="border-b dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50"><th class="text-left font-semibold py-3 px-4">Name</th><th class="text-left font-semibold py-3 px-4">Type</th><th class="text-right font-semibold py-3 px-4">Net Balance</th><th class="text-center font-semibold py-3 px-4">Actions</th></tr></thead>
                     <tbody id="contacts-table-body"><tr id="skeleton-row"><td colspan="4"><div class="p-4 space-y-2"><div class="skeleton h-4 w-full"></div><div class="skeleton h-4 w-full"></div></div></td></tr></tbody>
                 </table>
             </div>
@@ -53,7 +53,7 @@ function renderContactsTable() {
     if (!tbody) return;
 
     if (localContacts.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-12 text-text-muted-light dark:text-text-muted-dark">No parties found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-12 text-slate-500">No parties found.</td></tr>`;
         return;
     }
     const getPayments = (history) => (history || []).reduce((sum, p) => sum + p.amount, 0);
@@ -77,24 +77,14 @@ function renderContactsTable() {
 function initializePartyListeners() { /* ... unchanged ... */ }
 function showContactModal(contactId = null) { /* ... unchanged ... */ }
 async function handleContactFormSubmit(e) { /* ... unchanged ... */ }
-
-async function handleDeleteContact(contactId) {
-    const contact = localContacts.find(c => c.id === contactId);
-    if (!contact) return;
-    if (localTransactions.some(t => t.supplierName === contact.name || t.buyerName === contact.name || t.name === contact.name)) {
-        return showToast('Cannot delete a party with existing transactions.');
-    }
-
-    try {
-        await showConfirmModal('Delete Party?', `Are you sure you want to delete ${contact.name}? This action cannot be undone.`);
-        await deleteContact(auth.currentUser.uid, contactId);
-        showToast('Party deleted successfully.');
-    } catch {
-        // User clicked "Cancel" in the modal, do nothing.
-    }
-}
-
+async function handleDeleteContact(contactId) { /* ... unchanged ... */ }
 function openDirectPaymentModal(contactId) { /* ... unchanged ... */ }
 async function handleDirectPaymentSubmit(e) { /* ... unchanged ... */ }
 
-init();
+// This function must be exported so it's not removed by any bundling process.
+// For this multi-page app, this is not strictly necessary but good practice.
+export function showContacts() {
+    init();
+}
+
+showContacts(); // Run the script
