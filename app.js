@@ -23,6 +23,7 @@ const mainContent = document.getElementById('app-content');
 // --- HELPER FUNCTIONS ---
 const showToast = (message) => {
     const toast = document.getElementById('toast');
+    if (!toast) return;
     document.getElementById('toast-message').textContent = message;
     toast.classList.remove('opacity-0', 'translate-y-10');
     toast.classList.add('opacity-100', 'translate-y-0');
@@ -778,13 +779,11 @@ const bindSectionEventListeners = (section, context) => {
         document.getElementById('generate-overall-statement-btn').addEventListener('click', appLogic.renderOverallStatement);
         partySelect.addEventListener('change', (e) => {
             if (e.target.value) { 
-                // *** BUG FIX IS HERE ***
                 appLogic.renderContactLedger(e.target.value); 
             }
         });
         if (context?.contactId) {
             partySelect.value = context.contactId;
-            // *** AND BUG FIX IS HERE ***
             appLogic.renderContactLedger(context.contactId);
         }
     }
@@ -845,7 +844,7 @@ onAuthStateChanged(auth, user => {
         authContainer.classList.add('hidden');
         loadingContainer.classList.add('hidden');
         
-        if (!mainContent.innerHTML) {
+        if (!mainContent.innerHTML.trim()) {
             navigateTo('dashboard');
         }
         bindAppEventListeners();
