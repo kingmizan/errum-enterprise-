@@ -1,10 +1,12 @@
 // --- app.js ---
-// Main application entry point
-
 import { initAuth, handleLogin } from './auth.js';
+import { updateThemeIcon } from './ui.js';
 
-// Initialize the authentication state listener, which starts the app
-initAuth();
+// Initialize the application
+function init() {
+    updateThemeIcon(); // Set the correct theme icon on initial load
+    initAuth(); // Start the authentication process
+    document.getElementById('login-form')?.addEventListener('submit', handleLogin);
+}
 
-// Bind the login form event listener
-document.getElementById('login-form').addEventListener('submit', handleLogin);
+init();
