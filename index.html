@@ -106,7 +106,26 @@
         <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 text-white py-2 px-5 rounded-lg shadow-xl text-sm font-semibold opacity-0 translate-y-10 transition-all duration-300">
             <span id="toast-message"></span>
         </div>
-        
+
+        <div id="transaction-detail-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-lg w-full max-w-4xl h-[90vh] flex flex-col border border-slate-200">
+                <div class="p-5 flex justify-between items-center border-b border-slate-200 flex-shrink-0">
+                    <h2 id="transaction-detail-title" class="text-xl font-bold text-slate-800">Transaction Details</h2>
+                    <button data-close-modal="transaction-detail-modal" class="p-2 rounded-full hover:bg-slate-100 -mr-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                    </button>
+                </div>
+                <div class="overflow-y-auto flex-grow p-6 bg-slate-50/50">
+                    <div id="transaction-detail-content"></div>
+                    <div id="transaction-invoice-content" class="hidden"></div>
+                </div>
+                <div id="transaction-detail-footer" class="p-4 bg-white flex justify-end gap-3 rounded-b-xl border-t border-slate-200 flex-shrink-0">
+                    <button id="toggle-invoice-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">View Invoice</button>
+                    <button id="save-invoice-btn" class="hidden px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Save as PNG</button>
+                </div>
+            </div>
+        </div>
+
         <div id="payment-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
             <div class="bg-white rounded-xl shadow-lg w-full max-w-md border border-slate-200">
                 <div class="p-6">
