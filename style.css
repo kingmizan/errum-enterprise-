@@ -1,209 +1,95 @@
-/* ==========================================================================
-   Base Styles & Variables
-   ========================================================================== */
+/* style.css */
+
 :root {
     --color-primary-500: #14b8a6; /* teal-500 */
     --color-primary-600: #0d9488; /* teal-600 */
     --color-primary-700: #0f766e; /* teal-700 */
     --color-bg-light: #f8fafc;   /* slate-50 */
-    --color-bg-dark: #0f172a;    /* slate-900 */
-    --color-surface-dark: #1e293b; /* slate-800 */
 }
 
-/* Base font size adjustment for mobile */
-@media (max-width: 640px) {
-    html {
-        font-size: 15px;
-    }
-}
-
-body {  
-    font-family: 'Inter', sans-serif;  
+body { 
+    font-family: 'Inter', sans-serif; 
     background-color: var(--color-bg-light);
-    -webkit-font-smoothing: antialiased;  
-    -moz-osx-font-smoothing: grayscale;  
+    -webkit-font-smoothing: antialiased; 
+    -moz-osx-font-smoothing: grayscale; 
 }
 
+/* Custom Scrollbar */
+::-webkit-scrollbar { 
+    width: 8px; 
+}
+::-webkit-scrollbar-track { 
+    background: #e2e8f0; 
+}
+::-webkit-scrollbar-thumb { 
+    background: #94a3b8; 
+    border-radius: 10px; 
+}
+::-webkit-scrollbar-thumb:hover { 
+    background: #64748b; 
+}
+
+/* Global Focus Styles */
 *:focus-visible { 
     outline: 2px solid var(--color-primary-500) !important; 
     outline-offset: 2px !important; 
     border-radius: 0.375rem; 
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar { width: 8px; } 
-::-webkit-scrollbar-track { background: #e2e8f0; } 
-::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; } 
-::-webkit-scrollbar-thumb:hover { background: #64748b; }
+/* Custom Form & Navigation Styles */
+.form-radio:checked { 
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e"); 
+    border-color: var(--color-primary-600); 
+    background-color: var(--color-primary-600); 
+}
 
-/* ==========================================================================
-   Visual Polish & Interactivity ✨
-   ========================================================================== */
+.nav-link.active { 
+    background-color: var(--color-primary-600);
+    color: white; 
+}
 
-/* Smooth fade-in animation for main content */
+/* Animation */
 @keyframes content-enter {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
 .content-enter { 
     animation: content-enter 0.4s ease-out forwards; 
 }
 
-/* Interactive hover effects for buttons and cards */
-.card-hover,
-.button-hover {
-    transition: all 0.2s ease-in-out;
-}
-.card-hover:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
-}
-.button-hover:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.1);
-}
-.button-hover:active {
-    transform: translateY(0px);
-    filter: brightness(1);
-}
-
-/* Enhanced Modal Transitions */
-.modal-container {
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-.modal-container:not(.hidden) {
-    opacity: 1;
-    visibility: visible;
-}
-.modal-panel {
-    transform: scale(0.95);
-    transition: transform 0.3s ease;
-}
-.modal-container:not(.hidden) .modal-panel {
-    transform: scale(1);
-}
-
-
-/* ==========================================================================
-   Component & Layout Styles
-   ========================================================================== */
-.form-radio:checked {  
-    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");  
-    border-color: var(--color-primary-600); 
-    background-color: var(--color-primary-600);  
-}
-
-.nav-link.active {  
-    background-color: var(--color-primary-600);
-    color: white;  
-}
-
-/* Creative Transaction List Styles */
-.transaction-list .date-header {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #64748b; /* slate-500 */
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid #e2e8f0; /* slate-200 */
-    margin-bottom: 0.75rem;
-}
-.transaction-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    background-color: white;
-    border-radius: 0.5rem;
-    border: 1px solid #e2e8f0; /* slate-200 */
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    cursor: pointer;
-}
-.transaction-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-}
-.avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 9999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    color: white;
-    text-transform: uppercase;
-    font-size: 0.875rem;
-    flex-shrink: 0;
-}
-.transaction-details {
-    flex-grow: 1;
-    min-width: 0; /* Fix for flexbox text truncation */
-}
-.transaction-details > div {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.transaction-amount {
-    text-align: right;
-    font-weight: 600;
-}
-
-
-/* ==========================================================================
-   Professional Dark Mode 🌙
-   ========================================================================== */
-.dark body {  
-    background-color: var(--color-bg-dark);
-    color: #cbd5e1; /* slate-300 */
-}
-
-/* Layered Backgrounds for Depth */
-.dark .dark-bg-surface {
-    background-color: var(--color-surface-dark);
-    border-color: #334155; /* slate-700 */
-}
-.dark .dark-bg-deep {
-    background-color: #020617; /* slate-950 */
-}
-
-/* Text Colors - Higher contrast for mobile readability */
-.dark .dark-text-primary { color: #f1f5f9; } /* slate-100 */
-.dark .dark-text-secondary { color: #94a3b8; } /* slate-400 */
-
-/* Borders */
-.dark .dark-border-subtle { border-color: #334155; } /* slate-700 */
-
-/* Inputs & Forms */
-.dark .dark-form-bg { 
-    background-color: #334155; /* slate-700 */
-    border-color: #475569; /* slate-600 */
-    color: #f1f5f9;
-}
-.dark .dark-form-bg::placeholder {
-    color: #94a3b8;
-}
-
-/* Nav & Active States */
-.dark .nav-link.active {
-    background-color: var(--color-primary-500);
-    color: white;
-}
-
-/* Dark Scrollbar */
-.dark ::-webkit-scrollbar-track { background: #1e293b; } 
-.dark ::-webkit-scrollbar-thumb { background: #475569; } 
-.dark ::-webkit-scrollbar-thumb:hover { background: #64748b; }
-
-/* Transaction List Dark Mode */
-.dark .transaction-list .date-header {
-    color: #94a3b8; /* slate-400 */
-    border-color: #334155; /* slate-700 */
-}
-.dark .transaction-item {
-    background-color: var(--color-surface-dark);
-    border-color: #334155; /* slate-700 */
+/* Responsive Table for Mobile */
+@media (max-width: 768px) {
+    .responsive-table thead { 
+        display: none; 
+    }
+    .responsive-table tr {
+        display: block; 
+        border: 1px solid #e2e8f0; 
+        border-radius: 0.5rem;
+        margin-bottom: 1rem; 
+        padding: 1rem;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    }
+    .responsive-table td {
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center;
+        padding: 0.5rem 0; 
+        text-align: right; 
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .responsive-table td:last-child { 
+        border-bottom: none; 
+    }
+    .responsive-table td::before {
+        content: attr(data-label); 
+        font-weight: 600; 
+        text-align: left;
+        margin-right: 1rem; 
+        color: #64748b;
+    }
+    .responsive-table td.actions-cell { 
+        justify-content: flex-end; 
+    }
 }
