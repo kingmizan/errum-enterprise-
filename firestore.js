@@ -2,13 +2,14 @@
 // Handles all interactions with the Firestore database
 
 import { db } from './firebase-config.js';
-// THIS LINE FIXES THE ERROR by adding 'query' to the import list
 import { collection, onSnapshot, addDoc, doc, setDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 import { state } from './state.js';
-import { renderAll, renderContacts } from './navigation.js'; // To trigger re-renders
-import { populateTradeDropdowns } from './transactions.js';
+import { updateUI } from './navigation.js'; // Import the new central UI updater
 
-// Initializes the real-time listeners for transactions and contacts
+/**
+ * Initializes real-time listeners for transactions and contacts.
+ * When data changes, it updates the state and calls the central UI updater.
+ */
 export function initFirestoreListeners() {
     if (state.transactionsUnsubscribe) state.transactionsUnsubscribe();
     if (state.contactsUnsubscribe) state.contactsUnsubscribe();
@@ -16,27 +17,22 @@ export function initFirestoreListeners() {
     const transQuery = query(collection(db, "users", state.currentUserId, "transactions"));
     state.transactionsUnsubscribe = onSnapshot(transQuery, snapshot => {
         state.transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
-        if (['dashboard', 'contacts', 'statements'].includes(currentSection)) {
-            renderAll();
-            renderContacts();
-        }
+        updateUI(); // Call the central updater function
     });
 
     const contactsQuery = query(collection(db, "users", state.currentUserId, "contacts"), orderBy("name"));
     state.contactsUnsubscribe = onSnapshot(contactsQuery, snapshot => {
         state.contacts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
-        if (['dashboard', 'contacts'].includes(currentSection)) {
-            renderAll();
-            renderContacts();
-        } else if (currentSection === 'transaction-form') {
-            populateTradeDropdowns();
-        }
+        updateUI(); // Call the central updater function
     });
 }
 
-// Generic function to save a document (create or update)
+/**
+ * Generic function to save a document (creates or updates).
+ * @param {string} collectionName - The name of the collection.
+ * @param {string|null} id - The document ID to update, or null to create.
+ * @param {object} data - The data to save.
+ */
 export const saveDoc = async (collectionName, id, data) => {
     if (id) {
         return await setDoc(doc(db, "users", state.currentUserId, collectionName, id), data, { merge: true });
@@ -45,7 +41,11 @@ export const saveDoc = async (collectionName, id, data) => {
     }
 };
 
-// Generic function to delete a document
+/**
+ * Generic function to delete a document.
+ * @param {string} collectionName - The name of the collection.
+ * @param {string} id - The document ID to delete.
+ */
 export const deleteDocument = async (collectionName, id) => {
     return await deleteDoc(doc(db, "users", state.currentUserId, collectionName, id));
 };
