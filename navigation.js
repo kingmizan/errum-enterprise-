@@ -11,7 +11,7 @@ import * as statements from './statements.js';
 
 const mainContent = document.getElementById('app-content');
 
-// Main navigation function
+// Main navigation function (no changes needed here)
 export const navigateTo = (section, context = null) => {
     return new Promise((resolve) => {
         document.querySelectorAll('.nav-link').forEach(link => {
@@ -35,19 +35,30 @@ export const navigateTo = (section, context = null) => {
 
 // Binds event listeners that are always present in the app shell
 export function bindAppEventListeners() {
-    document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', (e) => navigateTo(e.currentTarget.dataset.section)));
-    document.getElementById('logout-btn').addEventListener('click', handleSignOut);
-    document.getElementById('save-payment-btn').addEventListener('click', transactions.handleSavePayment);
-    document.querySelectorAll('[data-close-modal]').forEach(btn => btn.addEventListener('click', (e) => document.getElementById(e.currentTarget.dataset.closeModal).classList.add('hidden')));
-    document.getElementById('contact-form').addEventListener('submit', contacts.handleSaveContact);
-    document.getElementById('settings-btn').addEventListener('click', () => document.getElementById('password-modal').classList.remove('hidden'));
-    document.getElementById('password-change-form').addEventListener('submit', handlePasswordChange);
-    document.getElementById('direct-payment-form').addEventListener('submit', transactions.handleDirectPaymentSubmit);
+    // This function is called only once and binds to elements in index.html
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => navigateTo(e.currentTarget.dataset.section));
+    });
+
+    document.getElementById('logout-btn')?.addEventListener('click', handleSignOut);
+    document.getElementById('settings-btn')?.addEventListener('click', () => document.getElementById('password-modal')?.classList.remove('hidden'));
+    
+    // Bind to forms and modals safely
+    document.getElementById('save-payment-btn')?.addEventListener('click', transactions.handleSavePayment);
+    document.getElementById('contact-form')?.addEventListener('submit', contacts.handleSaveContact);
+    document.getElementById('password-change-form')?.addEventListener('submit', handlePasswordChange);
+    document.getElementById('direct-payment-form')?.addEventListener('submit', transactions.handleDirectPaymentSubmit);
+
+    document.querySelectorAll('[data-close-modal]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const modalId = e.currentTarget.dataset.closeModal;
+            document.getElementById(modalId)?.classList.add('hidden');
+        });
+    });
 }
 
 // Renders all dashboard components
 export function renderAll() {
-    // This check ensures we only try to render the dashboard if its container exists
     if (document.getElementById('transaction-history-body')) {
         const data = dashboard.getFilteredTransactions();
         dashboard.renderDashboardMetrics(data);
@@ -67,11 +78,11 @@ export function renderContacts() {
 export function bindSectionEventListeners(section, context) {
     if (section === 'dashboard') {
         renderAll();
-        document.getElementById('search-input').addEventListener('input', () => { state.dashboardCurrentPage = 1; renderAll(); });
-        document.getElementById('filter-start-date').addEventListener('change', () => { state.dashboardCurrentPage = 1; renderAll(); });
-        document.getElementById('filter-end-date').addEventListener('change', () => { state.dashboardCurrentPage = 1; renderAll(); });
+        document.getElementById('search-input')?.addEventListener('input', () => { state.dashboardCurrentPage = 1; renderAll(); });
+        document.getElementById('filter-start-date')?.addEventListener('change', () => { state.dashboardCurrentPage = 1; renderAll(); });
+        document.getElementById('filter-end-date')?.addEventListener('change', () => { state.dashboardCurrentPage = 1; renderAll(); });
 
-        document.getElementById('transaction-history-body').addEventListener('click', (e) => {
+        document.getElementById('transaction-history-body')?.addEventListener('click', (e) => {
             const button = e.target.closest('button');
             if (button && button.closest('td')?.classList.contains('actions-cell')) {
                 e.stopPropagation();
@@ -84,9 +95,10 @@ export function bindSectionEventListeners(section, context) {
 
     } else if (section === 'contacts') {
         renderContacts();
-        document.getElementById('add-contact-btn').addEventListener('click', () => { contacts.resetContactForm(); document.getElementById('contact-modal').classList.remove('hidden'); });
-        document.getElementById('contacts-table-body').addEventListener('click', e => {
-            const target = e.target.closest('button'); if (!target) return;
+        document.getElementById('add-contact-btn')?.addEventListener('click', () => { contacts.resetContactForm(); document.getElementById('contact-modal').classList.remove('hidden'); });
+        document.getElementById('contacts-table-body')?.addEventListener('click', e => {
+            const target = e.target.closest('button');
+            if (!target) return;
             const { editContactId, deleteContactId, ledgerId, directPaymentId } = target.dataset;
             if (editContactId) contacts.setupContactFormForEdit(editContactId);
             if (deleteContactId) contacts.handleDeleteContact(deleteContactId);
@@ -97,29 +109,31 @@ export function bindSectionEventListeners(section, context) {
     } else if (section === 'transaction-form') {
         transactions.populateTradeDropdowns();
         transactions.resetTradeForm();
-        document.getElementById('transaction-form').addEventListener('submit', transactions.handleTradeFormSubmit);
-        document.getElementById('reset-form-btn').addEventListener('click', transactions.resetTradeForm);
-        document.getElementById('cancel-transaction-btn').addEventListener('click', () => navigateTo('dashboard'));
-        ['scale-weight', 'less'].forEach(id => document.getElementById(id).addEventListener('input', transactions.calculateNetWeight));
-        ['supplier-rate', 'buyer-rate'].forEach(id => document.getElementById(id).addEventListener('input', transactions.updateTradeTotals));
+        document.getElementById('transaction-form')?.addEventListener('submit', transactions.handleTradeFormSubmit);
+        document.getElementById('reset-form-btn')?.addEventListener('click', transactions.resetTradeForm);
+        document.getElementById('cancel-transaction-btn')?.addEventListener('click', () => navigateTo('dashboard'));
+        ['scale-weight', 'less'].forEach(id => document.getElementById(id)?.addEventListener('input', transactions.calculateNetWeight));
+        ['supplier-rate', 'buyer-rate'].forEach(id => document.getElementById(id)?.addEventListener('input', transactions.updateTradeTotals));
 
     } else if (section === 'statements') {
         const partySelect = document.getElementById('party-ledger-select');
-        state.contacts.forEach(c => {
-            const option = document.createElement('option');
-            option.value = c.id;
-            option.textContent = c.name;
-            partySelect.appendChild(option);
-        });
-        document.getElementById('generate-overall-statement-btn').addEventListener('click', statements.renderOverallStatement);
-        partySelect.addEventListener('change', (e) => {
-            if (e.target.value) {
-                statements.renderContactLedger(e.target.value);
+        if (partySelect) {
+            state.contacts.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c.id;
+                option.textContent = c.name;
+                partySelect.appendChild(option); // This is now safe
+            });
+            document.getElementById('generate-overall-statement-btn')?.addEventListener('click', statements.renderOverallStatement);
+            partySelect.addEventListener('change', (e) => {
+                if (e.target.value) {
+                    statements.renderContactLedger(e.target.value);
+                }
+            });
+            if (context?.contactId) {
+                partySelect.value = context.contactId;
+                statements.renderContactLedger(context.contactId);
             }
-        });
-        if (context?.contactId) {
-            partySelect.value = context.contactId;
-            statements.renderContactLedger(context.contactId);
         }
     }
 };
