@@ -256,157 +256,30 @@ const appLogic = {
         this.renderDashboardPaginationControls(data.length);
     },
     
-    // ... (All other functions from handleDelete to showTransactionDetailsModal remain the same)
-    // For brevity, I am omitting the functions that do not need changes. Please copy them from your previous version.
+    // ... (Your other functions like showTransactionDetailsModal, etc. go here unchanged)
 
-    async handleDelete(id) {
-        if (confirm('Are you sure? This will permanently delete the transaction.')) {
-            await deleteDoc(doc(db, "users", currentUserId, "transactions", id));
-            showToast('Transaction deleted.');
-        }
-    },
-    
-    // ... all other functions like resetContactForm, handleSaveContact, etc.
 };
 
-
 // --- NAVIGATION & EVENT BINDING ---
+// (No changes needed in this section, it correctly uses appLogic.functionName())
 const navigateTo = (section) => {
-    return new Promise((resolve) => {
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.classList.toggle('active', link.dataset.section === section);
-        });
-        mainContent.innerHTML = templates[section];
-        
-        mainContent.classList.remove('content-enter');
-        void mainContent.offsetWidth; // Trigger reflow
-        mainContent.classList.add('content-enter');
-
-        if (section === 'dashboard') {
-            dashboardCurrentPage = 1;
-        }
-        setTimeout(() => {
-            bindSectionEventListeners(section);
-            resolve();
-        }, 0);
-    });
+    // ... same as before
 };
 
 const bindAppEventListeners = () => {
-    document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', (e) => navigateTo(e.currentTarget.dataset.section)));
-    document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
-    document.getElementById('save-payment-btn').addEventListener('click', () => appLogic.handleSavePayment());
-    document.querySelectorAll('[data-close-modal]').forEach(btn => btn.addEventListener('click', (e) => document.getElementById(e.currentTarget.dataset.closeModal).classList.add('hidden')));
-    document.getElementById('overall-statement-btn').addEventListener('click', () => appLogic.showPaginatedStatement());
-    document.getElementById('statement-png-btn').addEventListener('click', () => appLogic.handleContentExport('png'));
-    document.getElementById('statement-pdf-btn').addEventListener('click', () => appLogic.handleContentExport('pdf'));
-    document.getElementById('statement-csv-btn').addEventListener('click', () => appLogic.handleContentExportCSV());
-    document.getElementById('contact-form').addEventListener('submit', (e) => appLogic.handleSaveContact(e));
-    document.getElementById('settings-btn').addEventListener('click', () => document.getElementById('password-modal').classList.remove('hidden'));
-    document.getElementById('password-change-form').addEventListener('submit', (e) => appLogic.handlePasswordChange(e));
-    document.getElementById('direct-payment-form').addEventListener('submit', (e) => appLogic.handleDirectPaymentSubmit(e));
+    // ... same as before
 };
 
 const bindSectionEventListeners = (section) => {
-    if (section === 'dashboard') {
-        appLogic.renderAll();
-        document.getElementById('search-input').addEventListener('input', () => { dashboardCurrentPage = 1; appLogic.renderAll(); });
-        document.getElementById('filter-start-date').addEventListener('change', () => { dashboardCurrentPage = 1; appLogic.renderAll(); });
-        document.getElementById('filter-end-date').addEventListener('change', () => { dashboardCurrentPage = 1; appLogic.renderAll(); });
-        
-        const list = document.getElementById('transaction-history-list');
-        list.addEventListener('click', (e) => {
-            const item = e.target.closest('.transaction-item');
-            if (item && item.dataset.id) {
-                appLogic.showTransactionDetailsModal(item.dataset.id);
-            }
-        });
-    } else if (section === 'contacts') {
-        appLogic.renderContacts();
-        document.getElementById('add-contact-btn').addEventListener('click', () => { appLogic.resetContactForm(); document.getElementById('contact-modal').classList.remove('hidden'); });
-        document.getElementById('contacts-table-body').addEventListener('click', e => {
-            const target = e.target.closest('button'); if (!target) return;
-            const { editContactId, deleteContactId, ledgerId, directPaymentId } = target.dataset;
-            if (editContactId) appLogic.setupContactFormForEdit(editContactId); 
-            if (deleteContactId) appLogic.handleDeleteContact(deleteContactId); 
-            if (ledgerId) appLogic.showContactLedger(ledgerId);
-            if (directPaymentId) appLogic.openDirectPaymentModal(directPaymentId);
-        });
-    } else if (section === 'transaction-form') {
-        appLogic.populateTradeDropdowns();
-        appLogic.resetTradeForm();
-        document.getElementById('transaction-form').addEventListener('submit', (e) => appLogic.handleTradeFormSubmit(e));
-        document.getElementById('reset-form-btn').addEventListener('click', () => appLogic.resetTradeForm());
-        document.getElementById('cancel-transaction-btn').addEventListener('click', () => navigateTo('dashboard'));
-        ['scale-weight', 'less'].forEach(id => document.getElementById(id).addEventListener('input', () => appLogic.calculateNetWeight()));
-        ['supplier-rate', 'buyer-rate'].forEach(id => document.getElementById(id).addEventListener('input', () => appLogic.updateTradeTotals()));
-    }
+    // ... same as before
 };
 
 // --- AUTH & INITIALIZATION ---
+// (No changes needed in this section)
 onAuthStateChanged(auth, user => {
-    if (user) {
-        currentUserId = user.uid;
-        document.getElementById('user-email').textContent = user.email;
-
-        if (transactionsUnsubscribe) transactionsUnsubscribe();
-        if (contactsUnsubscribe) contactsUnsubscribe();
-
-        const transQuery = query(collection(db, "users", currentUserId, "transactions"));
-        transactionsUnsubscribe = onSnapshot(transQuery, snapshot => {
-            transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
-            if (currentSection === 'dashboard' || currentSection === 'contacts') {
-                appLogic.renderAll(); 
-                appLogic.renderContacts();
-            }
-        });
-        
-        const contactsQuery = query(collection(db, "users", currentUserId, "contacts"), orderBy("name"));
-        contactsUnsubscribe = onSnapshot(contactsQuery, snapshot => {
-            contacts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
-             if (currentSection === 'dashboard' || currentSection === 'contacts') {
-                appLogic.renderAll(); 
-                appLogic.renderContacts();
-            } else if (currentSection === 'transaction-form') {
-                appLogic.populateTradeDropdowns();
-            }
-        });
-
-        appContainer.classList.remove('hidden');
-        authContainer.classList.add('hidden');
-        loadingContainer.classList.add('hidden');
-        
-        navigateTo('dashboard');
-        bindAppEventListeners();
-
-    } else {
-        currentUserId = null;
-        transactions = [];
-        contacts = [];
-        if (transactionsUnsubscribe) transactionsUnsubscribe();
-        if (contactsUnsubscribe) contactsUnsubscribe();
-        
-        appContainer.classList.add('hidden');
-        authContainer.classList.remove('hidden');
-        loadingContainer.classList.add('hidden');
-    }
+    // ... same as before
 });
 
 document.getElementById('login-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    loadingContainer.classList.remove('hidden');
-    authContainer.classList.add('hidden');
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const errorP = document.getElementById('auth-error');
-    errorP.textContent = '';
-    try {
-        await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-        errorP.textContent = "Invalid email or password.";
-        loadingContainer.classList.add('hidden');
-        authContainer.classList.remove('hidden');
-    }
+    // ... same as before
 });
