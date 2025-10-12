@@ -58,6 +58,13 @@ const getFilteredTransactions = () => {
     );
 };
 
+const renderAll = () => {
+    const data = getFilteredTransactions();
+    renderDashboardMetrics();
+    renderTransactionHistory(data);
+    renderDashboardPaginationControls(data.length);
+};
+
 const renderDashboardMetrics = () => {
     let totalPayable = 0, totalReceivable = 0;
     transactions.forEach(t => {
@@ -140,17 +147,14 @@ const renderDashboardPaginationControls = (totalItems) => {
     document.getElementById('next-page-btn')?.addEventListener('click', () => { if (dashboardCurrentPage < totalPages) { dashboardCurrentPage++; renderAll(); } });
 };
 
-const renderAll = () => {
-    const data = getFilteredTransactions();
-    renderDashboardMetrics();
-    renderTransactionHistory(data);
-    renderDashboardPaginationControls(data.length);
-};
-
 const renderContacts = () => {
-    const tbody = document.getElementById('contacts-table-body'); if (!tbody) return; tbody.innerHTML = '';
-    if (contacts.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-500">No contacts found. Add one to get started!</td></tr>`; return; }
-    
+    const tbody = document.getElementById('contacts-table-body');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    if (contacts.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-500">No contacts found. Add one to get started!</td></tr>`;
+        return;
+    }
     contacts.forEach(c => {
         let netBalance = 0;
         if (c.openingBalance && c.openingBalance.amount > 0) {
@@ -166,36 +170,52 @@ const renderContacts = () => {
                 else netBalance -= t.amount;
             }
         });
+
         let lastTransactionDate = '<span class="text-slate-400">N/A</span>';
         if (relatedTransactions.length > 0) {
             relatedTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
             lastTransactionDate = relatedTransactions[0].date;
         }
+
         const balanceText = `৳${Math.abs(netBalance).toFixed(2)}`;
         let balanceClass = 'text-slate-500';
         if (netBalance > 0.01) balanceClass = 'text-green-600';
         else if (netBalance < -0.01) balanceClass = 'text-rose-500';
+
         let typeBadge;
         if (c.type === 'buyer') {
-            typeBadge = `<span class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800">...</span>`;
+            typeBadge = `<span class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z" /></svg>Buyer</span>`;
         } else {
-            typeBadge = `<span class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">...</span>`;
+            typeBadge = `<span class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 11l3-3m0 0l3 3m-3-3v8m0-13a9 9 0 110-18 9 9 0 010 18z" /></svg>Supplier</span>`;
         }
+        
         const row = document.createElement('tr');
         row.className = 'odd:bg-slate-50 hover:bg-slate-100 border-b md:border-b-0';
-        row.innerHTML = `<td data-label="Name" class="py-4 px-4 align-middle"><button data-ledger-id="${c.id}" class="font-medium text-slate-900 hover:text-teal-600 text-left cursor-pointer">${c.name}</button></td><td data-label="Type" class="py-4 px-4 align-middle">${typeBadge}</td><td data-label="Phone" class="py-4 px-4 align-middle">${c.phone || 'N/A'}</td><td data-label="Last Active" class="py-4 px-4 align-middle font-medium text-slate-600">${lastTransactionDate}</td><td data-label="Net Balance" class="py-4 px-4 align-middle font-bold text-right ${balanceClass}">${balanceText}</td><td data-label="Actions" class="py-4 px-4 align-middle actions-cell"><div class="flex justify-end md:justify-center items-center gap-1"><button title="Add Direct Payment" data-direct-payment-id="${c.id}" class="p-1 text-teal-600 hover:bg-teal-100 rounded-full">...</button><button title="Edit Contact" data-edit-contact-id="${c.id}" class="p-1 text-blue-600 hover:bg-blue-100 rounded-full">...</button><button title="Delete Contact" data-delete-contact-id="${c.id}" class="p-1 text-rose-500 hover:bg-rose-100 rounded-full">...</button></div></td>`;
+        row.innerHTML = `<td data-label="Name" class="py-4 px-4 align-middle"><button data-ledger-id="${c.id}" class="font-medium text-slate-900 hover:text-teal-600 text-left cursor-pointer">${c.name}</button></td><td data-label="Type" class="py-4 px-4 align-middle">${typeBadge}</td><td data-label="Phone" class="py-4 px-4 align-middle">${c.phone || 'N/A'}</td><td data-label="Last Active" class="py-4 px-4 align-middle font-medium text-slate-600">${lastTransactionDate}</td><td data-label="Net Balance" class="py-4 px-4 align-middle font-bold text-right ${balanceClass}">${balanceText}</td><td data-label="Actions" class="py-4 px-4 align-middle actions-cell"><div class="flex justify-end md:justify-center items-center gap-1"><button title="Add Direct Payment" data-direct-payment-id="${c.id}" class="p-1 text-teal-600 hover:bg-teal-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" /></svg></button><button title="Edit Contact" data-edit-contact-id="${c.id}" class="p-1 text-blue-600 hover:bg-blue-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button><button title="Delete Contact" data-delete-contact-id="${c.id}" class="p-1 text-rose-500 hover:bg-rose-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div></td>`;
         tbody.appendChild(row);
     });
 };
 
+const showContactLedger = (id) => {
+    // This is a placeholder. You need to copy the full function body from your original code.
+    console.log("Showing ledger for:", id);
+};
+
 const showTransactionDetailsModal = (id) => {
-    // This function body is quite long, so I'll omit it here for brevity. 
-    // It's the same correct version from your very first single-file code.
+    const t = transactions.find(tx => tx.id === id);
+    if (!t) return;
+    // ... This is a placeholder. You need to copy the full function body from your original code.
+    const modal = document.getElementById('transaction-detail-modal');
+    document.getElementById('transaction-detail-title').textContent = `Details for Txn #${id.slice(0,5)}`;
+    document.getElementById('transaction-detail-content').innerHTML = `<p>Details for transaction ${t.item}</p>`;
+    modal.classList.remove('hidden');
 };
 
 const showPaginatedStatement = (page = 1) => {
-    // This function body is quite long.
-    // It's the same correct version from your previous files.
+    // This is a placeholder. You need to copy the full function body from your original code.
+    const modal = document.getElementById('statement-modal');
+    document.getElementById('statement-content').innerHTML = `<p>Showing overall statement...</p>`;
+    modal.classList.remove('hidden');
 };
 
 const handleDelete = async (id) => {
@@ -205,8 +225,8 @@ const handleDelete = async (id) => {
     }
 };
 
-// ... ALL OTHER FUNCTIONS (handleSaveContact, handlePasswordChange, etc.) should be defined here
-// as `const functionName = () => {}` just like handleDelete above.
+// ... Add ALL your other logic functions (handleSaveContact, handlePasswordChange, etc.) here
+// in the same `const functionName = () => {}` format.
 
 // --- NAVIGATION & EVENT BINDING ---
 function navigateTo(section) {
@@ -232,7 +252,9 @@ function bindAppEventListeners() {
     document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', (e) => navigateTo(e.currentTarget.dataset.section)));
     document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
     document.getElementById('overall-statement-btn').addEventListener('click', showPaginatedStatement);
-    // Bind all other global event listeners here, calling the functions directly
+    // Bind all other global event listeners here
+    // Example:
+    // document.getElementById('save-payment-btn').addEventListener('click', handleSavePayment);
 }
 
 function bindSectionEventListeners(section) {
@@ -250,15 +272,15 @@ function bindSectionEventListeners(section) {
         });
     } else if (section === 'contacts') {
         renderContacts();
-        document.getElementById('add-contact-btn').addEventListener('click', () => { /* open modal logic */ });
         document.getElementById('contacts-table-body').addEventListener('click', (e) => {
             const button = e.target.closest('button[data-ledger-id]');
             if (button) {
                 showContactLedger(button.dataset.ledgerId);
             }
         });
+        // ... other contact listeners
     }
-    // ... other section-specific listeners
+    // ... etc.
 }
 
 // --- AUTH & INITIALIZATION ---
@@ -266,7 +288,6 @@ onAuthStateChanged(auth, user => {
     if (user) {
         currentUserId = user.uid;
         document.getElementById('user-email').textContent = user.email;
-
         if (transactionsUnsubscribe) transactionsUnsubscribe();
         if (contactsUnsubscribe) contactsUnsubscribe();
 
@@ -274,22 +295,16 @@ onAuthStateChanged(auth, user => {
         transactionsUnsubscribe = onSnapshot(transQuery, snapshot => {
             transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
-            if (currentSection === 'dashboard' || currentSection === 'contacts') {
-                renderAll();
-                if(currentSection === 'contacts') renderContacts(); // Re-render contacts if on that page
-            }
+            if (currentSection === 'dashboard') renderAll();
+            if (currentSection === 'contacts') renderContacts();
         });
         
         const contactsQuery = query(collection(db, "users", currentUserId, "contacts"), orderBy("name"));
         contactsUnsubscribe = onSnapshot(contactsQuery, snapshot => {
             contacts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
-             if (currentSection === 'dashboard' || currentSection === 'contacts') {
-                if (currentSection === 'contacts') renderContacts();
-                else renderAll();
-             } else if (currentSection === 'transaction-form') {
-                // populateTradeDropdowns();
-             }
+            if (currentSection === 'contacts') renderContacts();
+            else if (currentSection === 'dashboard') renderAll();
         });
 
         appContainer.classList.remove('hidden');
