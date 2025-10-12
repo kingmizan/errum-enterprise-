@@ -10,6 +10,13 @@
     --color-surface-dark: #1e293b; /* slate-800 */
 }
 
+/* Base font size adjustment for mobile */
+@media (max-width: 640px) {
+    html {
+        font-size: 15px;
+    }
+}
+
 body {  
     font-family: 'Inter', sans-serif;  
     background-color: var(--color-bg-light);
@@ -93,9 +100,7 @@ body {
     color: white;  
 }
 
-/* ==========================================================================
-   Creative Transaction List Styles 🎨
-   ========================================================================== */
+/* Creative Transaction List Styles */
 .transaction-list .date-header {
     font-size: 0.875rem;
     font-weight: 600;
@@ -103,10 +108,6 @@ body {
     padding-bottom: 0.5rem;
     border-bottom: 1px solid #e2e8f0; /* slate-200 */
     margin-bottom: 0.75rem;
-}
-.dark .transaction-list .date-header {
-    color: #94a3b8; /* slate-400 */
-    border-color: #334155; /* slate-700 */
 }
 .transaction-item {
     display: flex;
@@ -124,10 +125,6 @@ body {
     transform: translateY(-2px);
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
-.dark .transaction-item {
-    background-color: var(--color-surface-dark);
-    border-color: #334155; /* slate-700 */
-}
 .avatar {
     width: 40px;
     height: 40px;
@@ -143,23 +140,17 @@ body {
 }
 .transaction-details {
     flex-grow: 1;
+    min-width: 0; /* Fix for flexbox text truncation */
+}
+.transaction-details > div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .transaction-amount {
     text-align: right;
     font-weight: 600;
 }
-.status-badge {
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.125rem 0.5rem;
-    border-radius: 9999px;
-    display: inline-block;
-    margin-top: 0.25rem;
-}
-.status-badge.unpaid { background-color: #fee2e2; color: #b91c1c; } /* red */
-.status-badge.paid { background-color: #dcfce7; color: #166534; } /* green */
-.dark .status-badge.unpaid { background-color: #b91c1c; color: #fecaca; }
-.dark .status-badge.paid { background-color: #166534; color: #bbf7d0; }
 
 
 /* ==========================================================================
@@ -179,7 +170,7 @@ body {
     background-color: #020617; /* slate-950 */
 }
 
-/* Text Colors */
+/* Text Colors - Higher contrast for mobile readability */
 .dark .dark-text-primary { color: #f1f5f9; } /* slate-100 */
 .dark .dark-text-secondary { color: #94a3b8; } /* slate-400 */
 
@@ -190,6 +181,10 @@ body {
 .dark .dark-form-bg { 
     background-color: #334155; /* slate-700 */
     border-color: #475569; /* slate-600 */
+    color: #f1f5f9;
+}
+.dark .dark-form-bg::placeholder {
+    color: #94a3b8;
 }
 
 /* Nav & Active States */
@@ -202,3 +197,13 @@ body {
 .dark ::-webkit-scrollbar-track { background: #1e293b; } 
 .dark ::-webkit-scrollbar-thumb { background: #475569; } 
 .dark ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+/* Transaction List Dark Mode */
+.dark .transaction-list .date-header {
+    color: #94a3b8; /* slate-400 */
+    border-color: #334155; /* slate-700 */
+}
+.dark .transaction-item {
+    background-color: var(--color-surface-dark);
+    border-color: #334155; /* slate-700 */
+}
