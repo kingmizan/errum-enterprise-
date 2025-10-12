@@ -2,9 +2,10 @@
 
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { auth } from './firebase.js';
-import { renderAppLayout, updateUserEmail } from './shared.js'; // Using the new layout function
+import { renderHeaderAndNav, updateUserEmail } from './shared.js';
 import { listenToContacts, listenToTransactions } from './api.js';
 import { initializeAuthEventListeners } from './auth.js';
+// ✨ This import will now work correctly
 import { animateCountUp } from './ui.js';
 import { showTransactionDetails, initializeDetailModalListeners } from './transactionDetail.js';
 
