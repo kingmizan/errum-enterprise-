@@ -1,12 +1,12 @@
 // --- auth.js ---
-// Handles user sign-in, sign-out, and state changes.
 
+// Make sure these start with './'
 import { auth } from './firebase-config.js';
-import { signInWithEmailAndPassword, onAuthStateChanged, signOut, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { state } from './state.js';
 import { initFirestoreListeners } from './firestore.js';
 import { navigateTo, bindAppEventListeners } from './navigation.js';
 import { showToast } from './ui.js';
+// ... rest of the file
 
 const loadingContainer = document.getElementById('loading-container');
 const authContainer = document.getElementById('auth-container');
