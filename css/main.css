@@ -1,32 +1,48 @@
 /* css/main.css */
 
-/* Tailwind Directives (if you were using a build tool, not needed for CDN) */
-/* @tailwind base; */
-/* @tailwind components; */
-/* @tailwind utilities; */
-
 :root {
+    /* ✨ 1. DESIGN SYSTEM: Color Palette ✨ */
+    /* Primary Color */
     --color-primary-500: #14b8a6; /* teal-500 */
     --color-primary-600: #0d9488; /* teal-600 */
-    --color-primary-700: #0f766e; /* teal-700 */
-    --color-bg-light: #f8fafc;    /* slate-50 */
-    --color-bg-dark: #020617;     /* slate-950 */
+
+    /* Neutrals for Light Mode */
+    --color-bg-light: #f1f5f9;      /* slate-100 */
+    --color-surface-light: #ffffff; /* white */
+    --color-text-light: #0f172a;    /* slate-900 */
+    --color-text-muted-light: #64748b; /* slate-500 */
+    --color-border-light: #e2e8f0;   /* slate-200 */
+
+    /* Neutrals for Dark Mode */
+    --color-bg-dark: #020617;        /* slate-950 */
+    --color-surface-dark: #0f172a;   /* slate-900 */
+    --color-text-dark: #f1f5f9;      /* slate-100 */
+    --color-text-muted-dark: #94a3b8; /* slate-400 */
+    --color-border-dark: #1e293b;     /* slate-800 */
+
+    /* Semantic Colors */
+    --color-success: #16a34a; /* green-600 */
+    --color-error: #dc2626;   /* red-600 */
 }
+
+/* Base body styles using variables */
 body { 
     font-family: 'Inter', sans-serif; 
     background-color: var(--color-bg-light);
+    color: var(--color-text-light);
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 }
-.dark body { background-color: var(--color-bg-dark); }
-::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #e2e8f0; } ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; } ::-webkit-scrollbar-thumb:hover { background: #64748b; }
-.dark ::-webkit-scrollbar-track { background: #1e293b; } .dark ::-webkit-scrollbar-thumb { background: #475569; } .dark ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+.dark body { 
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-dark);
+}
 
-*:focus-visible { outline: 2px solid var(--color-primary-500) !important; outline-offset: 2px !important; border-radius: 0.375rem; }
-.form-radio:checked { 
-    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e"); 
-    border-color: var(--color-primary-600); background-color: var(--color-primary-600); 
-}
+/* ✨ 2. DESIGN SYSTEM: Typography Classes ✨ */
+.h1 { @apply text-3xl font-extrabold tracking-tight; }
+.h2 { @apply text-2xl font-bold; }
+.form-label { @apply font-semibold text-sm; }
+
+/* Custom Styles using variables */
 .nav-link.active { 
     background-color: var(--color-primary-600);
     color: white; 
@@ -35,56 +51,29 @@ body {
     background-color: var(--color-primary-500);
 }
 
-@keyframes content-enter {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+/* ✨ 3. IMPROVED FEEDBACK: Skeleton Loader Styles ✨ */
+@keyframes skeleton-loading {
+    0% { background-color: #e2e8f0; } /* slate-200 */
+    100% { background-color: #cbd5e1; } /* slate-300 */
 }
-.content-enter { animation: content-enter 0.4s ease-out forwards; }
-
-
-/* ✨ --- FIX FOR MOBILE RESPONSIVENESS --- ✨ */
-/* This is the crucial part that makes your tables responsive */
-@media (max-width: 768px) {
-    .responsive-table thead {
-        display: none;
-    }
-    .responsive-table tr {
-        display: block;
-        border: 1px solid #e2e8f0;
-        border-radius: 0.5rem;
-        margin-bottom: 1rem;
-        padding: 1rem;
-        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    }
-    .dark .responsive-table tr {
-        border-color: #334155;
-    }
-    .responsive-table td {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem 0;
-        text-align: right;
-        border-bottom: 1px solid #f1f5f9;
-    }
-    .dark .responsive-table td {
-        border-bottom-color: #334155;
-    }
-    .responsive-table td:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-    }
-    .responsive-table td::before {
-        content: attr(data-label);
-        font-weight: 600;
-        text-align: left;
-        margin-right: 1rem;
-        color: #64748b;
-    }
-    .dark .responsive-table td::before {
-        color: #94a3b8;
-    }
-    .responsive-table td.actions-cell {
-        justify-content: flex-end;
-    }
+.dark @keyframes skeleton-loading {
+    0% { background-color: #1e293b; } /* slate-800 */
+    100% { background-color: #334155; } /* slate-700 */
 }
+.skeleton {
+    animation: skeleton-loading 1s linear infinite alternate;
+    border-radius: 0.25rem;
+}
+.skeleton-text {
+    width: 100%;
+    height: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+/* ✨ 4. IMPROVED FEEDBACK: Form Validation Style ✨ */
+.form-input-error {
+    border-color: var(--color-error) !important;
+    outline-color: var(--color-error) !important;
+}
+
+/* (Keep your other custom styles like scrollbars and responsive tables) */
