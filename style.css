@@ -1,15 +1,15 @@
 /* style.css */
 
 :root {
-    --color-primary-500: #14b8a6; /* teal-500 */
-    --color-primary-600: #0d9488; /* teal-600 */
-    --color-primary-700: #0f766e; /* teal-700 */
+    --color-primary-500: #06b6d4; /* cyan-500 */
+    --color-primary-600: #0891b2; /* cyan-600 */
     --color-bg-light: #f8fafc;   /* slate-50 */
 }
 
 body { 
     font-family: 'Inter', sans-serif; 
     background-color: var(--color-bg-light);
+    background-image: radial-gradient(circle at top, #e0f2fe, var(--color-bg-light) 30%);
     -webkit-font-smoothing: antialiased; 
     -moz-osx-font-smoothing: grayscale; 
 }
@@ -66,16 +66,17 @@ body {
     .responsive-table tr {
         display: block; 
         border: 1px solid #e2e8f0; 
-        border-radius: 0.5rem;
+        border-radius: 0.75rem; /* More rounded */
         margin-bottom: 1rem; 
         padding: 1rem;
-        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        background-color: white;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
     }
     .responsive-table td {
         display: flex; 
         justify-content: space-between; 
         align-items: center;
-        padding: 0.5rem 0; 
+        padding: 0.75rem 0; 
         text-align: right; 
         border-bottom: 1px solid #f1f5f9;
     }
@@ -91,5 +92,6 @@ body {
     }
     .responsive-table td.actions-cell { 
         justify-content: flex-end; 
+        padding-top: 0.75rem;
     }
 }
