@@ -1,12 +1,13 @@
 // --- auth.js ---
+// Handles user sign-in, sign-out, and state changes.
 
-// Make sure these start with './'
 import { auth } from './firebase-config.js';
+// THIS LINE FIXES THE ERROR by importing the necessary Firebase functions
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { state } from './state.js';
 import { initFirestoreListeners } from './firestore.js';
 import { navigateTo, bindAppEventListeners } from './navigation.js';
 import { showToast } from './ui.js';
-// ... rest of the file
 
 const loadingContainer = document.getElementById('loading-container');
 const authContainer = document.getElementById('auth-container');
@@ -65,6 +66,38 @@ export const handleSignOut = () => signOut(auth);
 
 // Handles the password change form submission
 export async function handlePasswordChange(e) {
-    // ... (paste handlePasswordChange function code from original app.js)
-    // You will need to import showToast from './ui.js' and auth from firebase-config
+    e.preventDefault();
+    const currentPassword = document.getElementById('current-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+    const errorP = document.getElementById('password-error');
+    errorP.textContent = '';
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        errorP.textContent = 'Please fill all fields.'; return;
+    }
+    if (newPassword.length < 6) {
+        errorP.textContent = 'New password must be at least 6 characters.'; return;
+    }
+    if (newPassword !== confirmPassword) {
+        errorP.textContent = 'New passwords do not match.'; return;
+    }
+
+    const user = auth.currentUser;
+    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+
+    try {
+        await reauthenticateWithCredential(user, credential);
+        await updatePassword(user, newPassword);
+        showToast('Password updated successfully!');
+        document.getElementById('password-change-form').reset();
+        document.getElementById('password-modal').classList.add('hidden');
+    } catch (error) {
+        if (error.code === 'auth/wrong-password') {
+            errorP.textContent = 'Incorrect current password.';
+        } else {
+            errorP.textContent = 'An error occurred. Please try again.';
+            console.error(error);
+        }
+    }
 }
