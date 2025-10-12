@@ -2,36 +2,31 @@
 
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { auth } from './firebase.js';
-import { renderHeaderAndNav, updateUserEmail } from './shared.js';
+// ✨ FIX: This import was missing or incorrect, causing the error.
+import { renderAppLayout, updateUserEmail } from './shared.js';
 import { listenToContacts, listenToTransactions } from './api.js';
 import { initializeAuthEventListeners } from './auth.js';
-// ✨ This import will now work correctly
 import { animateCountUp } from './ui.js';
 import { showTransactionDetails, initializeDetailModalListeners } from './transactionDetail.js';
 
 // --- Page State ---
 let userState = null;
-let contactsState = null; // Use null to track initial load
-let transactionsState = null; // Use null to track initial load
+let contactsState = null;
+let transactionsState = null;
 let chartInstance = null;
 let dashboardCurrentPage = 1;
 const DASHBOARD_ITEMS_PER_PAGE = 7;
 
-/**
- * Main entry point for the index.html page.
- */
 async function init() {
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            // User is logged in: hide login, show and build the main app layout.
             document.getElementById('auth-container')?.classList.add('hidden');
             userState = user;
             loadDashboard();
         } else {
-            // User is not logged in: show the login form.
             document.getElementById('app-container')?.classList.add('hidden');
             const authContainer = document.getElementById('auth-container');
-            if(authContainer) {
+            if (authContainer) {
                 authContainer.classList.remove('hidden');
                 initializeAuthEventListeners();
             }
@@ -39,21 +34,13 @@ async function init() {
     });
 }
 
-/**
- * Renders the app layout and fetches data for the dashboard.
- */
 function loadDashboard() {
-    // Render the main app shell with a sidebar, header, etc.
     renderAppLayout('dashboard');
     updateUserEmail(userState.email);
-    
-    // Show skeleton loaders while data is being fetched
-    document.getElementById('app-content').innerHTML = getDashboardSkeletonTemplate();
-    
+    document.getElementById('app-content').innerHTML = getDashboardTemplate();
     initializeDetailModalListeners();
     initializeDashboardListeners();
 
-    // Listen for data from Firebase
     listenToContacts(userState.uid, (contacts) => {
         contactsState = contacts || [];
         renderAllDashboardComponents();
@@ -65,31 +52,11 @@ function loadDashboard() {
     });
 }
 
-/**
- * A central function to update all dynamic parts of the dashboard.
- * It waits until both contacts and transactions have been fetched at least once.
- */
 function renderAllDashboardComponents() {
-    if (contactsState === null || transactionsState === null) {
-        return; // Don't render until both datasets have arrived.
-    }
-    // Once data is ready, replace skeleton with real content
-    document.getElementById('app-content').innerHTML = getDashboardTemplate();
-
+    if (contactsState === null || transactionsState === null) return;
     renderDashboardMetrics();
     renderProfitChart();
     renderTransactionHistory();
-}
-
-function getDashboardSkeletonTemplate() {
-    return `
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="p-6 bg-white dark:bg-slate-900 rounded-lg shadow-sm space-y-2"><div class="skeleton skeleton-text w-1/2"></div><div class="skeleton h-8 w-3/4"></div></div>
-            <div class="p-6 bg-white dark:bg-slate-900 rounded-lg shadow-sm space-y-2"><div class="skeleton skeleton-text w-1/2"></div><div class="skeleton h-8 w-3/4"></div></div>
-            <div class="p-6 bg-white dark:bg-slate-900 rounded-lg shadow-sm space-y-2"><div class="skeleton skeleton-text w-1/2"></div><div class="skeleton h-8 w-3/4"></div></div>
-        </div>
-        <div class="bg-white dark:bg-slate-900 rounded-lg p-6 shadow-sm"><div class="skeleton skeleton-text w-1/3 mb-4"></div><div class="skeleton h-72 w-full"></div></div>
-    `;
 }
 
 function getDashboardTemplate() {
@@ -111,10 +78,10 @@ function getDashboardTemplate() {
     `;
 }
 
-function renderDashboardMetrics() { /* ... unchanged ... */ }
-function renderProfitChart() { /* ... unchanged ... */ }
-function renderTransactionHistory() { /* ... unchanged ... */ }
-function initializeDashboardListeners() { /* ... unchanged ... */ }
+function renderDashboardMetrics() { /* ... same as before ... */ }
+function renderProfitChart() { /* ... same as before ... */ }
+function renderTransactionHistory() { /* ... same as before ... */ }
+function initializeDashboardListeners() { /* ... same as before ... */ }
 
 // Start the page logic
 init();
