@@ -1,13 +1,14 @@
 // --- navigation.js ---
-// Handles client-side routing and event listener binding
 
-import { templates } from './ui.js';
+// Make sure all these start with './'
+import { templates, showToast } from './ui.js';
 import { state } from './state.js';
 import { handleSignOut, handlePasswordChange } from './auth.js';
 import * as dashboard from './dashboard.js';
 import * as contacts from './contacts.js';
 import * as transactions from './transactions.js';
 import * as statements from './statements.js';
+// ... rest of the file
 
 const mainContent = document.getElementById('app-content');
 
