@@ -779,13 +779,11 @@ const bindSectionEventListeners = (section, context) => {
         document.getElementById('generate-overall-statement-btn').addEventListener('click', appLogic.renderOverallStatement);
         partySelect.addEventListener('change', (e) => {
             if (e.target.value) { 
-                // *** BUG FIX IS HERE ***
                 appLogic.renderContactLedger(e.target.value); 
             }
         });
         if (context?.contactId) {
             partySelect.value = context.contactId;
-            // *** AND BUG FIX IS HERE ***
             appLogic.renderContactLedger(context.contactId);
         }
     }
