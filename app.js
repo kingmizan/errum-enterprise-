@@ -345,7 +345,7 @@ const appLogic = (() => {
 
     const renderAll = () => { 
         const data = getFilteredTransactions(); 
-        renderDashboardMetrics(data); 
+        renderDashboardMetrics(); 
         renderTransactionHistory(data); 
         renderDashboardPaginationControls(data.length);
     };
@@ -777,10 +777,14 @@ const bindSectionEventListeners = (section, context) => {
         });
         document.getElementById('generate-overall-statement-btn').addEventListener('click', appLogic.renderOverallStatement);
         partySelect.addEventListener('change', (e) => {
-            if (e.target.value) { appLogic.renderContactLedger(e.target.value); }
+            if (e.target.value) { 
+                // *** BUG FIX IS HERE ***
+                appLogic.renderContactLedger(e.target.value); 
+            }
         });
         if (context?.contactId) {
             partySelect.value = context.contactId;
+            // *** AND BUG FIX IS HERE ***
             appLogic.renderContactLedger(context.contactId);
         }
     }
@@ -817,29 +821,33 @@ onAuthStateChanged(auth, user => {
             const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
             if (currentSection === 'dashboard' || currentSection === 'contacts') {
                 appLogic.renderAll(); 
-                appLogic.renderContacts();
             }
+        }, (error) => {
+            console.error("Error fetching transactions: ", error);
+            showToast("Failed to load transaction data.");
         });
         
         const contactsQuery = query(collection(db, "users", currentUserId, "contacts"), orderBy("name"));
         contactsUnsubscribe = onSnapshot(contactsQuery, snapshot => {
             contacts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
-             if (['dashboard', 'contacts', 'statements'].includes(currentSection)) {
-                if (currentSection !== 'statements') {
-                    appLogic.renderAll(); 
-                    appLogic.renderContacts();
-                }
+             if (['dashboard', 'contacts'].includes(currentSection)) {
+                appLogic.renderContacts();
             } else if (currentSection === 'transaction-form') {
                 appLogic.populateTradeDropdowns();
             }
+        }, (error) => {
+            console.error("Error fetching contacts: ", error);
+            showToast("Failed to load contact data.");
         });
 
         appContainer.classList.remove('hidden');
         authContainer.classList.add('hidden');
         loadingContainer.classList.add('hidden');
         
-        navigateTo('dashboard');
+        if (!mainContent.innerHTML) {
+            navigateTo('dashboard');
+        }
         bindAppEventListeners();
 
     } else {
