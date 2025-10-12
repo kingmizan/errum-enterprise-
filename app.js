@@ -34,12 +34,6 @@ const showToast = (message) => {
     }, 3000);
 };
 
-const updateThemeIcon = () => {
-    const isDark = document.documentElement.classList.contains('dark');
-    document.getElementById('theme-icon-light').classList.toggle('hidden', isDark);
-    document.getElementById('theme-icon-dark').classList.toggle('hidden', !isDark);
-};
-
 const animateCountUp = (el, endValue) => {
     if (!el) return;
     let startValue = 0;
@@ -66,19 +60,19 @@ const animateCountUp = (el, endValue) => {
 const templates = {
     dashboard: `
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="p-6 bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-rose-100 dark:bg-rose-500/20 text-rose-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400">Total Payable</h3><p id="total-payable" class="text-3xl font-bold text-rose-500 mt-1">৳0.00</p></div></div></div>
-            <div class="p-6 bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-green-100 dark:bg-green-500/20 text-green-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400">Total Receivable</h3><p id="total-receivable" class="text-3xl font-bold text-green-600 dark:text-green-500 mt-1">৳0.00</p></div></div></div>
-            <div class="p-6 bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-teal-100 dark:bg-teal-500/20 text-teal-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400">Net Balance</h3><p id="total-profit" class="text-3xl font-bold text-teal-600 dark:text-teal-500 mt-1">৳0.00</p></div></div></div>
+            <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-rose-100 text-rose-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Total Payable</h3><p id="total-payable" class="text-3xl font-bold text-rose-500 mt-1">৳0.00</p></div></div></div>
+            <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-green-100 text-green-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Total Receivable</h3><p id="total-receivable" class="text-3xl font-bold text-green-600 mt-1">৳0.00</p></div></div></div>
+            <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-cyan-100 text-cyan-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Net Balance</h3><p id="total-profit" class="text-3xl font-bold text-cyan-600 mt-1">৳0.00</p></div></div></div>
         </div>
-        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
-            <div class="p-4 border-b dark:border-slate-800 flex flex-wrap gap-4 justify-between items-center"><h2 class="text-xl font-bold">Recent Transactions</h2><div class="flex flex-wrap items-center gap-2"><input id="search-input" type="text" placeholder="Search..." class="w-48 p-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"><input type="date" id="filter-start-date" class="p-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"><input type="date" id="filter-end-date" class="p-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"></div></div>
-            <div class="overflow-x-auto"><table class="w-full text-sm responsive-table"><thead><tr class="border-b dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50"><th class="text-left font-semibold py-3 px-4">Date</th><th class="text-left font-semibold py-3 px-4">Details</th><th class="text-right font-semibold py-3 px-4">Profit/Value</th><th class="text-right font-semibold py-3 px-4">Payable Bal</th><th class="text-right font-semibold py-3 px-4">Receivable Bal</th><th class="text-center font-semibold py-3 px-4">Actions</th></tr></thead><tbody id="transaction-history-body"></tbody></table></div>
-            <div id="pagination-controls" class="flex justify-center items-center gap-4 p-4 border-t dark:border-slate-800"></div>
+        <div class="bg-white rounded-xl shadow-md border border-slate-200">
+            <div class="p-4 border-b border-slate-200 flex flex-wrap gap-4 justify-between items-center"><h2 class="text-xl font-bold text-slate-800">Recent Transactions</h2><div class="flex flex-wrap items-center gap-2"><input id="search-input" type="text" placeholder="Search..." class="w-48 p-2 border border-slate-300 rounded-lg bg-slate-50"><input type="date" id="filter-start-date" class="p-2 border border-slate-300 rounded-lg bg-slate-50"><input type="date" id="filter-end-date" class="p-2 border border-slate-300 rounded-lg bg-slate-50"></div></div>
+            <div class="overflow-x-auto"><table class="w-full text-sm responsive-table"><thead><tr class="border-b border-slate-200 bg-slate-50"><th class="text-left font-semibold py-3 px-4">Date</th><th class="text-left font-semibold py-3 px-4">Details</th><th class="text-right font-semibold py-3 px-4">Profit/Value</th><th class="text-right font-semibold py-3 px-4">Payable Bal</th><th class="text-right font-semibold py-3 px-4">Receivable Bal</th><th class="text-center font-semibold py-3 px-4">Actions</th></tr></thead><tbody id="transaction-history-body"></tbody></table></div>
+            <div id="pagination-controls" class="flex justify-center items-center gap-4 p-4 border-t border-slate-200"></div>
         </div>`,
     contacts: `
-        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
-            <div class="p-4 border-b dark:border-slate-800 flex justify-between items-center"><h2 class="text-xl font-bold">Manage Party</h2><button id="add-contact-btn" class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm shadow-sm shadow-teal-500/30"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>Add New Party</button></div>
-            <div class="overflow-x-auto"><table class="w-full text-sm responsive-table"><thead><tr class="border-b dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+        <div class="bg-white rounded-xl shadow-md border border-slate-200">
+            <div class="p-4 border-b border-slate-200 flex justify-between items-center"><h2 class="text-xl font-bold text-slate-800">Manage Party</h2><button id="add-contact-btn" class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm shadow-sm shadow-cyan-500/30"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>Add New Party</button></div>
+            <div class="overflow-x-auto"><table class="w-full text-sm responsive-table"><thead><tr class="border-b border-slate-200 bg-slate-50">
                 <th class="text-left font-semibold py-3 px-4">Name</th>
                 <th class="text-left font-semibold py-3 px-4">Type</th>
                 <th class="text-left font-semibold py-3 px-4">Phone</th>
@@ -88,50 +82,50 @@ const templates = {
             </tr></thead><tbody id="contacts-table-body"></tbody></table></div>
         </div>`,
     'transaction-form': `
-        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 max-w-4xl mx-auto">
-            <div class="p-6 border-b dark:border-slate-800"><h2 id="form-title" class="text-xl font-bold">Add New Transaction</h2></div>
+        <div class="bg-white rounded-xl shadow-md border border-slate-200 max-w-4xl mx-auto">
+            <div class="p-6 border-b border-slate-200"><h2 id="form-title" class="text-xl font-bold text-slate-800">Add New Transaction</h2></div>
             <form id="transaction-form" class="p-6">
                 <input type="hidden" id="transaction-id">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                    <div class="lg:col-span-2"><label for="item" class="font-semibold text-sm">Item Details</label><input type="text" id="item" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800" required></div>
-                    <div><label for="scale-weight" class="font-semibold text-sm">Scale Weight (kg)</label><input type="number" step="any" id="scale-weight" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"></div>
-                    <div><label for="less" class="font-semibold text-sm">Less (kg)</label><input type="number" step="any" id="less" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"></div>
-                    <div><label for="net-weight" class="font-semibold text-sm">Net Weight (kg)</label><input type="number" step="any" id="net-weight" placeholder="0.00" class="w-full p-2 mt-1 border rounded-lg bg-slate-100 dark:bg-slate-800" readonly></div>
+                    <div class="lg:col-span-2"><label for="item" class="font-semibold text-sm">Item Details</label><input type="text" id="item" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50" required></div>
+                    <div><label for="scale-weight" class="font-semibold text-sm">Scale Weight (kg)</label><input type="number" step="any" id="scale-weight" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50"></div>
+                    <div><label for="less" class="font-semibold text-sm">Less (kg)</label><input type="number" step="any" id="less" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50"></div>
+                    <div><label for="net-weight" class="font-semibold text-sm">Net Weight (kg)</label><input type="number" step="any" id="net-weight" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-100" readonly></div>
                 </div>
 
                 <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                    <div class="space-y-4 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800">
+                    <div class="space-y-4 p-4 rounded-lg bg-slate-50 border border-slate-200">
                         <h3 class="font-bold text-lg text-rose-500">Supplier Details</h3>
-                        <div><label for="supplier-select" class="font-semibold text-sm">Supplier Name</label><select id="supplier-select" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800" required><option value="">-- Select Supplier --</option></select></div>
-                        <div><label for="vehicle-no" class="font-semibold text-sm">Vehicle No</label><input type="text" id="vehicle-no" placeholder="e.g., DHAKA-123" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"></div>
-                        <div><label for="supplier-rate" class="font-semibold text-sm">Supplier Rate (per kg)</label><input type="number" step="any" id="supplier-rate" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"></div>
+                        <div><label for="supplier-select" class="font-semibold text-sm">Supplier Name</label><select id="supplier-select" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white" required><option value="">-- Select Supplier --</option></select></div>
+                        <div><label for="vehicle-no" class="font-semibold text-sm">Vehicle No</label><input type="text" id="vehicle-no" placeholder="e.g., DHAKA-123" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"></div>
+                        <div><label for="supplier-rate" class="font-semibold text-sm">Supplier Rate (per kg)</label><input type="number" step="any" id="supplier-rate" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"></div>
                         <div class="grid grid-cols-2 gap-4">
-                            <div><label for="paid-to-supplier" class="font-semibold text-sm">Initial Payment</label><input type="number" step="any" id="paid-to-supplier" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"></div>
-                            <div><label for="paid-to-supplier-method" class="font-semibold text-sm">Method</label><select id="paid-to-supplier-method" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
+                            <div><label for="paid-to-supplier" class="font-semibold text-sm">Initial Payment</label><input type="number" step="any" id="paid-to-supplier" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"></div>
+                            <div><label for="paid-to-supplier-method" class="font-semibold text-sm">Method</label><select id="paid-to-supplier-method" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
                         </div>
                     </div>
-                    <div class="space-y-4 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800">
-                        <h3 class="font-bold text-lg text-green-600 dark:text-green-500">Buyer Details</h3>
-                        <div><label for="buyer-select" class="font-semibold text-sm">Buyer Name</label><select id="buyer-select" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800" required><option value="">-- Select Buyer --</option></select></div>
-                        <div><label for="buyer-rate" class="font-semibold text-sm">Buyer Rate (per kg)</label><input type="number" step="any" id="buyer-rate" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"></div>
+                    <div class="space-y-4 p-4 rounded-lg bg-slate-50 border border-slate-200">
+                        <h3 class="font-bold text-lg text-green-600">Buyer Details</h3>
+                        <div><label for="buyer-select" class="font-semibold text-sm">Buyer Name</label><select id="buyer-select" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white" required><option value="">-- Select Buyer --</option></select></div>
+                        <div><label for="buyer-rate" class="font-semibold text-sm">Buyer Rate (per kg)</label><input type="number" step="any" id="buyer-rate" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"></div>
                         <div class="grid grid-cols-2 gap-4">
-                            <div><label for="received-from-buyer" class="font-semibold text-sm">Initial Payment</label><input type="number" step="any" id="received-from-buyer" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"></div>
-                            <div><label for="received-from-buyer-method" class="font-semibold text-sm">Method</label><select id="received-from-buyer-method" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
+                            <div><label for="received-from-buyer" class="font-semibold text-sm">Initial Payment</label><input type="number" step="any" id="received-from-buyer" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"></div>
+                            <div><label for="received-from-buyer-method" class="font-semibold text-sm">Method</label><select id="received-from-buyer-method" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="mt-6 pt-4 border-t dark:border-slate-800 space-y-2">
-                    <div><label for="date" class="font-semibold text-sm">Transaction Date</label><input type="date" id="date" class="w-full p-2 mt-1 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800" required></div>
-                    <div class="flex justify-between items-center text-lg"><span class="font-semibold text-slate-500">Total Payable (to Supplier):</span><span id="supplier-total" class="font-bold text-rose-500">৳0.00</span></div>
-                    <div class="flex justify-between items-center text-lg"><span class="font-semibold text-slate-500">Total Receivable (from Buyer):</span><span id="buyer-total" class="font-bold text-green-600">৳0.00</span></div>
-                    <div class="flex justify-between items-center text-xl"><span class="font-semibold">Gross Profit on Deal:</span><span id="transaction-profit" class="font-bold text-teal-600">৳0.00</span></div>
+                <div class="mt-6 pt-6 border-t border-slate-200 space-y-2">
+                    <div><label for="date" class="font-semibold text-sm">Transaction Date</label><input type="date" id="date" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50" required></div>
+                    <div class="flex justify-between items-center text-lg"><span class="font-semibold text-slate-500">Total Payable:</span><span id="supplier-total" class="font-bold text-rose-500">৳0.00</span></div>
+                    <div class="flex justify-between items-center text-lg"><span class="font-semibold text-slate-500">Total Receivable:</span><span id="buyer-total" class="font-bold text-green-600">৳0.00</span></div>
+                    <div class="flex justify-between items-center text-xl"><span class="font-semibold text-slate-800">Gross Profit on Deal:</span><span id="transaction-profit" class="font-bold text-cyan-600">৳0.00</span></div>
                 </div>
 
-                <div class="flex justify-end gap-3 pt-6">
-                    <button type="button" id="cancel-transaction-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm">Cancel</button>
-                    <button type="button" id="reset-form-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm">Reset</button>
-                    <button type="submit" class="px-6 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 text-sm">Save Transaction</button>
+                <div class="flex justify-end gap-3 pt-6 mt-4 border-t border-slate-200">
+                    <button type="button" id="cancel-transaction-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Cancel</button>
+                    <button type="button" id="reset-form-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Reset</button>
+                    <button type="submit" class="px-6 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Save Transaction</button>
                 </div>
             </form>
         </div>`
@@ -173,9 +167,9 @@ const appLogic = (() => {
         const nextDisabled = dashboardCurrentPage === totalPages ? 'disabled' : '';
 
         controlsContainer.innerHTML = `
-            <button id="prev-page-btn" class="px-3 py-1 text-sm rounded-md font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 disabled:opacity-50" ${prevDisabled}>Previous</button>
+            <button id="prev-page-btn" class="px-3 py-1 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300 disabled:opacity-50" ${prevDisabled}>Previous</button>
             <span class="text-sm font-semibold">Page ${dashboardCurrentPage} of ${totalPages}</span>
-            <button id="next-page-btn" class="px-3 py-1 text-sm rounded-md font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 disabled:opacity-50" ${nextDisabled}>Next</button>
+            <button id="next-page-btn" class="px-3 py-1 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300 disabled:opacity-50" ${nextDisabled}>Next</button>
         `;
 
         document.getElementById('prev-page-btn')?.addEventListener('click', () => {
@@ -236,13 +230,13 @@ const appLogic = (() => {
 
         tbody.innerHTML = '';
         if (pageData.length === 0) { 
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-500 dark:text-slate-400"><div class="flex flex-col items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg><h3 class="font-semibold mt-2">No Transactions Found</h3><p>Your recorded transactions will appear here.</p></div></td></tr>`; 
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-500"><div class="flex flex-col items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg><h3 class="font-semibold mt-2">No Transactions Found</h3><p>Your recorded transactions will appear here.</p></div></td></tr>`; 
             return; 
         }
         
         pageData.forEach(t => {
             const row = document.createElement('tr'); 
-            row.className = 'odd:bg-slate-50 dark:odd:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800/50 border-b dark:border-slate-800 md:border-b-0 cursor-pointer';
+            row.className = 'hover:bg-slate-50 border-b border-slate-200 md:border-b-0 cursor-pointer';
             row.dataset.id = t.id;
 
             let detailsHtml, valueHtml, payableBalHtml, receivableBalHtml, actionsHtml;
@@ -252,25 +246,24 @@ const appLogic = (() => {
                 const receivedFromBuyer = getPayments(t.paymentsFromBuyer);
                 const payableBalance = t.supplierTotal - paidToSupplier;
                 const receivableBalance = t.buyerTotal - receivedFromBuyer;
-                detailsHtml = `<div class="font-medium text-slate-900 dark:text-slate-100">${t.item}</div><div class="text-xs text-slate-500">${t.supplierName} → ${t.buyerName}</div>`;
+                detailsHtml = `<div class="font-medium text-slate-800">${t.item}</div><div class="text-xs text-slate-500">${t.supplierName} → ${t.buyerName}</div>`;
                 valueHtml = `৳${(t.profit || 0).toFixed(2)}`;
                 payableBalHtml = `<span class="font-semibold ${payableBalance > 0.01 ? 'text-rose-500' : 'text-slate-500'}">৳${payableBalance.toFixed(2)}</span>`;
                 receivableBalHtml = `<span class="font-semibold ${receivableBalance > 0.01 ? 'text-green-600' : 'text-slate-500'}">৳${receivableBalance.toFixed(2)}</span>`;
                 
-                // FIX: Ensure all action buttons are generated here
                 actionsHtml = `<div class="flex justify-end md:justify-center items-center gap-2">
                     ${payableBalance > 0.01 ? `<button title="Pay Supplier" data-payment-id="${t.id}" data-payment-type="toSupplier" class="px-2 py-1 text-xs rounded font-semibold text-rose-700 bg-rose-100 hover:bg-rose-200">Pay</button>` : ''}
                     ${receivableBalance > 0.01 ? `<button title="Receive from Buyer" data-payment-id="${t.id}" data-payment-type="fromBuyer" class="px-2 py-1 text-xs rounded font-semibold text-green-700 bg-green-100 hover:bg-green-200">Receive</button>` : ''}
-                    <button title="Edit" data-edit-id="${t.id}" class="p-1 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
-                    <button title="Delete" data-delete-id="${t.id}" class="p-1 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/50 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+                    <button title="Edit" data-edit-id="${t.id}" class="p-1 text-blue-600 hover:bg-blue-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
+                    <button title="Delete" data-delete-id="${t.id}" class="p-1 text-rose-500 hover:bg-rose-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
                 </div>`;
             } else if (t.type === 'payment') {
-                detailsHtml = `<div class="font-medium text-slate-900 dark:text-slate-100">${t.description} (${t.paymentType})</div><div class="text-xs text-slate-500">${t.name}</div>`;
+                detailsHtml = `<div class="font-medium text-slate-800">${t.description} (${t.paymentType})</div><div class="text-xs text-slate-500">${t.name}</div>`;
                 valueHtml = `৳${(t.amount || 0).toFixed(2)}`;
                 payableBalHtml = '<span class="text-slate-400">-</span>';
                 receivableBalHtml = '<span class="text-slate-400">-</span>';
                 actionsHtml = `<div class="flex justify-end md:justify-center items-center gap-1">
-                    <button title="Delete" data-delete-id="${t.id}" class="p-1 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/50 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+                    <button title="Delete" data-delete-id="${t.id}" class="p-1 text-rose-500 hover:bg-rose-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
                 </div>`;
             }
             
@@ -288,7 +281,7 @@ const appLogic = (() => {
 
     const renderContacts = () => {
         const tbody = document.getElementById('contacts-table-body'); if (!tbody) return; tbody.innerHTML = '';
-        if (contacts.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-500 dark:text-slate-400">No contacts found. Add one to get started!</td></tr>`; return; }
+        if (contacts.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-500">No contacts found. Add one to get started!</td></tr>`; return; }
         
         contacts.forEach(c => {
             // --- Calculate Net Balance ---
@@ -317,36 +310,36 @@ const appLogic = (() => {
             // --- Setup styles for Type Badge and Balance ---
             const balanceText = `৳${Math.abs(netBalance).toFixed(2)}`;
             let balanceClass = 'text-slate-500';
-            if (netBalance > 0.01) balanceClass = 'text-green-600 dark:text-green-500';
-            else if (netBalance < -0.01) balanceClass = 'text-rose-500 dark:text-rose-500';
+            if (netBalance > 0.01) balanceClass = 'text-green-600';
+            else if (netBalance < -0.01) balanceClass = 'text-rose-500';
 
             let typeBadge;
             if (c.type === 'buyer') {
-                typeBadge = `<span class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-500/20 dark:text-teal-400">
+                typeBadge = `<span class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z" /></svg>
                     Buyer
                 </span>`;
             } else {
-                typeBadge = `<span class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300">
+                typeBadge = `<span class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 11l3-3m0 0l3 3m-3-3v8m0-13a9 9 0 110-18 9 9 0 010 18z" /></svg>
                     Supplier
                 </span>`;
             }
             
             // --- Render the Row ---
-            const row = document.createElement('tr'); row.className = 'odd:bg-slate-50 dark:odd:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800/50 border-b dark:border-slate-800 md:border-b-0';
+            const row = document.createElement('tr'); row.className = 'hover:bg-slate-50 border-b border-slate-200 md:border-b-0';
             row.innerHTML = `<td data-label="Name" class="py-4 px-4 align-middle">
-                                <button data-ledger-id="${c.id}" class="font-medium text-slate-900 dark:text-slate-100 hover:text-teal-600 dark:hover:text-teal-400 text-left cursor-pointer">${c.name}</button>
+                                <button data-ledger-id="${c.id}" class="font-medium text-slate-800 hover:text-cyan-600 text-left cursor-pointer">${c.name}</button>
                                </td>
                                <td data-label="Type" class="py-4 px-4 align-middle">${typeBadge}</td>
                                <td data-label="Phone" class="py-4 px-4 align-middle">${c.phone || 'N/A'}</td>
-                               <td data-label="Last Active" class="py-4 px-4 align-middle font-medium text-slate-600 dark:text-slate-400">${lastTransactionDate}</td>
+                               <td data-label="Last Active" class="py-4 px-4 align-middle font-medium text-slate-600">${lastTransactionDate}</td>
                                <td data-label="Net Balance" class="py-4 px-4 align-middle font-bold text-right ${balanceClass}">${balanceText}</td>
                                <td data-label="Actions" class="py-4 px-4 align-middle actions-cell">
                                 <div class="flex justify-end md:justify-center items-center gap-1">
-                                    <button title="Add Direct Payment" data-direct-payment-id="${c.id}" class="p-1 text-teal-600 hover:bg-teal-100 dark:hover:bg-teal-900/50 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" /></svg></button>
-                                    <button title="Edit Contact" data-edit-contact-id="${c.id}" class="p-1 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
-                                    <button title="Delete Contact" data-delete-contact-id="${c.id}" class="p-1 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/50 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+                                    <button title="Add Direct Payment" data-direct-payment-id="${c.id}" class="p-1 text-cyan-600 hover:bg-cyan-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" /></svg></button>
+                                    <button title="Edit Contact" data-edit-contact-id="${c.id}" class="p-1 text-blue-600 hover:bg-blue-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
+                                    <button title="Delete Contact" data-delete-contact-id="${c.id}" class="p-1 text-rose-500 hover:bg-rose-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
                                 </div>
                                </td>`;
             tbody.appendChild(row);
@@ -748,15 +741,15 @@ const appLogic = (() => {
         const ledgerRows = ledgerItems.map(item => {
             runningBalance += (item.debit - item.credit);
             const bal = runningBalance > 0.01 ? `৳${runningBalance.toFixed(2)} Dr` : runningBalance < -0.01 ? `৳${Math.abs(runningBalance).toFixed(2)} Cr` : '৳0.00';
-            return `<tr class="border-b dark:border-slate-700 text-sm">
+            return `<tr class="border-b border-slate-200 text-sm">
                 <td class="p-2 whitespace-nowrap">${item.date === '0000-01-01' ? 'Initial' : item.date}</td>
                 <td class="p-2">${item.description}</td>
                 <td class="p-2">${item.vehicleNo}</td>
                 <td class="p-2 text-right">${item.scaleWeight > 0 ? item.scaleWeight.toFixed(2) : ''}</td>
                 <td class="p-2 text-right">${item.netWeight > 0 ? item.netWeight.toFixed(2) : ''}</td>
                 <td class="p-2 text-right">${item.rate > 0 ? `＠${item.rate.toFixed(2)}` : ''}</td>
-                <td class="p-2 text-right text-green-600 dark:text-green-500">${item.debit > 0 ? `৳${item.debit.toFixed(2)}` : ''}</td>
-                <td class="p-2 text-right text-rose-500 dark:text-rose-500">${item.credit > 0 ? `৳${item.credit.toFixed(2)}` : ''}</td>
+                <td class="p-2 text-right text-green-600">${item.debit > 0 ? `৳${item.debit.toFixed(2)}` : ''}</td>
+                <td class="p-2 text-right text-rose-500">${item.credit > 0 ? `৳${item.credit.toFixed(2)}` : ''}</td>
                 <td class="p-2 text-right font-semibold">${bal}</td>
             </tr>`;
         }).join('');
@@ -765,15 +758,15 @@ const appLogic = (() => {
         const balanceStatus = finalBalance > 0.01 ? "Receivable" : (finalBalance < -0.01 ? "Payable" : "Settled");
         const balanceClass = finalBalance > 0.01 ? 'text-green-500' : (finalBalance < -0.01 ? 'text-rose-500' : 'text-slate-500');
 
-        const html = `<div id="statement-to-export" class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">
-            <div class="text-center mb-6 border-b dark:border-slate-700 pb-4">
+        const html = `<div id="statement-to-export" class="bg-white text-slate-800">
+            <div class="text-center mb-6 border-b border-slate-200 pb-4">
                 <h2 class="text-3xl font-bold">Account Ledger</h2>
                 <p class="text-lg">${contact.name}</p>
                 <p class="text-sm text-slate-500">${contact.type.charAt(0).toUpperCase() + contact.type.slice(1)}</p>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full text-xs sm:text-sm mb-6">
-                    <thead class="bg-slate-100 dark:bg-slate-800"><tr>
+                    <thead class="bg-slate-100"><tr>
                         <th class="text-left p-2">Date</th>
                         <th class="text-left p-2">Product</th>
                         <th class="text-left p-2">Vehicle</th>
@@ -788,7 +781,7 @@ const appLogic = (() => {
                 </table>
             </div>
             <div class="flex justify-end"><div class="w-full md:w-1/2 text-right">
-                <div class="flex justify-between font-bold text-lg border-t dark:border-slate-700 pt-2 mt-2">
+                <div class="flex justify-between font-bold text-lg border-t border-slate-200 pt-2 mt-2">
                     <span>Final Balance (${balanceStatus}):</span>
                     <span class="${balanceClass}">৳${Math.abs(finalBalance).toFixed(2)}</span>
                 </div>
@@ -797,7 +790,7 @@ const appLogic = (() => {
 
         document.getElementById('statement-title').textContent = `Ledger: ${contact.name}`;
         document.getElementById('statement-content').innerHTML = html;
-        document.getElementById('statement-pagination-controls').innerHTML = ''; // Hide pagination for contact ledger
+        document.getElementById('statement-pagination-controls').innerHTML = '';
         document.getElementById('statement-modal').classList.remove('hidden');
     };
     
@@ -866,7 +859,7 @@ const appLogic = (() => {
         const rows = pageItems.map(item => {
             const bal = item.balance >= 0 ? `৳${item.balance.toFixed(2)}` : `(৳${Math.abs(item.balance).toFixed(2)})`;
 
-            return `<tr class="border-b dark:border-slate-700 text-sm">
+            return `<tr class="border-b border-slate-200 text-sm">
                 <td class="p-2 whitespace-nowrap">${item.date === '0000-01-01' ? 'Opening' : item.date}</td>
                 <td class="p-2">${item.supplierName || ''}</td>
                 <td class="p-2 text-right">${item.supplierNetWeight ? item.supplierNetWeight.toFixed(2) : ''}</td>
@@ -883,32 +876,32 @@ const appLogic = (() => {
             </tr>`;
         }).join('');
 
-        const html = `<div id="statement-to-export" class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">
-            <div class="text-center mb-6 border-b dark:border-slate-700 pb-4">
+        const html = `<div id="statement-to-export" class="bg-white text-slate-800">
+            <div class="text-center mb-6 border-b border-slate-200 pb-4">
                 <h2 class="text-3xl font-bold">Statement</h2>
                 <p class="text-lg">Full Transaction History</p>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full text-xs sm:text-sm mb-6">
-                    <thead class="bg-slate-100 dark:bg-slate-800">
+                    <thead class="bg-slate-100">
                         <tr>
-                            <th rowspan="2" class="text-left p-2 border dark:border-slate-700">Date</th>
-                            <th colspan="4" class="text-center p-2 border dark:border-slate-700">Supplier Details</th>
-                            <th colspan="4" class="text-center p-2 border dark:border-slate-700">Buyer Details</th>
-                            <th rowspan="2" class="text-right p-2 border dark:border-slate-700">Profit</th>
-                            <th rowspan="2" class="text-right p-2 border dark:border-slate-700">Debit (In)</th>
-                            <th rowspan="2" class="text-right p-2 border dark:border-slate-700">Credit (Out)</th>
-                            <th rowspan="2" class="text-right p-2 border dark:border-slate-700">Balance</th>
+                            <th rowspan="2" class="text-left p-2 border border-slate-200">Date</th>
+                            <th colspan="4" class="text-center p-2 border border-slate-200">Supplier Details</th>
+                            <th colspan="4" class="text-center p-2 border border-slate-200">Buyer Details</th>
+                            <th rowspan="2" class="text-right p-2 border border-slate-200">Profit</th>
+                            <th rowspan="2" class="text-right p-2 border border-slate-200">Debit (In)</th>
+                            <th rowspan="2" class="text-right p-2 border border-slate-200">Credit (Out)</th>
+                            <th rowspan="2" class="text-right p-2 border border-slate-200">Balance</th>
                         </tr>
                         <tr>
-                            <th class="text-left p-2 border dark:border-slate-700">Name / Particulars</th>
-                            <th class="text-right p-2 border dark:border-slate-700">Net Wt.</th>
-                            <th class="text-right p-2 border dark:border-slate-700">Rate</th>
-                            <th class="text-right p-2 border dark:border-slate-700">Value</th>
-                            <th class="text-left p-2 border dark:border-slate-700">Name</th>
-                            <th class="text-right p-2 border dark:border-slate-700">Net Wt.</th>
-                            <th class="text-right p-2 border dark:border-slate-700">Rate</th>
-                            <th class="text-right p-2 border dark:border-slate-700">Value</th>
+                            <th class="text-left p-2 border border-slate-200">Name / Particulars</th>
+                            <th class="text-right p-2 border border-slate-200">Net Wt.</th>
+                            <th class="text-right p-2 border border-slate-200">Rate</th>
+                            <th class="text-right p-2 border border-slate-200">Value</th>
+                            <th class="text-left p-2 border border-slate-200">Name</th>
+                            <th class="text-right p-2 border border-slate-200">Net Wt.</th>
+                            <th class="text-right p-2 border border-slate-200">Rate</th>
+                            <th class="text-right p-2 border border-slate-200">Value</th>
                         </tr>
                     </thead>
                     <tbody>${rows}</tbody>
@@ -924,9 +917,9 @@ const appLogic = (() => {
             const prevDisabled = page === 1 ? 'disabled' : '';
             const nextDisabled = page === totalPages ? 'disabled' : '';
             controlsContainer.innerHTML = `
-                <button id="statement-prev-btn" class="px-3 py-1 text-xs rounded-md font-semibold bg-slate-200 dark:bg-slate-700 disabled:opacity-50" ${prevDisabled}>Previous</button>
+                <button id="statement-prev-btn" class="px-3 py-1 text-xs rounded-md font-semibold bg-slate-200 disabled:opacity-50" ${prevDisabled}>Previous</button>
                 <span class="text-xs font-semibold">Page ${page} of ${totalPages}</span>
-                <button id="statement-next-btn" class="px-3 py-1 text-xs rounded-md font-semibold bg-slate-200 dark:bg-slate-700 disabled:opacity-50" ${nextDisabled}>Next</button>
+                <button id="statement-next-btn" class="px-3 py-1 text-xs rounded-md font-semibold bg-slate-200 disabled:opacity-50" ${nextDisabled}>Next</button>
             `;
             document.getElementById('statement-prev-btn')?.addEventListener('click', () => showPaginatedStatement(page - 1));
             document.getElementById('statement-next-btn')?.addEventListener('click', () => showPaginatedStatement(page + 1));
@@ -948,8 +941,7 @@ const appLogic = (() => {
             const content = document.getElementById('statement-to-export');
             if (!content) { showToast('Could not find content to export.'); return; }
             showToast(`Generating PNG...`);
-            const isDark = document.documentElement.classList.contains('dark');
-            const canvas = await html2canvas(content, { scale: 2, backgroundColor: isDark ? '#020617' : '#ffffff' });
+            const canvas = await html2canvas(content, { scale: 2, backgroundColor: '#ffffff' });
             const link = document.createElement('a');
             link.download = `${filename}.png`;
             link.href = canvas.toDataURL();
@@ -967,7 +959,6 @@ const appLogic = (() => {
             if (type === 'contact') {
                 head.push(['Date', 'Description', 'Vehicle', 'Net Wt.', 'Rate', 'Debit', 'Credit', 'Balance']);
                 let runningBalance = 0;
-                // Use a chronological copy for PDF
                 const chronologicalData = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
                 chronologicalData.forEach(item => {
                     runningBalance += (item.debit || 0) - (item.credit || 0);
@@ -983,19 +974,12 @@ const appLogic = (() => {
                 });
                 finalBalance = runningBalance;
                 
-                // FIX: Add the final balance as the last row of the table body
                 const balanceStatus = finalBalance > 0.01 ? "Receivable" : (finalBalance < -0.01 ? "Payable" : "Settled");
                 body.push([
-                    { 
-                        content: `Final Balance (${balanceStatus}):`, 
-                        colSpan: 8,
-                        styles: { halign: 'right', fontStyle: 'bold' } 
-                    },
-                    { 
-                        content: `৳${Math.abs(finalBalance).toFixed(2)}`, 
-                        styles: { halign: 'right', fontStyle: 'bold' } 
-                    }
+                    { content: `Final Balance (${balanceStatus}):`, colSpan: 8, styles: { halign: 'right', fontStyle: 'bold' } },
+                    { content: `৳${Math.abs(finalBalance).toFixed(2)}`, styles: { halign: 'right', fontStyle: 'bold' } }
                 ]);
+
             } else { // 'overall' type
                 head.push([
                     { content: 'Date', rowSpan: 2 },
@@ -1028,18 +1012,10 @@ const appLogic = (() => {
                 });
                 finalBalance = chronologicalData.length > 0 ? chronologicalData[chronologicalData.length - 1].balance : 0;
                 
-                // FIX: Add the final balance as the last row
                 const balanceStatus = finalBalance >= 0 ? "Net Receivable" : "Net Payable";
                  body.push([
-                    { 
-                        content: `Final Net Balance (${balanceStatus}):`, 
-                        colSpan: 12,
-                        styles: { halign: 'right', fontStyle: 'bold' } 
-                    },
-                    { 
-                        content: `৳${Math.abs(finalBalance).toFixed(2)}`, 
-                        styles: { halign: 'right', fontStyle: 'bold' } 
-                    }
+                    { content: `Final Net Balance (${balanceStatus}):`, colSpan: 12, styles: { halign: 'right', fontStyle: 'bold' } },
+                    { content: `৳${Math.abs(finalBalance).toFixed(2)}`, styles: { halign: 'right', fontStyle: 'bold' } }
                 ]);
             }
 
@@ -1047,9 +1023,8 @@ const appLogic = (() => {
                 head: head, 
                 body: body,
                 theme: 'striped',
-                headStyles: { fillColor: [13, 148, 136] }, // Teal color from theme
+                headStyles: { fillColor: [8, 145, 178] }, // Cyan-600
                 didDrawPage: (data) => {
-                    // Header
                     doc.setFontSize(20);
                     doc.setFont('helvetica', 'bold');
                     doc.text('Errum Enterprise', data.settings.margin.left, 40);
@@ -1057,7 +1032,6 @@ const appLogic = (() => {
                     doc.setFont('helvetica', 'normal');
                     doc.text(type === 'contact' ? `Account Ledger for: ${name}` : 'Overall Transaction Statement', data.settings.margin.left, 58);
                     
-                    // Footer
                     const pageCount = doc.internal.getNumberOfPages();
                     const footerY = doc.internal.pageSize.height - 30;
                     doc.setFontSize(8);
@@ -1066,12 +1040,11 @@ const appLogic = (() => {
                 },
                 margin: { top: 70 },
                 styles: { fontSize: 8 },
-                // FIX: Highlight the final balance row
                 didParseCell: function (data) {
                     if (data.row.index === body.length - 1) {
                         data.cell.styles.fontStyle = 'bold';
-                        data.cell.styles.fillColor = '#f1f5f9'; // slate-100
-                        data.cell.styles.textColor = '#0f172a'; // slate-900
+                        data.cell.styles.fillColor = '#f1f5f9';
+                        data.cell.styles.textColor = '#0f172a';
                     }
                 }
             });
@@ -1180,7 +1153,7 @@ const appLogic = (() => {
             detailsContent.innerHTML = `
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                       <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
+                       <div class="bg-slate-50 p-4 rounded-lg">
                            <h3 class="font-bold text-lg text-rose-500 mb-2">Supplier Details</h3>
                            <div class="text-sm space-y-1">
                                <p><strong class="w-24 inline-block text-slate-500">Name:</strong> ${t.supplierName}</p>
@@ -1188,7 +1161,7 @@ const appLogic = (() => {
                                <p><strong class="w-24 inline-block text-slate-500">Total:</strong> ৳${t.supplierTotal.toFixed(2)}</p>
                            </div>
                        </div>
-                       <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
+                       <div class="bg-slate-50 p-4 rounded-lg">
                            <h3 class="font-bold text-lg text-green-600 mb-2">Buyer Details</h3>
                            <div class="text-sm space-y-1">
                                <p><strong class="w-24 inline-block text-slate-500">Name:</strong> ${t.buyerName}</p>
@@ -1197,16 +1170,16 @@ const appLogic = (() => {
                            </div>
                        </div>
                     </div>
-                     <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
-                         <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200 mb-2">Item & Weight</h3>
+                     <div class="bg-slate-50 p-4 rounded-lg">
+                         <h3 class="font-bold text-lg text-slate-800 mb-2">Item & Weight</h3>
                          <div class="text-sm space-y-1">
                               <p><strong class="w-24 inline-block text-slate-500">Item:</strong> ${t.item}</p>
                               <p><strong class="w-24 inline-block text-slate-500">Vehicle No:</strong> ${t.vehicleNo || 'N/A'}</p>
                               <p><strong class="w-24 inline-block text-slate-500">Net Weight:</strong> ${t.netWeight.toFixed(2)} kg</p>
                          </div>
                      </div>
-                    <div class="p-4 rounded-lg border dark:border-slate-700">
-                        <h3 class="font-bold text-lg text-teal-600 mb-2">Financial Summary</h3>
+                    <div class="p-4 rounded-lg border border-slate-200">
+                        <h3 class="font-bold text-lg text-cyan-600 mb-2">Financial Summary</h3>
                         <div class="text-sm space-y-1">
                               <p><strong class="w-24 inline-block text-slate-500">Gross Profit:</strong> ৳${t.profit.toFixed(2)}</p>
                               <p><strong class="w-24 inline-block text-slate-500">Paid to Sup:</strong> ৳${getPayments(t.paymentsToSupplier).toFixed(2)}</p>
@@ -1247,7 +1220,7 @@ const appLogic = (() => {
                              </tr>
                          </thead>
                          <tbody>
-                             <tr class="border-b">
+                             <tr class="border-b border-slate-200">
                                  <td class="p-2">${t.item} (${t.vehicleNo || 'N/A'})</td>
                                  <td class="text-right p-2">${t.netWeight.toFixed(2)}</td>
                                  <td class="text-right p-2">৳${t.buyerRate.toFixed(2)}</td>
@@ -1259,7 +1232,7 @@ const appLogic = (() => {
                          <div class="w-full md:w-1/2 space-y-2 text-slate-600">
                              <div class="flex justify-between"><span class="font-semibold">Subtotal:</span><span>৳${t.buyerTotal.toFixed(2)}</span></div>
                              <div class="flex justify-between"><span class="font-semibold">Amount Paid:</span><span>- ৳${getPayments(t.paymentsFromBuyer).toFixed(2)}</span></div>
-                             <div class="flex justify-between font-bold text-xl text-slate-900 border-t pt-2 mt-2"><span class="text-teal-600">Balance Due:</span><span class="text-teal-600">৳${balanceDue.toFixed(2)}</span></div>
+                             <div class="flex justify-between font-bold text-xl text-slate-900 border-t border-slate-200 pt-2 mt-2"><span class="text-cyan-600">Balance Due:</span><span class="text-cyan-600">৳${balanceDue.toFixed(2)}</span></div>
                          </div>
                      </div>
                      <div class="text-center mt-12 text-xs text-slate-400">
@@ -1272,8 +1245,8 @@ const appLogic = (() => {
             toggleBtn.title = '';
         } else if (t.type === 'payment') {
             detailsContent.innerHTML = `
-                <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
-                    <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200 mb-2">Payment Details</h3>
+                <div class="bg-slate-50 p-4 rounded-lg">
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">Payment Details</h3>
                     <div class="text-sm space-y-1">
                         <p><strong class="w-28 inline-block text-slate-500">Date:</strong> ${t.date}</p>
                         <p><strong class="w-28 inline-block text-slate-500">Party Name:</strong> ${t.name}</p>
@@ -1346,7 +1319,6 @@ const navigateTo = (section) => {
 };
 
 const bindAppEventListeners = () => {
-    document.getElementById('theme-toggle').addEventListener('click', () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); updateThemeIcon(); });
     document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', (e) => navigateTo(e.currentTarget.dataset.section)));
     document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
     document.getElementById('save-payment-btn').addEventListener('click', appLogic.handleSavePayment);
@@ -1473,6 +1445,3 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         authContainer.classList.remove('hidden');
     }
 });
-
-// Initial theme setup
-updateThemeIcon();
