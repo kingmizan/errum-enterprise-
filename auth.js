@@ -1,23 +1,18 @@
 // --- auth.js ---
-// Handles user sign-in, sign-out, and state changes.
-
 import { auth } from './firebase-config.js';
-// THIS LINE FIXES THE ERROR by importing the necessary Firebase functions
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { state } from './state.js';
 import { initFirestoreListeners } from './firestore.js';
 import { navigateTo, bindAppEventListeners } from './navigation.js';
-import { showToast } from './ui.js';
+import { showToast, updateThemeIcon } from './ui.js';
 
 const loadingContainer = document.getElementById('loading-container');
 const authContainer = document.getElementById('auth-container');
 const appContainer = document.getElementById('app-container');
 
-// Main function to initialize authentication flow
 export function initAuth() {
     onAuthStateChanged(auth, user => {
         if (user) {
-            // User is signed in
             state.currentUserId = user.uid;
             document.getElementById('user-email').textContent = user.email;
             initFirestoreListeners();
@@ -28,8 +23,8 @@ export function initAuth() {
             
             navigateTo('dashboard');
             bindAppEventListeners();
+            updateThemeIcon();
         } else {
-            // User is signed out
             state.currentUserId = null;
             state.transactions = [];
             state.contacts = [];
@@ -43,7 +38,6 @@ export function initAuth() {
     });
 }
 
-// Handles the login form submission
 export async function handleLogin(e) {
     e.preventDefault();
     loadingContainer.classList.remove('hidden');
@@ -61,10 +55,8 @@ export async function handleLogin(e) {
     }
 }
 
-// Handles user sign out
 export const handleSignOut = () => signOut(auth);
 
-// Handles the password change form submission
 export async function handlePasswordChange(e) {
     e.preventDefault();
     const currentPassword = document.getElementById('current-password').value;
