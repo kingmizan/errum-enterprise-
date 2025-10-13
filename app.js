@@ -1089,6 +1089,45 @@ const appLogic = (() => {
         document.getElementById('statement-pdf-btn')?.addEventListener('click', () => handleContentExport('pdf'));
     };
 
+    const renderAnalytics = () => {
+        const section = document.querySelector('[data-section="analytics"]');
+        if (!section || !section.classList.contains('active')) return;
+
+        const ctx = document.getElementById('analytics-chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Total Payable', 'Total Receivable', 'Net Balance'],
+                datasets: [{
+                    label: 'Amount',
+                    data: [
+                        transactions.reduce((acc, t) => acc + (t.supplierTotal || 0) - getPayments(t.paymentsToSupplier), 0),
+                        transactions.reduce((acc, t) => acc + (t.buyerTotal || 0) - getPayments(t.paymentsFromBuyer), 0),
+                        transactions.reduce((acc, t) => acc + (t.buyerTotal || 0) - getPayments(t.paymentsFromBuyer), 0) - transactions.reduce((acc, t) => acc + (t.supplierTotal || 0) - getPayments(t.paymentsToSupplier), 0)
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(54, 162, 235, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(54, 162, 235, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    };
+
     const renderTransactionDetails = (id) => {
         const t = transactions.find(t => t.id === id);
         if (!t) return;
@@ -1127,6 +1166,39 @@ const appLogic = (() => {
 
         detailContent.innerHTML = detailsHtml;
 
+        let invoiceHtml = `
+            <div class="p-8">
+                <h2 class="text-2xl font-bold text-slate-800 mb-4">Invoice</h2>
+                <p><strong>Transaction ID:</strong> ${t.id.substring(0, 6)}</p>
+                <p><strong>Date:</strong> ${t.date}</p>
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-bold text-lg text-rose-500 mb-2">Supplier Details</h3>
+                        <p><strong>Name:</strong> ${t.supplierName}</p>
+                        <p><strong>Rate:</strong> ৳${t.supplierRate.toFixed(2)}/kg</p>
+                        <p><strong>Total:</strong> ৳${t.supplierTotal.toFixed(2)}</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-green-600 mb-2">Buyer Details</h3>
+                        <p><strong>Name:</strong> ${t.buyerName}</p>
+                        <p><strong>Rate:</strong> ৳${t.buyerRate.toFixed(2)}/kg</p>
+                        <p><strong>Total:</strong> ৳${t.buyerTotal.toFixed(2)}</p>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <h3 class="font-bold text-lg mb-2">Transaction Info</h3>
+                    <p><strong>Item:</strong> ${t.item}</p>
+                    <p><strong>Vehicle No:</strong> ${t.vehicleNo || 'N/A'}</p>
+                    <p><strong>Scale Weight:</strong> ${t.scaleWeight.toFixed(2)} kg</p>
+                    <p><strong>Less:</strong> ${t.less.toFixed(2)} kg</p>
+                    <p><strong>Net Weight:</strong> ${t.netWeight.toFixed(2)} kg</p>
+                    <p><strong>Profit:</strong> ৳${t.profit.toFixed(2)}</p>
+                </div>
+            </div>
+        `;
+
+        invoiceContent.innerHTML = invoiceHtml;
+
         const invoiceBtn = document.getElementById('toggle-invoice-btn');
         const saveInvoiceBtn = document.getElementById('save-invoice-btn');
 
@@ -1148,7 +1220,7 @@ const appLogic = (() => {
         document.getElementById('transaction-detail-modal').classList.remove('hidden');
     };
 
-    return { renderAll, renderContacts, resetContactForm, setupContactFormForEdit, handleSaveContact, handleDeleteContact, populateTradeDropdowns, updateTradeTotals, calculateNetWeight, resetTradeForm, setupTradeFormForEdit, handleTradeFormSubmit, handleDelete, openPaymentModal, handleSavePayment, openDirectPaymentModal, handleDirectPaymentSubmit, renderContactLedger, renderOverallStatement, handlePasswordChange, renderTransactionDetails };
+    return { renderAll, renderContacts, resetContactForm, setupContactFormForEdit, handleSaveContact, handleDeleteContact, populateTradeDropdowns, updateTradeTotals, calculateNetWeight, resetTradeForm, setupTradeFormForEdit, handleTradeFormSubmit, handleDelete, openPaymentModal, handleSavePayment, openDirectPaymentModal, handleDirectPaymentSubmit, renderContactLedger, renderOverallStatement, handlePasswordChange, renderTransactionDetails, renderAnalytics };
 })();
 
 // --- NAVIGATION & EVENT BINDING ---
@@ -1244,39 +1316,7 @@ const bindSectionEventListeners = (section, context) => {
             appLogic.renderContactLedger(context.contactId);
         }
     } else if (section === 'analytics') {
-        const ctx = document.getElementById('analytics-chart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Total Payable', 'Total Receivable', 'Net Balance'],
-                datasets: [{
-                    label: 'Amount',
-                    data: [
-                        transactions.reduce((acc, t) => acc + (t.supplierTotal || 0) - getPayments(t.paymentsToSupplier), 0),
-                        transactions.reduce((acc, t) => acc + (t.buyerTotal || 0) - getPayments(t.paymentsFromBuyer), 0),
-                        transactions.reduce((acc, t) => acc + (t.buyerTotal || 0) - getPayments(t.paymentsFromBuyer), 0) - transactions.reduce((acc, t) => acc + (t.supplierTotal || 0) - getPayments(t.paymentsToSupplier), 0)
-                    ],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(54, 162, 235, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(54, 162, 235, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
+        appLogic.renderAnalytics();
     }
 };
 
@@ -1297,6 +1337,7 @@ onAuthStateChanged(auth, user => {
                 appLogic.renderAll(); 
                 appLogic.renderContacts();
             }
+            appLogic.renderAnalytics();
         });
         
         const contactsQuery = query(collection(db, "users", currentUserId, "contacts"), orderBy("name"));
@@ -1306,7 +1347,7 @@ onAuthStateChanged(auth, user => {
              if (currentSection === 'dashboard' || currentSection === 'contacts') {
                 appLogic.renderAll(); 
                 appLogic.renderContacts();
-            } else if (currentSection === 'transaction-form') {
+            } else if (currentSection === 'add-transaction') {
                 appLogic.populateTradeDropdowns();
             }
         });
