@@ -1,17 +1,24 @@
 /* style.css */
 
 :root {
-    --color-primary-500: #06b6d4; /* cyan-500 */
-    --color-primary-600: #0891b2; /* cyan-600 */
+    --color-primary-500: #4f46e5; /* indigo-500 */
+    --color-primary-600: #4338ca; /* indigo-600 */
     --color-bg-light: #f8fafc;   /* slate-50 */
 }
 
 body { 
     font-family: 'Inter', sans-serif; 
     background-color: var(--color-bg-light);
-    background-image: radial-gradient(circle at top, #e0f2fe, var(--color-bg-light) 30%);
+    background-image: radial-gradient(circle at top, #eef2ff, var(--color-bg-light) 30%);
     -webkit-font-smoothing: antialiased; 
     -moz-osx-font-smoothing: grayscale; 
+}
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 24
 }
 
 /* Custom Scrollbar */
