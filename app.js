@@ -161,6 +161,12 @@ const templates = {
                 <h2 class="text-xl font-bold text-slate-800">Analytics</h2>
             </div>
             <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="p-4 bg-slate-100 rounded-xl"><h3 class="text-sm font-semibold text-slate-500">Today's Profit</h3><p id="today-profit" class="text-2xl font-bold text-green-600 mt-1">৳0.00</p></div>
+                    <div class="p-4 bg-slate-100 rounded-xl"><h3 class="text-sm font-semibold text-slate-500">Monthly Profit</h3><p id="monthly-profit" class="text-2xl font-bold text-green-600 mt-1">৳0.00</p></div>
+                    <div class="p-4 bg-slate-100 rounded-xl"><h3 class="text-sm font-semibold text-slate-500">Today's Transactions</h3><p id="today-transactions" class="text-2xl font-bold text-slate-800 mt-1">0</p></div>
+                    <div class="p-4 bg-slate-100 rounded-xl"><h3 class="text-sm font-semibold text-slate-500">Monthly Transactions</h3><p id="monthly-transactions" class="text-2xl font-bold text-slate-800 mt-1">0</p></div>
+                </div>
                 <canvas id="analytics-chart"></canvas>
             </div>
         </div>
@@ -1089,33 +1095,56 @@ const appLogic = (() => {
         document.getElementById('statement-pdf-btn')?.addEventListener('click', () => handleContentExport('pdf'));
     };
 
+    const getTodayProfit = () => {
+        const today = new Date().toISOString().slice(0, 10);
+        return transactions.filter(t => t.date === today && t.type === 'trade').reduce((acc, t) => acc + t.profit, 0);
+    };
+
+    const getMonthlyProfit = () => {
+        const currentMonth = new Date().toISOString().slice(0, 7);
+        return transactions.filter(t => t.date.startsWith(currentMonth) && t.type === 'trade').reduce((acc, t) => acc + t.profit, 0);
+    };
+
+    const getTodayTransactionCount = () => {
+        const today = new Date().toISOString().slice(0, 10);
+        return transactions.filter(t => t.date === today).length;
+    };
+
+    const getMonthlyTransactionCount = () => {
+        const currentMonth = new Date().toISOString().slice(0, 7);
+        return transactions.filter(t => t.date.startsWith(currentMonth)).length;
+    };
+
     const renderAnalytics = () => {
         const section = document.querySelector('[data-section="analytics"]');
         if (!section || !section.classList.contains('active')) return;
 
+        document.getElementById('today-profit').textContent = `৳${getTodayProfit().toFixed(2)}`;
+        document.getElementById('monthly-profit').textContent = `৳${getMonthlyProfit().toFixed(2)}`;
+        document.getElementById('today-transactions').textContent = getTodayTransactionCount();
+        document.getElementById('monthly-transactions').textContent = getMonthlyTransactionCount();
+
+        const last30Days = [...Array(30)].map((_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            return d.toISOString().slice(0, 10);
+        }).reverse();
+
+        const dailyProfits = last30Days.map(date => {
+            return transactions.filter(t => t.date === date && t.type === 'trade').reduce((acc, t) => acc + t.profit, 0);
+        });
+
         const ctx = document.getElementById('analytics-chart').getContext('2d');
         new Chart(ctx, {
-            type: 'bar',
+            type: 'line',
             data: {
-                labels: ['Total Payable', 'Total Receivable', 'Net Balance'],
+                labels: last30Days,
                 datasets: [{
-                    label: 'Amount',
-                    data: [
-                        transactions.reduce((acc, t) => acc + (t.supplierTotal || 0) - getPayments(t.paymentsToSupplier), 0),
-                        transactions.reduce((acc, t) => acc + (t.buyerTotal || 0) - getPayments(t.paymentsFromBuyer), 0),
-                        transactions.reduce((acc, t) => acc + (t.buyerTotal || 0) - getPayments(t.paymentsFromBuyer), 0) - transactions.reduce((acc, t) => acc + (t.supplierTotal || 0) - getPayments(t.paymentsToSupplier), 0)
-                    ],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(54, 162, 235, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(54, 162, 235, 1)'
-                    ],
-                    borderWidth: 1
+                    label: 'Daily Profit',
+                    data: dailyProfits,
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
                 }]
             },
             options: {
