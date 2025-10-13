@@ -58,7 +58,7 @@ const templates = {
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-rose-100 text-rose-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Total Payable</h3><p id="total-payable" class="text-3xl font-bold text-rose-500 mt-1">৳0.00</p></div></div></div>
             <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-green-100 text-green-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Total Receivable</h3><p id="total-receivable" class="text-3xl font-bold text-green-600 mt-1">৳0.00</p></div></div></div>
-            <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-cyan-100 text-cyan-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Net Balance</h3><p id="total-profit" class="text-3xl font-bold text-cyan-600 mt-1">৳0.00</p></div></div></div>
+            <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-indigo-100 text-indigo-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Net Balance</h3><p id="total-profit" class="text-3xl font-bold text-indigo-600 mt-1">৳0.00</p></div></div></div>
         </div>
         <div class="bg-white rounded-xl shadow-md border border-slate-200">
             <div class="p-4 border-b border-slate-200 flex flex-wrap gap-4 justify-between items-center"><h2 class="text-xl font-bold text-slate-800">Recent Transactions</h2><div class="flex flex-wrap items-center gap-2"><input id="search-input" type="text" placeholder="Search..." class="w-48 p-2 border border-slate-300 rounded-lg bg-slate-50"><input type="date" id="filter-start-date" class="p-2 border border-slate-300 rounded-lg bg-slate-50"><input type="date" id="filter-end-date" class="p-2 border border-slate-300 rounded-lg bg-slate-50"></div></div>
@@ -67,7 +67,13 @@ const templates = {
         </div>`,
     contacts: `
         <div class="bg-white rounded-xl shadow-md border border-slate-200">
-            <div class="p-4 border-b border-slate-200 flex justify-between items-center"><h2 class="text-xl font-bold text-slate-800">Manage Party</h2><button id="add-contact-btn" class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm shadow-sm shadow-cyan-500/30"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>Add New Party</button></div>
+            <div class="p-4 border-b border-slate-200 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-slate-800">Manage Party</h2>
+                <div class="flex items-center gap-2">
+                    <button id="add-transaction-btn" class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 text-sm shadow-sm shadow-indigo-500/30"><span class="material-symbols-outlined">add_circle</span>Add Transaction</button>
+                    <button id="add-contact-btn" class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-slate-200 text-slate-800 hover:bg-slate-300 text-sm"><span class="material-symbols-outlined">person_add</span>Add Party</button>
+                </div>
+            </div>
             <div class="overflow-x-auto"><table class="w-full text-sm responsive-table"><thead><tr class="border-b border-slate-200 bg-slate-50">
                 <th class="text-left font-semibold py-3 px-4">Name</th>
                 <th class="text-left font-semibold py-3 px-4">Type</th>
@@ -113,12 +119,12 @@ const templates = {
                     <div><label for="date" class="font-semibold text-sm">Transaction Date</label><input type="date" id="date" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50" required></div>
                     <div class="flex justify-between items-center text-lg"><span class="font-semibold text-slate-500">Total Payable:</span><span id="supplier-total" class="font-bold text-rose-500">৳0.00</span></div>
                     <div class="flex justify-between items-center text-lg"><span class="font-semibold text-slate-500">Total Receivable:</span><span id="buyer-total" class="font-bold text-green-600">৳0.00</span></div>
-                    <div class="flex justify-between items-center text-xl"><span class="font-semibold text-slate-800">Gross Profit on Deal:</span><span id="transaction-profit" class="font-bold text-cyan-600">৳0.00</span></div>
+                    <div class="flex justify-between items-center text-xl"><span class="font-semibold text-slate-800">Gross Profit on Deal:</span><span id="transaction-profit" class="font-bold text-indigo-600">৳0.00</span></div>
                 </div>
                 <div class="flex justify-end gap-3 pt-6 mt-4 border-t border-slate-200">
                     <button type="button" id="cancel-transaction-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Cancel</button>
                     <button type="button" id="reset-form-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Reset</button>
-                    <button type="submit" class="px-6 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Save Transaction</button>
+                    <button type="submit" class="px-6 py-2 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 text-sm">Save Transaction</button>
                 </div>
             </form>
         </div>`,
@@ -130,7 +136,7 @@ const templates = {
                     <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
                         <h3 class="font-semibold mb-2">Overall Business Statement</h3>
                         <p class="text-sm text-slate-500 mb-4">View a complete ledger of all transactions.</p>
-                        <button id="generate-overall-statement-btn" class="px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Generate Overall</button>
+                        <button id="generate-overall-statement-btn" class="px-4 py-2 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 text-sm">Generate Overall</button>
                     </div>
                     <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
                         <h3 class="font-semibold mb-2">Statement by Party</h3>
@@ -146,6 +152,37 @@ const templates = {
                     <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                     <h3 class="font-semibold mt-2">No Statement Generated</h3>
                     <p>Select an option above to view a statement.</p>
+                </div>
+            </div>
+        </div>
+    `,
+    settings: `
+        <div class="bg-white rounded-xl shadow-md border border-slate-200 max-w-4xl mx-auto">
+            <div class="p-6 border-b border-slate-200">
+                <h2 class="text-xl font-bold text-slate-800">Settings</h2>
+            </div>
+            <div class="p-6">
+                <div class="space-y-6">
+                    <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
+                        <h3 class="font-semibold mb-2">Change Password</h3>
+                        <p class="text-sm text-slate-500 mb-4">Update your login password.</p>
+                        <button id="change-password-btn" class="px-4 py-2 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 text-sm">Change Password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `,
+    help: `
+        <div class="bg-white rounded-xl shadow-md border border-slate-200 max-w-4xl mx-auto">
+            <div class="p-6 border-b border-slate-200">
+                <h2 class="text-xl font-bold text-slate-800">Help</h2>
+            </div>
+            <div class="p-6">
+                <div class="space-y-6">
+                    <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
+                        <h3 class="font-semibold mb-2">Contact Support</h3>
+                        <p class="text-sm text-slate-500 mb-4">For any assistance, please contact us at <a href="mailto:support@errum.com" class="text-indigo-600 hover:underline">support@errum.com</a>.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1115,6 +1152,7 @@ const bindSectionEventListeners = (section, context) => {
     } else if (section === 'contacts') {
         appLogic.renderContacts();
         document.getElementById('add-contact-btn').addEventListener('click', () => { appLogic.resetContactForm(); document.getElementById('contact-modal').classList.remove('hidden'); });
+        document.getElementById('add-transaction-btn').addEventListener('click', () => navigateTo('transaction-form'));
         document.getElementById('contacts-table-body').addEventListener('click', e => {
             const target = e.target.closest('button'); if (!target) return;
             const { editContactId, deleteContactId, ledgerId, directPaymentId } = target.dataset;
@@ -1149,6 +1187,10 @@ const bindSectionEventListeners = (section, context) => {
             partySelect.value = context.contactId;
             appLogic.renderContactLedger(context.contactId);
         }
+    } else if (section === 'settings') {
+        document.getElementById('change-password-btn').addEventListener('click', () => {
+            document.getElementById('password-modal').classList.remove('hidden');
+        });
     }
 };
 
@@ -1205,8 +1247,10 @@ onAuthStateChanged(auth, user => {
 
 document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    loadingContainer.classList.remove('hidden');
-    authContainer.classList.add('hidden');
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = '<svg class="animate-spin h-5 w-5 mx-auto text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const errorP = document.getElementById('auth-error');
@@ -1215,7 +1259,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
         errorP.textContent = "Invalid email or password.";
-        loadingContainer.classList.add('hidden');
-        authContainer.classList.remove('hidden');
+        btn.disabled = false;
+        btn.innerHTML = 'Sign In';
     }
 });
