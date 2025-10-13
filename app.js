@@ -70,7 +70,6 @@ const templates = {
             <div class="p-4 border-b border-slate-200 flex justify-between items-center">
                 <h2 class="text-xl font-bold text-slate-800">Manage Party</h2>
                 <div class="flex items-center gap-2">
-                    <button id="add-transaction-btn" class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 text-sm shadow-sm shadow-indigo-500/30"><span class="material-symbols-outlined">add_circle</span>Add Transaction</button>
                     <button id="add-contact-btn" class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-slate-200 text-slate-800 hover:bg-slate-300 text-sm"><span class="material-symbols-outlined">person_add</span>Add Party</button>
                 </div>
             </div>
@@ -83,7 +82,7 @@ const templates = {
                 <th class="text-center font-semibold py-3 px-4">Actions</th>
             </tr></thead><tbody id="contacts-table-body"></tbody></table></div>
         </div>`,
-    'transaction-form': `
+    'add-transaction': `
         <div class="bg-white rounded-xl shadow-md border border-slate-200 max-w-4xl mx-auto">
             <div class="p-6 border-b border-slate-200"><h2 id="form-title" class="text-xl font-bold text-slate-800">Add New Transaction</h2></div>
             <form id="transaction-form" class="p-6">
@@ -156,34 +155,13 @@ const templates = {
             </div>
         </div>
     `,
-    settings: `
+    analytics: `
         <div class="bg-white rounded-xl shadow-md border border-slate-200 max-w-4xl mx-auto">
             <div class="p-6 border-b border-slate-200">
-                <h2 class="text-xl font-bold text-slate-800">Settings</h2>
+                <h2 class="text-xl font-bold text-slate-800">Analytics</h2>
             </div>
             <div class="p-6">
-                <div class="space-y-6">
-                    <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
-                        <h3 class="font-semibold mb-2">Change Password</h3>
-                        <p class="text-sm text-slate-500 mb-4">Update your login password.</p>
-                        <button id="change-password-btn" class="px-4 py-2 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 text-sm">Change Password</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `,
-    help: `
-        <div class="bg-white rounded-xl shadow-md border border-slate-200 max-w-4xl mx-auto">
-            <div class="p-6 border-b border-slate-200">
-                <h2 class="text-xl font-bold text-slate-800">Help</h2>
-            </div>
-            <div class="p-6">
-                <div class="space-y-6">
-                    <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
-                        <h3 class="font-semibold mb-2">Contact Support</h3>
-                        <p class="text-sm text-slate-500 mb-4">For any assistance, please contact us at <a href="mailto:support@errum.com" class="text-indigo-600 hover:underline">support@errum.com</a>.</p>
-                    </div>
-                </div>
+                <canvas id="analytics-chart"></canvas>
             </div>
         </div>
     `
@@ -290,11 +268,25 @@ const appLogic = (() => {
             tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-500"><div class="flex flex-col items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg><h3 class="font-semibold mt-2">No Transactions Found</h3><p>Your recorded transactions will appear here.</p></div></td></tr>`; 
             return; 
         }
-        
-        pageData.forEach(t => {
-            const row = document.createElement('tr'); 
-            row.className = 'hover:bg-slate-50 border-b border-slate-200 md:border-b-0 cursor-pointer';
-            row.dataset.id = t.id;
+
+        const groupedTransactions = pageData.reduce((acc, t) => {
+            const date = t.date;
+            if (!acc[date]) {
+                acc[date] = [];
+            }
+            acc[date].push(t);
+            return acc;
+        }, {});
+
+        for (const date in groupedTransactions) {
+            const dateRow = document.createElement('tr');
+            dateRow.innerHTML = `<td colspan="6" class="py-2 px-4 bg-slate-100 font-semibold text-slate-800">${date}</td>`;
+            tbody.appendChild(dateRow);
+
+            groupedTransactions[date].forEach(t => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-slate-50 border-b border-slate-200 md:border-b-0 cursor-pointer';
+                row.dataset.id = t.id;
 
             let detailsHtml, valueHtml, payableBalHtml, receivableBalHtml, actionsHtml;
 
@@ -332,8 +324,9 @@ const appLogic = (() => {
                 <td data-label="Receivable Bal" class="py-4 px-4 align-top text-right">${receivableBalHtml}</td>
                 <td data-label="Actions" class="py-4 px-4 align-top actions-cell">${actionsHtml}</td>
             `;
-            tbody.appendChild(row);
-        });
+                tbody.appendChild(row);
+            });
+        }
     };
 
     const renderContacts = () => {
@@ -1096,7 +1089,66 @@ const appLogic = (() => {
         document.getElementById('statement-pdf-btn')?.addEventListener('click', () => handleContentExport('pdf'));
     };
 
-    return { renderAll, renderContacts, resetContactForm, setupContactFormForEdit, handleSaveContact, handleDeleteContact, populateTradeDropdowns, updateTradeTotals, calculateNetWeight, resetTradeForm, setupTradeFormForEdit, handleTradeFormSubmit, handleDelete, openPaymentModal, handleSavePayment, openDirectPaymentModal, handleDirectPaymentSubmit, renderContactLedger, renderOverallStatement, handlePasswordChange };
+    const renderTransactionDetails = (id) => {
+        const t = transactions.find(t => t.id === id);
+        if (!t) return;
+
+        const detailContent = document.getElementById('transaction-detail-content');
+        const invoiceContent = document.getElementById('transaction-invoice-content');
+        const detailTitle = document.getElementById('transaction-detail-title');
+
+        detailTitle.textContent = `Details for Transaction #${t.id.substring(0, 6)}`;
+
+        let detailsHtml = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-slate-100 p-4 rounded-lg">
+                    <h3 class="font-bold text-lg text-rose-500 mb-2">Supplier Details</h3>
+                    <p><strong>Name:</strong> ${t.supplierName}</p>
+                    <p><strong>Rate:</strong> ৳${t.supplierRate.toFixed(2)}/kg</p>
+                    <p><strong>Total:</strong> ৳${t.supplierTotal.toFixed(2)}</p>
+                </div>
+                <div class="bg-slate-100 p-4 rounded-lg">
+                    <h3 class="font-bold text-lg text-green-600 mb-2">Buyer Details</h3>
+                    <p><strong>Name:</strong> ${t.buyerName}</p>
+                    <p><strong>Rate:</strong> ৳${t.buyerRate.toFixed(2)}/kg</p>
+                    <p><strong>Total:</strong> ৳${t.buyerTotal.toFixed(2)}</p>
+                </div>
+            </div>
+            <div class="mt-6">
+                <h3 class="font-bold text-lg mb-2">Transaction Info</h3>
+                <p><strong>Item:</strong> ${t.item}</p>
+                <p><strong>Vehicle No:</strong> ${t.vehicleNo || 'N/A'}</p>
+                <p><strong>Scale Weight:</strong> ${t.scaleWeight.toFixed(2)} kg</p>
+                <p><strong>Less:</strong> ${t.less.toFixed(2)} kg</p>
+                <p><strong>Net Weight:</strong> ${t.netWeight.toFixed(2)} kg</p>
+                <p><strong>Profit:</strong> ৳${t.profit.toFixed(2)}</p>
+            </div>
+        `;
+
+        detailContent.innerHTML = detailsHtml;
+
+        const invoiceBtn = document.getElementById('toggle-invoice-btn');
+        const saveInvoiceBtn = document.getElementById('save-invoice-btn');
+
+        invoiceBtn.onclick = () => {
+            detailContent.classList.toggle('hidden');
+            invoiceContent.classList.toggle('hidden');
+            invoiceBtn.textContent = detailContent.classList.contains('hidden') ? 'View Details' : 'View Invoice';
+            saveInvoiceBtn.classList.toggle('hidden');
+        };
+
+        saveInvoiceBtn.onclick = async () => {
+            const canvas = await html2canvas(invoiceContent);
+            const link = document.createElement('a');
+            link.download = `invoice-${t.id.substring(0, 6)}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        };
+
+        document.getElementById('transaction-detail-modal').classList.remove('hidden');
+    };
+
+    return { renderAll, renderContacts, resetContactForm, setupContactFormForEdit, handleSaveContact, handleDeleteContact, populateTradeDropdowns, updateTradeTotals, calculateNetWeight, resetTradeForm, setupTradeFormForEdit, handleTradeFormSubmit, handleDelete, openPaymentModal, handleSavePayment, openDirectPaymentModal, handleDirectPaymentSubmit, renderContactLedger, renderOverallStatement, handlePasswordChange, renderTransactionDetails };
 })();
 
 // --- NAVIGATION & EVENT BINDING ---
@@ -1141,18 +1193,22 @@ const bindSectionEventListeners = (section, context) => {
         
         document.getElementById('transaction-history-body').addEventListener('click', (e) => {
             const button = e.target.closest('button');
-            if (button && button.closest('td')?.classList.contains('actions-cell')) { 
+            if (button && button.closest('td')?.classList.contains('actions-cell')) {
                 e.stopPropagation();
                 const { editId, deleteId, paymentId, paymentType } = button.dataset;
-                if (editId) { navigateTo('transaction-form').then(() => appLogic.setupTradeFormForEdit(editId)); }
-                if (deleteId) appLogic.handleDelete(deleteId); 
-                if (paymentId) appLogic.openPaymentModal(paymentId, paymentType); 
+                if (editId) { navigateTo('add-transaction').then(() => appLogic.setupTradeFormForEdit(editId)); }
+                if (deleteId) appLogic.handleDelete(deleteId);
+                if (paymentId) appLogic.openPaymentModal(paymentId, paymentType);
+            } else {
+                const row = e.target.closest('tr');
+                if (row && row.dataset.id) {
+                    appLogic.renderTransactionDetails(row.dataset.id);
+                }
             }
         });
     } else if (section === 'contacts') {
         appLogic.renderContacts();
         document.getElementById('add-contact-btn').addEventListener('click', () => { appLogic.resetContactForm(); document.getElementById('contact-modal').classList.remove('hidden'); });
-        document.getElementById('add-transaction-btn').addEventListener('click', () => navigateTo('transaction-form'));
         document.getElementById('contacts-table-body').addEventListener('click', e => {
             const target = e.target.closest('button'); if (!target) return;
             const { editContactId, deleteContactId, ledgerId, directPaymentId } = target.dataset;
@@ -1187,9 +1243,39 @@ const bindSectionEventListeners = (section, context) => {
             partySelect.value = context.contactId;
             appLogic.renderContactLedger(context.contactId);
         }
-    } else if (section === 'settings') {
-        document.getElementById('change-password-btn').addEventListener('click', () => {
-            document.getElementById('password-modal').classList.remove('hidden');
+    } else if (section === 'analytics') {
+        const ctx = document.getElementById('analytics-chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Total Payable', 'Total Receivable', 'Net Balance'],
+                datasets: [{
+                    label: 'Amount',
+                    data: [
+                        transactions.reduce((acc, t) => acc + (t.supplierTotal || 0) - getPayments(t.paymentsToSupplier), 0),
+                        transactions.reduce((acc, t) => acc + (t.buyerTotal || 0) - getPayments(t.paymentsFromBuyer), 0),
+                        transactions.reduce((acc, t) => acc + (t.buyerTotal || 0) - getPayments(t.paymentsFromBuyer), 0) - transactions.reduce((acc, t) => acc + (t.supplierTotal || 0) - getPayments(t.paymentsToSupplier), 0)
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(54, 162, 235, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(54, 162, 235, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
         });
     }
 };
