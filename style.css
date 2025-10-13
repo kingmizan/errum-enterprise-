@@ -27,6 +27,21 @@ body {
 .btn-primary:hover {
     background-color: var(--color-primary-500);
 }
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f2f2f2;
+}
 .material-symbols-outlined {
   font-variation-settings:
   'FILL' 0,
