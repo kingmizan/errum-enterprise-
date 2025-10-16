@@ -13,6 +13,7 @@ let currentPaymentInfo = { id: null, type: null };
 let dashboardCurrentPage = 1;
 const dashboardItemsPerPage = 7;
 let currentStatementData = { type: null, data: [], name: '' };
+let analyticsChart = null;
 
 // --- DOM ELEMENTS ---
 const loadingContainer = document.getElementById('loading-container');
@@ -945,8 +946,8 @@ const appLogic = (() => {
                 
                 const balanceStatus = finalBalance > 0.01 ? "Receivable" : (finalBalance < -0.01 ? "Payable" : "Settled");
                 body.push([
-                    { content: `Final Balance (${balanceStatus}):`, colSpan: 7, styles: { halign: 'right', fontStyle: 'bold' } },
-                    { content: `৳${Math.abs(finalBalance).toFixed(2)}`, styles: { halign: 'right', fontStyle: 'bold' } }
+                    { content: `Final Balance (${balanceStatus}):`, colSpan: 8, styles: { halign: 'right', fontStyle: 'bold' } },
+                    { content: `Tk. ${Math.abs(finalBalance).toFixed(2)}`, styles: { halign: 'right', fontStyle: 'bold' } }
                 ]);
 
             } else { // 'overall' type
@@ -975,7 +976,7 @@ const appLogic = (() => {
                 const balanceStatus = finalBalance >= 0 ? "Net Receivable" : "Net Payable";
                  body.push([
                     { content: `Final Net Balance (${balanceStatus}):`, colSpan: 13, styles: { halign: 'right', fontStyle: 'bold' } },
-                    { content: finalBalance >= 0 ? `৳${finalBalance.toFixed(2)}` : `(৳${Math.abs(finalBalance).toFixed(2)})`, styles: { halign: 'right', fontStyle: 'bold' } }
+                    { content: finalBalance >= 0 ? `Tk. ${finalBalance.toFixed(2)}` : `(Tk. ${Math.abs(finalBalance).toFixed(2)})`, styles: { halign: 'right', fontStyle: 'bold' } }
                 ]);
             }
 
@@ -1119,6 +1120,10 @@ const appLogic = (() => {
         const section = document.querySelector('[data-section="analytics"]');
         if (!section || !section.classList.contains('active')) return;
 
+        if (analyticsChart) {
+            analyticsChart.destroy();
+        }
+
         document.getElementById('today-profit').textContent = `৳${getTodayProfit().toFixed(2)}`;
         document.getElementById('monthly-profit').textContent = `৳${getMonthlyProfit().toFixed(2)}`;
         document.getElementById('today-transactions').textContent = getTodayTransactionCount();
@@ -1135,7 +1140,7 @@ const appLogic = (() => {
         });
 
         const ctx = document.getElementById('analytics-chart').getContext('2d');
-        new Chart(ctx, {
+        analyticsChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: last30Days,
@@ -1229,21 +1234,52 @@ const appLogic = (() => {
         invoiceContent.innerHTML = invoiceHtml;
 
         const invoiceBtn = document.getElementById('toggle-invoice-btn');
-        const saveInvoiceBtn = document.getElementById('save-invoice-btn');
+        const saveInvoicePngBtn = document.getElementById('save-invoice-png-btn');
+        const saveInvoicePdfBtn = document.getElementById('save-invoice-pdf-btn');
 
         invoiceBtn.onclick = () => {
             detailContent.classList.toggle('hidden');
             invoiceContent.classList.toggle('hidden');
             invoiceBtn.textContent = detailContent.classList.contains('hidden') ? 'View Details' : 'View Invoice';
-            saveInvoiceBtn.classList.toggle('hidden');
+            saveInvoicePngBtn.classList.toggle('hidden');
+            saveInvoicePdfBtn.classList.toggle('hidden');
         };
 
-        saveInvoiceBtn.onclick = async () => {
+        saveInvoicePngBtn.onclick = async () => {
             const canvas = await html2canvas(invoiceContent);
             const link = document.createElement('a');
             link.download = `invoice-${t.id.substring(0, 6)}.png`;
             link.href = canvas.toDataURL();
             link.click();
+        };
+
+        saveInvoicePdfBtn.onclick = () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.text("Errum Enterprise", 20, 20);
+            doc.text(`Invoice #${t.id.substring(0, 6)}`, 20, 30);
+            doc.text(`Date: ${t.date}`, 20, 40);
+
+            doc.text("Supplier Details", 20, 60);
+            doc.text(`Name: ${t.supplierName}`, 20, 70);
+            doc.text(`Rate: Tk. ${t.supplierRate.toFixed(2)}/kg`, 20, 80);
+            doc.text(`Total: Tk. ${t.supplierTotal.toFixed(2)}`, 20, 90);
+
+            doc.text("Buyer Details", 120, 60);
+            doc.text(`Name: ${t.buyerName}`, 120, 70);
+            doc.text(`Rate: Tk. ${t.buyerRate.toFixed(2)}/kg`, 120, 80);
+            doc.text(`Total: Tk. ${t.buyerTotal.toFixed(2)}`, 120, 90);
+
+            doc.text("Transaction Info", 20, 110);
+            doc.text(`Item: ${t.item}`, 20, 120);
+            doc.text(`Vehicle No: ${t.vehicleNo || 'N/A'}`, 20, 130);
+            doc.text(`Scale Weight: ${t.scaleWeight.toFixed(2)} kg`, 20, 140);
+            doc.text(`Less: ${t.less.toFixed(2)} kg`, 20, 150);
+            doc.text(`Net Weight: ${t.netWeight.toFixed(2)} kg`, 20, 160);
+            doc.text(`Profit: Tk. ${t.profit.toFixed(2)}`, 20, 170);
+
+            doc.save(`invoice-${t.id.substring(0, 6)}.pdf`);
         };
 
         document.getElementById('transaction-detail-modal').classList.remove('hidden');
