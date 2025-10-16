@@ -1059,7 +1059,127 @@ const appLogic = (() => {
         document.getElementById('statement-pdf-btn')?.addEventListener('click', () => handleContentExport('pdf'));
     };
 
-    return { renderAll, renderContacts, resetContactForm, setupContactFormForEdit, handleSaveContact, handleDeleteContact, populateTradeDropdowns, updateTradeTotals, calculateNetWeight, resetTradeForm, setupTradeFormForEdit, handleTradeFormSubmit, handleDelete, openPaymentModal, handleSavePayment, openDirectPaymentModal, handleDirectPaymentSubmit, renderContactLedger, renderOverallStatement, handlePasswordChange };
+    const renderTransactionDetails = (id) => {
+        const t = transactions.find(t => t.id === id);
+        if (!t) return;
+
+        const detailContent = document.getElementById('transaction-detail-content');
+        const invoiceContent = document.getElementById('transaction-invoice-content');
+        const detailTitle = document.getElementById('transaction-detail-title');
+
+        detailTitle.textContent = `Details for Transaction #${t.id.substring(0, 6)}`;
+
+        let detailsHtml = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-slate-100 p-4 rounded-lg">
+                    <h3 class="font-bold text-lg text-rose-500 mb-2">Supplier Details</h3>
+                    <p><strong>Name:</strong> ${t.supplierName}</p>
+                    <p><strong>Rate:</strong> ৳${t.supplierRate.toFixed(2)}/kg</p>
+                    <p><strong>Total:</strong> ৳${t.supplierTotal.toFixed(2)}</p>
+                </div>
+                <div class="bg-slate-100 p-4 rounded-lg">
+                    <h3 class="font-bold text-lg text-green-600 mb-2">Buyer Details</h3>
+                    <p><strong>Name:</strong> ${t.buyerName}</p>
+                    <p><strong>Rate:</strong> ৳${t.buyerRate.toFixed(2)}/kg</p>
+                    <p><strong>Total:</strong> ৳${t.buyerTotal.toFixed(2)}</p>
+                </div>
+            </div>
+            <div class="mt-6">
+                <h3 class="font-bold text-lg mb-2">Transaction Info</h3>
+                <p><strong>Item:</strong> ${t.item}</p>
+                <p><strong>Vehicle No:</strong> ${t.vehicleNo || 'N/A'}</p>
+                <p><strong>Scale Weight:</strong> ${t.scaleWeight.toFixed(2)} kg</p>
+                <p><strong>Less:</strong> ${t.less.toFixed(2)} kg</p>
+                <p><strong>Net Weight:</strong> ${t.netWeight.toFixed(2)} kg</p>
+                <p><strong>Profit:</strong> ৳${t.profit.toFixed(2)}</p>
+            </div>
+        `;
+
+        detailContent.innerHTML = detailsHtml;
+
+        let invoiceHtml = `
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-slate-800">Invoice</h2>
+                        <p class="text-slate-500">Transaction ID: ${t.id.substring(0, 6)}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-lg font-semibold text-slate-800">Errum Enterprise</p>
+                        <p class="text-slate-500">Date: ${t.date}</p>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Supplier Details</h3>
+                    <div class="bg-slate-100 p-4 rounded-lg">
+                        <p><strong>Name:</strong> ${t.supplierName}</p>
+                        <p><strong>Vehicle No:</strong> ${t.vehicleNo || 'N/A'}</p>
+                    </div>
+                </div>
+
+                <table class="w-full mb-8">
+                    <thead class="bg-slate-200">
+                        <tr>
+                            <th class="p-3 text-left font-semibold text-slate-800">Item Description</th>
+                            <th class="p-3 text-right font-semibold text-slate-800">Weight (kg)</th>
+                            <th class="p-3 text-right font-semibold text-slate-800">Rate (per kg)</th>
+                            <th class="p-3 text-right font-semibold text-slate-800">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-3">${t.item}</td>
+                            <td class="p-3 text-right">${t.netWeight.toFixed(2)}</td>
+                            <td class="p-3 text-right">৳${t.supplierRate.toFixed(2)}</td>
+                            <td class="p-3 text-right">৳${t.supplierTotal.toFixed(2)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="flex justify-end">
+                    <div class="w-full max-w-sm">
+                        <div class="flex justify-between mb-2">
+                            <span class="font-semibold text-slate-600">Subtotal:</span>
+                            <span class="font-semibold text-slate-800">৳${t.supplierTotal.toFixed(2)}</span>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span class="font-semibold text-slate-600">Less (kg):</span>
+                            <span class="font-semibold text-slate-800">${t.less.toFixed(2)} kg</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-xl text-rose-500 border-t border-slate-200 pt-2 mt-2">
+                            <span>Total Payable:</span>
+                            <span>৳${(t.supplierTotal).toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        invoiceContent.innerHTML = invoiceHtml;
+
+        const invoiceBtn = document.getElementById('toggle-invoice-btn');
+        const saveInvoiceBtn = document.getElementById('save-invoice-btn');
+
+        invoiceBtn.onclick = () => {
+            detailContent.classList.toggle('hidden');
+            invoiceContent.classList.toggle('hidden');
+            invoiceBtn.textContent = detailContent.classList.contains('hidden') ? 'View Details' : 'View Invoice';
+            saveInvoiceBtn.classList.toggle('hidden');
+        };
+
+        saveInvoiceBtn.onclick = async () => {
+            const canvas = await html2canvas(invoiceContent);
+            const link = document.createElement('a');
+            link.download = `invoice-${t.id.substring(0, 6)}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        };
+
+        document.getElementById('transaction-detail-modal').classList.remove('hidden');
+    };
+
+    return { renderAll, renderContacts, resetContactForm, setupContactFormForEdit, handleSaveContact, handleDeleteContact, populateTradeDropdowns, updateTradeTotals, calculateNetWeight, resetTradeForm, setupTradeFormForEdit, handleTradeFormSubmit, handleDelete, openPaymentModal, handleSavePayment, openDirectPaymentModal, handleDirectPaymentSubmit, renderContactLedger, renderOverallStatement, handlePasswordChange, renderTransactionDetails };
 })();
 
 // --- NAVIGATION & EVENT BINDING ---
@@ -1110,6 +1230,11 @@ const bindSectionEventListeners = (section, context) => {
                 if (editId) { navigateTo('transaction-form').then(() => appLogic.setupTradeFormForEdit(editId)); }
                 if (deleteId) appLogic.handleDelete(deleteId);
                 if (paymentId) appLogic.openPaymentModal(paymentId, paymentType);
+            } else {
+                const row = e.target.closest('tr');
+                if (row && row.dataset.id) {
+                    appLogic.renderTransactionDetails(row.dataset.id);
+                }
             }
         });
     } else if (section === 'contacts') {
