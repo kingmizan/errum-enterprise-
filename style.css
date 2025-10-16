@@ -1,58 +1,17 @@
 /* style.css */
 
 :root {
-    --color-primary-500: #4f46e5; /* indigo-500 */
-    --color-primary-600: #4338ca; /* indigo-600 */
-    --color-bg-light: #f9fafb;   /* gray-50 */
+    --color-primary-500: #06b6d4; /* cyan-500 */
+    --color-primary-600: #0891b2; /* cyan-600 */
+    --color-bg-light: #f8fafc;   /* slate-50 */
 }
 
 body { 
     font-family: 'Inter', sans-serif; 
     background-color: var(--color-bg-light);
-    background-image: radial-gradient(circle at top, #eef2ff, var(--color-bg-light) 30%);
+    background-image: radial-gradient(circle at top, #e0f2fe, var(--color-bg-light) 30%);
     -webkit-font-smoothing: antialiased; 
     -moz-osx-font-smoothing: grayscale; 
-}
-
-.btn-primary {
-    background-color: var(--color-primary-600);
-    color: white;
-    font-weight: 600;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    transition: background-color 0.2s;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-}
-
-.btn-primary:hover {
-    background-color: var(--color-primary-500);
-}
-
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.4);
-}
-
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-}
-.material-symbols-outlined {
-  font-variation-settings:
-  'FILL' 0,
-  'wght' 400,
-  'GRAD' 0,
-  'opsz' 24
 }
 
 /* Custom Scrollbar */
@@ -120,7 +79,6 @@ body {
         padding: 0.75rem 0; 
         text-align: right; 
         border-bottom: 1px solid #f1f5f9;
-        font-size: 1rem;
     }
     .responsive-table td:last-child { 
         border-bottom: none; 

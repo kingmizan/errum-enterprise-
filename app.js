@@ -13,7 +13,6 @@ let currentPaymentInfo = { id: null, type: null };
 let dashboardCurrentPage = 1;
 const dashboardItemsPerPage = 7;
 let currentStatementData = { type: null, data: [], name: '' };
-let analyticsChart = null;
 
 // --- DOM ELEMENTS ---
 const loadingContainer = document.getElementById('loading-container');
@@ -56,10 +55,10 @@ const animateCountUp = (el, endValue) => {
 // --- HTML TEMPLATES ---
 const templates = {
     dashboard: `
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-            <div class="p-8 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-rose-100 text-rose-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Total Payable</h3><p id="total-payable" class="text-3xl font-bold text-rose-500 mt-1">৳0.00</p></div></div></div>
-            <div class="p-8 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-green-100 text-green-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Total Receivable</h3><p id="total-receivable" class="text-3xl font-bold text-green-600 mt-1">৳0.00</p></div></div></div>
-            <div class="p-8 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-indigo-100 text-indigo-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Net Balance</h3><p id="total-profit" class="text-3xl font-bold text-indigo-600 mt-1">৳0.00</p></div></div></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-rose-100 text-rose-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Total Payable</h3><p id="total-payable" class="text-3xl font-bold text-rose-500 mt-1">৳0.00</p></div></div></div>
+            <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-green-100 text-green-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Total Receivable</h3><p id="total-receivable" class="text-3xl font-bold text-green-600 mt-1">৳0.00</p></div></div></div>
+            <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-cyan-100 text-cyan-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Net Balance</h3><p id="total-profit" class="text-3xl font-bold text-cyan-600 mt-1">৳0.00</p></div></div></div>
         </div>
         <div class="bg-white rounded-xl shadow-md border border-slate-200">
             <div class="p-4 border-b border-slate-200 flex flex-wrap gap-4 justify-between items-center"><h2 class="text-xl font-bold text-slate-800">Recent Transactions</h2><div class="flex flex-wrap items-center gap-2"><input id="search-input" type="text" placeholder="Search..." class="w-48 p-2 border border-slate-300 rounded-lg bg-slate-50"><input type="date" id="filter-start-date" class="p-2 border border-slate-300 rounded-lg bg-slate-50"><input type="date" id="filter-end-date" class="p-2 border border-slate-300 rounded-lg bg-slate-50"></div></div>
@@ -68,12 +67,7 @@ const templates = {
         </div>`,
     contacts: `
         <div class="bg-white rounded-xl shadow-md border border-slate-200">
-            <div class="p-4 border-b border-slate-200 flex justify-between items-center">
-                <h2 class="text-xl font-bold text-slate-800">Manage Party</h2>
-                <div class="flex items-center gap-2">
-                    <button id="add-contact-btn" class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-slate-200 text-slate-800 hover:bg-slate-300 text-sm"><span class="material-symbols-outlined">person_add</span>Add Party</button>
-                </div>
-            </div>
+            <div class="p-4 border-b border-slate-200 flex justify-between items-center"><h2 class="text-xl font-bold text-slate-800">Manage Party</h2><button id="add-contact-btn" class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm shadow-sm shadow-cyan-500/30"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>Add New Party</button></div>
             <div class="overflow-x-auto"><table class="w-full text-sm responsive-table"><thead><tr class="border-b border-slate-200 bg-slate-50">
                 <th class="text-left font-semibold py-3 px-4">Name</th>
                 <th class="text-left font-semibold py-3 px-4">Type</th>
@@ -83,7 +77,7 @@ const templates = {
                 <th class="text-center font-semibold py-3 px-4">Actions</th>
             </tr></thead><tbody id="contacts-table-body"></tbody></table></div>
         </div>`,
-    'add-transaction': `
+    'transaction-form': `
         <div class="bg-white rounded-xl shadow-md border border-slate-200 max-w-4xl mx-auto">
             <div class="p-6 border-b border-slate-200"><h2 id="form-title" class="text-xl font-bold text-slate-800">Add New Transaction</h2></div>
             <form id="transaction-form" class="p-6">
@@ -119,12 +113,12 @@ const templates = {
                     <div><label for="date" class="font-semibold text-sm">Transaction Date</label><input type="date" id="date" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50" required></div>
                     <div class="flex justify-between items-center text-lg"><span class="font-semibold text-slate-500">Total Payable:</span><span id="supplier-total" class="font-bold text-rose-500">৳0.00</span></div>
                     <div class="flex justify-between items-center text-lg"><span class="font-semibold text-slate-500">Total Receivable:</span><span id="buyer-total" class="font-bold text-green-600">৳0.00</span></div>
-                    <div class="flex justify-between items-center text-xl"><span class="font-semibold text-slate-800">Gross Profit on Deal:</span><span id="transaction-profit" class="font-bold text-indigo-600">৳0.00</span></div>
+                    <div class="flex justify-between items-center text-xl"><span class="font-semibold text-slate-800">Gross Profit on Deal:</span><span id="transaction-profit" class="font-bold text-cyan-600">৳0.00</span></div>
                 </div>
                 <div class="flex justify-end gap-3 pt-6 mt-4 border-t border-slate-200">
                     <button type="button" id="cancel-transaction-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Cancel</button>
                     <button type="button" id="reset-form-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Reset</button>
-                    <button type="submit" class="px-6 py-2 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 text-sm">Save Transaction</button>
+                    <button type="submit" class="px-6 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Save Transaction</button>
                 </div>
             </form>
         </div>`,
@@ -136,7 +130,7 @@ const templates = {
                     <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
                         <h3 class="font-semibold mb-2">Overall Business Statement</h3>
                         <p class="text-sm text-slate-500 mb-4">View a complete ledger of all transactions.</p>
-                        <button id="generate-overall-statement-btn" class="px-4 py-2 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 text-sm">Generate Overall</button>
+                        <button id="generate-overall-statement-btn" class="px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Generate Overall</button>
                     </div>
                     <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
                         <h3 class="font-semibold mb-2">Statement by Party</h3>
@@ -153,22 +147,6 @@ const templates = {
                     <h3 class="font-semibold mt-2">No Statement Generated</h3>
                     <p>Select an option above to view a statement.</p>
                 </div>
-            </div>
-        </div>
-    `,
-    analytics: `
-        <div class="bg-white rounded-xl shadow-md border border-slate-200 max-w-4xl mx-auto">
-            <div class="p-6 border-b border-slate-200">
-                <h2 class="text-xl font-bold text-slate-800">Analytics</h2>
-            </div>
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="p-4 bg-slate-100 rounded-xl"><h3 class="text-sm font-semibold text-slate-500">Today's Profit</h3><p id="today-profit" class="text-2xl font-bold text-green-600 mt-1">৳0.00</p></div>
-                    <div class="p-4 bg-slate-100 rounded-xl"><h3 class="text-sm font-semibold text-slate-500">Monthly Profit</h3><p id="monthly-profit" class="text-2xl font-bold text-green-600 mt-1">৳0.00</p></div>
-                    <div class="p-4 bg-slate-100 rounded-xl"><h3 class="text-sm font-semibold text-slate-500">Today's Transactions</h3><p id="today-transactions" class="text-2xl font-bold text-slate-800 mt-1">0</p></div>
-                    <div class="p-4 bg-slate-100 rounded-xl"><h3 class="text-sm font-semibold text-slate-500">Monthly Transactions</h3><p id="monthly-transactions" class="text-2xl font-bold text-slate-800 mt-1">0</p></div>
-                </div>
-                <canvas id="analytics-chart"></canvas>
             </div>
         </div>
     `
@@ -276,24 +254,10 @@ const appLogic = (() => {
             return; 
         }
 
-        const groupedTransactions = pageData.reduce((acc, t) => {
-            const date = t.date;
-            if (!acc[date]) {
-                acc[date] = [];
-            }
-            acc[date].push(t);
-            return acc;
-        }, {});
-
-        for (const date in groupedTransactions) {
-            const dateRow = document.createElement('tr');
-            dateRow.innerHTML = `<td colspan="6" class="py-2 px-4 bg-slate-100 font-semibold text-slate-800">${date}</td>`;
-            tbody.appendChild(dateRow);
-
-            groupedTransactions[date].forEach(t => {
-                const row = document.createElement('tr');
-                row.className = 'hover:bg-slate-50 border-b border-slate-200 md:border-b-0 cursor-pointer';
-                row.dataset.id = t.id;
+        pageData.forEach(t => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-slate-50 border-b border-slate-200 md:border-b-0 cursor-pointer';
+            row.dataset.id = t.id;
 
             let detailsHtml, valueHtml, payableBalHtml, receivableBalHtml, actionsHtml;
 
@@ -331,9 +295,8 @@ const appLogic = (() => {
                 <td data-label="Receivable Bal" class="py-4 px-4 align-top text-right">${receivableBalHtml}</td>
                 <td data-label="Actions" class="py-4 px-4 align-top actions-cell">${actionsHtml}</td>
             `;
-                tbody.appendChild(row);
-            });
-        }
+            tbody.appendChild(row);
+        });
     };
 
     const renderContacts = () => {
@@ -946,7 +909,7 @@ const appLogic = (() => {
                 
                 const balanceStatus = finalBalance > 0.01 ? "Receivable" : (finalBalance < -0.01 ? "Payable" : "Settled");
                 body.push([
-                    { content: `Final Balance (${balanceStatus}):`, colSpan: 8, styles: { halign: 'right', fontStyle: 'bold' } },
+                    { content: `Final Balance (${balanceStatus}):`, colSpan: 6, styles: { halign: 'right', fontStyle: 'bold' } },
                     { content: `Tk. ${Math.abs(finalBalance).toFixed(2)}`, styles: { halign: 'right', fontStyle: 'bold' } }
                 ]);
 
@@ -975,8 +938,8 @@ const appLogic = (() => {
                 
                 const balanceStatus = finalBalance >= 0 ? "Net Receivable" : "Net Payable";
                  body.push([
-                    { content: `Final Net Balance (${balanceStatus}):`, colSpan: 13, styles: { halign: 'right', fontStyle: 'bold' } },
-                    { content: finalBalance >= 0 ? `Tk. ${finalBalance.toFixed(2)}` : `(Tk. ${Math.abs(finalBalance).toFixed(2)})`, styles: { halign: 'right', fontStyle: 'bold' } }
+                    { content: `Final Net Balance (${balanceStatus}):`, colSpan: 12, styles: { halign: 'right', fontStyle: 'bold' } },
+                    { content: `৳${Math.abs(finalBalance).toFixed(2)}`, styles: { halign: 'right', fontStyle: 'bold' } }
                 ]);
             }
 
@@ -1096,196 +1059,7 @@ const appLogic = (() => {
         document.getElementById('statement-pdf-btn')?.addEventListener('click', () => handleContentExport('pdf'));
     };
 
-    const getTodayProfit = () => {
-        const today = new Date().toISOString().slice(0, 10);
-        return transactions.filter(t => t.date === today && t.type === 'trade').reduce((acc, t) => acc + t.profit, 0);
-    };
-
-    const getMonthlyProfit = () => {
-        const currentMonth = new Date().toISOString().slice(0, 7);
-        return transactions.filter(t => t.date.startsWith(currentMonth) && t.type === 'trade').reduce((acc, t) => acc + t.profit, 0);
-    };
-
-    const getTodayTransactionCount = () => {
-        const today = new Date().toISOString().slice(0, 10);
-        return transactions.filter(t => t.date === today).length;
-    };
-
-    const getMonthlyTransactionCount = () => {
-        const currentMonth = new Date().toISOString().slice(0, 7);
-        return transactions.filter(t => t.date.startsWith(currentMonth)).length;
-    };
-
-    const renderAnalytics = () => {
-        const section = document.querySelector('[data-section="analytics"]');
-        if (!section || !section.classList.contains('active')) return;
-
-        if (analyticsChart) {
-            analyticsChart.destroy();
-        }
-
-        document.getElementById('today-profit').textContent = `৳${getTodayProfit().toFixed(2)}`;
-        document.getElementById('monthly-profit').textContent = `৳${getMonthlyProfit().toFixed(2)}`;
-        document.getElementById('today-transactions').textContent = getTodayTransactionCount();
-        document.getElementById('monthly-transactions').textContent = getMonthlyTransactionCount();
-
-        const last30Days = [...Array(30)].map((_, i) => {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            return d.toISOString().slice(0, 10);
-        }).reverse();
-
-        const dailyProfits = last30Days.map(date => {
-            return transactions.filter(t => t.date === date && t.type === 'trade').reduce((acc, t) => acc + t.profit, 0);
-        });
-
-        const ctx = document.getElementById('analytics-chart').getContext('2d');
-        analyticsChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: last30Days,
-                datasets: [{
-                    label: 'Daily Profit',
-                    data: dailyProfits,
-                    fill: false,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    };
-
-    const renderTransactionDetails = (id) => {
-        const t = transactions.find(t => t.id === id);
-        if (!t) return;
-
-        const detailContent = document.getElementById('transaction-detail-content');
-        const invoiceContent = document.getElementById('transaction-invoice-content');
-        const detailTitle = document.getElementById('transaction-detail-title');
-
-        detailTitle.textContent = `Details for Transaction #${t.id.substring(0, 6)}`;
-
-        let detailsHtml = `
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-slate-100 p-4 rounded-lg">
-                    <h3 class="font-bold text-lg text-rose-500 mb-2">Supplier Details</h3>
-                    <p><strong>Name:</strong> ${t.supplierName}</p>
-                    <p><strong>Rate:</strong> ৳${t.supplierRate.toFixed(2)}/kg</p>
-                    <p><strong>Total:</strong> ৳${t.supplierTotal.toFixed(2)}</p>
-                </div>
-                <div class="bg-slate-100 p-4 rounded-lg">
-                    <h3 class="font-bold text-lg text-green-600 mb-2">Buyer Details</h3>
-                    <p><strong>Name:</strong> ${t.buyerName}</p>
-                    <p><strong>Rate:</strong> ৳${t.buyerRate.toFixed(2)}/kg</p>
-                    <p><strong>Total:</strong> ৳${t.buyerTotal.toFixed(2)}</p>
-                </div>
-            </div>
-            <div class="mt-6">
-                <h3 class="font-bold text-lg mb-2">Transaction Info</h3>
-                <p><strong>Item:</strong> ${t.item}</p>
-                <p><strong>Vehicle No:</strong> ${t.vehicleNo || 'N/A'}</p>
-                <p><strong>Scale Weight:</strong> ${t.scaleWeight.toFixed(2)} kg</p>
-                <p><strong>Less:</strong> ${t.less.toFixed(2)} kg</p>
-                <p><strong>Net Weight:</strong> ${t.netWeight.toFixed(2)} kg</p>
-                <p><strong>Profit:</strong> ৳${t.profit.toFixed(2)}</p>
-            </div>
-        `;
-
-        detailContent.innerHTML = detailsHtml;
-
-        let invoiceHtml = `
-            <div class="p-8">
-                <h2 class="text-2xl font-bold text-slate-800 mb-4">Invoice</h2>
-                <p><strong>Transaction ID:</strong> ${t.id.substring(0, 6)}</p>
-                <p><strong>Date:</strong> ${t.date}</p>
-                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <h3 class="font-bold text-lg text-rose-500 mb-2">Supplier Details</h3>
-                        <p><strong>Name:</strong> ${t.supplierName}</p>
-                        <p><strong>Rate:</strong> ৳${t.supplierRate.toFixed(2)}/kg</p>
-                        <p><strong>Total:</strong> ৳${t.supplierTotal.toFixed(2)}</p>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-lg text-green-600 mb-2">Buyer Details</h3>
-                        <p><strong>Name:</strong> ${t.buyerName}</p>
-                        <p><strong>Rate:</strong> ৳${t.buyerRate.toFixed(2)}/kg</p>
-                        <p><strong>Total:</strong> ৳${t.buyerTotal.toFixed(2)}</p>
-                    </div>
-                </div>
-                <div class="mt-6">
-                    <h3 class="font-bold text-lg mb-2">Transaction Info</h3>
-                    <p><strong>Item:</strong> ${t.item}</p>
-                    <p><strong>Vehicle No:</strong> ${t.vehicleNo || 'N/A'}</p>
-                    <p><strong>Scale Weight:</strong> ${t.scaleWeight.toFixed(2)} kg</p>
-                    <p><strong>Less:</strong> ${t.less.toFixed(2)} kg</p>
-                    <p><strong>Net Weight:</strong> ${t.netWeight.toFixed(2)} kg</p>
-                    <p><strong>Profit:</strong> ৳${t.profit.toFixed(2)}</p>
-                </div>
-            </div>
-        `;
-
-        invoiceContent.innerHTML = invoiceHtml;
-
-        const invoiceBtn = document.getElementById('toggle-invoice-btn');
-        const saveInvoicePngBtn = document.getElementById('save-invoice-png-btn');
-        const saveInvoicePdfBtn = document.getElementById('save-invoice-pdf-btn');
-
-        invoiceBtn.onclick = () => {
-            detailContent.classList.toggle('hidden');
-            invoiceContent.classList.toggle('hidden');
-            invoiceBtn.textContent = detailContent.classList.contains('hidden') ? 'View Details' : 'View Invoice';
-            saveInvoicePngBtn.classList.toggle('hidden');
-            saveInvoicePdfBtn.classList.toggle('hidden');
-        };
-
-        saveInvoicePngBtn.onclick = async () => {
-            const canvas = await html2canvas(invoiceContent);
-            const link = document.createElement('a');
-            link.download = `invoice-${t.id.substring(0, 6)}.png`;
-            link.href = canvas.toDataURL();
-            link.click();
-        };
-
-        saveInvoicePdfBtn.onclick = () => {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            doc.text("Errum Enterprise", 20, 20);
-            doc.text(`Invoice #${t.id.substring(0, 6)}`, 20, 30);
-            doc.text(`Date: ${t.date}`, 20, 40);
-
-            doc.text("Supplier Details", 20, 60);
-            doc.text(`Name: ${t.supplierName}`, 20, 70);
-            doc.text(`Rate: Tk. ${t.supplierRate.toFixed(2)}/kg`, 20, 80);
-            doc.text(`Total: Tk. ${t.supplierTotal.toFixed(2)}`, 20, 90);
-
-            doc.text("Buyer Details", 120, 60);
-            doc.text(`Name: ${t.buyerName}`, 120, 70);
-            doc.text(`Rate: Tk. ${t.buyerRate.toFixed(2)}/kg`, 120, 80);
-            doc.text(`Total: Tk. ${t.buyerTotal.toFixed(2)}`, 120, 90);
-
-            doc.text("Transaction Info", 20, 110);
-            doc.text(`Item: ${t.item}`, 20, 120);
-            doc.text(`Vehicle No: ${t.vehicleNo || 'N/A'}`, 20, 130);
-            doc.text(`Scale Weight: ${t.scaleWeight.toFixed(2)} kg`, 20, 140);
-            doc.text(`Less: ${t.less.toFixed(2)} kg`, 20, 150);
-            doc.text(`Net Weight: ${t.netWeight.toFixed(2)} kg`, 20, 160);
-            doc.text(`Profit: Tk. ${t.profit.toFixed(2)}`, 20, 170);
-
-            doc.save(`invoice-${t.id.substring(0, 6)}.pdf`);
-        };
-
-        document.getElementById('transaction-detail-modal').classList.remove('hidden');
-    };
-
-    return { renderAll, renderContacts, resetContactForm, setupContactFormForEdit, handleSaveContact, handleDeleteContact, populateTradeDropdowns, updateTradeTotals, calculateNetWeight, resetTradeForm, setupTradeFormForEdit, handleTradeFormSubmit, handleDelete, openPaymentModal, handleSavePayment, openDirectPaymentModal, handleDirectPaymentSubmit, renderContactLedger, renderOverallStatement, handlePasswordChange, renderTransactionDetails, renderAnalytics };
+    return { renderAll, renderContacts, resetContactForm, setupContactFormForEdit, handleSaveContact, handleDeleteContact, populateTradeDropdowns, updateTradeTotals, calculateNetWeight, resetTradeForm, setupTradeFormForEdit, handleTradeFormSubmit, handleDelete, openPaymentModal, handleSavePayment, openDirectPaymentModal, handleDirectPaymentSubmit, renderContactLedger, renderOverallStatement, handlePasswordChange };
 })();
 
 // --- NAVIGATION & EVENT BINDING ---
@@ -1333,14 +1107,9 @@ const bindSectionEventListeners = (section, context) => {
             if (button && button.closest('td')?.classList.contains('actions-cell')) {
                 e.stopPropagation();
                 const { editId, deleteId, paymentId, paymentType } = button.dataset;
-                if (editId) { navigateTo('add-transaction').then(() => appLogic.setupTradeFormForEdit(editId)); }
+                if (editId) { navigateTo('transaction-form').then(() => appLogic.setupTradeFormForEdit(editId)); }
                 if (deleteId) appLogic.handleDelete(deleteId);
                 if (paymentId) appLogic.openPaymentModal(paymentId, paymentType);
-            } else {
-                const row = e.target.closest('tr');
-                if (row && row.dataset.id) {
-                    appLogic.renderTransactionDetails(row.dataset.id);
-                }
             }
         });
     } else if (section === 'contacts') {
@@ -1380,8 +1149,6 @@ const bindSectionEventListeners = (section, context) => {
             partySelect.value = context.contactId;
             appLogic.renderContactLedger(context.contactId);
         }
-    } else if (section === 'analytics') {
-        appLogic.renderAnalytics();
     }
 };
 
@@ -1402,7 +1169,6 @@ onAuthStateChanged(auth, user => {
                 appLogic.renderAll(); 
                 appLogic.renderContacts();
             }
-            appLogic.renderAnalytics();
         });
         
         const contactsQuery = query(collection(db, "users", currentUserId, "contacts"), orderBy("name"));
@@ -1412,7 +1178,7 @@ onAuthStateChanged(auth, user => {
              if (currentSection === 'dashboard' || currentSection === 'contacts') {
                 appLogic.renderAll(); 
                 appLogic.renderContacts();
-            } else if (currentSection === 'add-transaction') {
+            } else if (currentSection === 'transaction-form') {
                 appLogic.populateTradeDropdowns();
             }
         });
@@ -1439,10 +1205,8 @@ onAuthStateChanged(auth, user => {
 
 document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const btn = e.target.querySelector('button[type="submit"]');
-    btn.disabled = true;
-    btn.innerHTML = '<svg class="animate-spin h-5 w-5 mx-auto text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
-
+    loadingContainer.classList.remove('hidden');
+    authContainer.classList.add('hidden');
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const errorP = document.getElementById('auth-error');
@@ -1451,7 +1215,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
         errorP.textContent = "Invalid email or password.";
-        btn.disabled = false;
-        btn.innerHTML = 'Sign In';
+        loadingContainer.classList.add('hidden');
+        authContainer.classList.remove('hidden');
     }
 });
