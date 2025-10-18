@@ -58,40 +58,30 @@ body {
     animation: content-enter 0.4s ease-out forwards; 
 }
 
-/* Responsive Table for Mobile */
 @media (max-width: 768px) {
-    .responsive-table thead { 
-        display: none; 
+    /* General mobile layout adjustments */
+    body {
+        padding-bottom: 80px; /* Space for bottom nav */
     }
-    .responsive-table tr {
-        display: block; 
-        border: 1px solid #e2e8f0; 
-        border-radius: 0.75rem;
-        margin-bottom: 1rem; 
-        padding: 1rem;
-        background-color: white;
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+
+    #app-container .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
-    .responsive-table td {
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center;
-        padding: 0.75rem 0; 
-        text-align: right; 
-        border-bottom: 1px solid #f1f5f9;
+
+    header {
+        margin-bottom: 1.5rem;
     }
-    .responsive-table td:last-child { 
-        border-bottom: none; 
+
+    /* Full-screen modals on mobile */
+    .fixed.inset-0.z-50 {
+        padding: 0;
     }
-    .responsive-table td::before {
-        content: attr(data-label); 
-        font-weight: 600; 
-        text-align: left;
-        margin-right: 1rem; 
-        color: #64748b;
-    }
-    .responsive-table td.actions-cell { 
-        justify-content: flex-end; 
-        padding-top: 0.75rem;
+    .fixed.inset-0.z-50 > div {
+        width: 100%;
+        max-width: 100%;
+        height: 100%;
+        min-height: 100vh;
+        border-radius: 0;
     }
 }
