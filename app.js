@@ -15,7 +15,7 @@ const dashboardItemsPerPage = 7;
 let currentStatementData = { type: null, data: [], name: '' };
 
 // --- DOM ELEMENTS ---
-const loadingContainer = document.getElementById('loading-container');
+const loadingContainer = document.getElementById('loading-screen');
 const authContainer = document.getElementById('auth-container');
 const appContainer = document.getElementById('app-container');
 const mainContent = document.getElementById('app-content');
@@ -302,7 +302,7 @@ const appLogic = (() => {
 
             } else if (t.type === 'payment') {
                 const isReceived = t.paymentType === 'received';
-                iconHtml = `<div class="p-2.5 rounded-full ${isReceived ? 'bg-green-100 text-green-600' : 'bg-rose-100 text-rose-500'}">${isReceived ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 11l5-5m0 0l5 5m-5-5v12" /></svg>` : `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 13l-5 5m0 0l-5-5m5 5V6" /></svg>`}</div>`;
+                iconHtml = `<div class="p-2.5 rounded-full ${isReceived ? 'bg-green-100 text-green-600' : 'bg-rose-100 text-rose-500'}">${isReceived ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 13l-5 5m0 0l-5-5m5 5V6" /></svg>` : `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 11l5-5m0 0l5 5m-5-5v12" /></svg>`}</div>`;
                 titleHtml = `<div class="flex-1"><p class="font-semibold text-slate-800">${t.description}</p><p class="text-xs text-slate-500">${t.name}</p></div>`;
                 amountHtml = `<div class="text-right"><p class="font-bold text-lg ${isReceived ? 'text-green-600' : 'text-rose-500'}">৳${(t.amount || 0).toFixed(2)}</p><p class="text-xs text-slate-500">${isReceived ? 'Received' : 'Paid'}</p></div>`;
                 balanceHtml = ''; // No balance for direct payments
@@ -1253,7 +1253,8 @@ const navigateTo = (section, context = null) => {
         // Bottom nav
         document.querySelectorAll('#bottom-nav button').forEach(link => {
             const isActive = link.dataset.section === section;
-            link.classList.toggle('text-cyan-600', isActive);
+            link.classList.toggle('bg-cyan-600', isActive);
+            link.classList.toggle('text-white', isActive);
             link.classList.toggle('text-slate-500', !isActive);
         });
 
@@ -1292,17 +1293,17 @@ const bindSectionEventListeners = (section, context) => {
         document.getElementById('filter-end-date').addEventListener('change', () => { dashboardCurrentPage = 1; appLogic.renderAll(); });
         
         document.getElementById('transaction-history-body').addEventListener('click', (e) => {
-            const button = e.target.closest('button');
-            if (button && button.closest('td')?.classList.contains('actions-cell')) {
+            const actionButton = e.target.closest('.actions-cell button');
+            if (actionButton) {
                 e.stopPropagation();
-                const { editId, deleteId, paymentId, paymentType } = button.dataset;
+                const { editId, deleteId, paymentId, paymentType } = actionButton.dataset;
                 if (editId) { navigateTo('transaction-form').then(() => appLogic.setupTradeFormForEdit(editId)); }
                 if (deleteId) appLogic.handleDelete(deleteId);
                 if (paymentId) appLogic.openPaymentModal(paymentId, paymentType);
             } else {
-                const row = e.target.closest('tr');
-                if (row && row.dataset.id) {
-                    appLogic.renderTransactionDetails(row.dataset.id);
+                const card = e.target.closest('.transaction-card');
+                if (card && card.dataset.id) {
+                    appLogic.renderTransactionDetails(card.dataset.id);
                 }
             }
         });
@@ -1394,13 +1395,13 @@ onAuthStateChanged(auth, user => {
         
         appContainer.classList.add('hidden');
         authContainer.classList.remove('hidden');
-        loadingContainer.classList.add('hidden');
+        document.getElementById('loading-screen').style.display = 'none';
     }
 });
 
 document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    loadingContainer.classList.remove('hidden');
+    document.getElementById('loading-screen').style.display = 'flex';
     authContainer.classList.add('hidden');
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
