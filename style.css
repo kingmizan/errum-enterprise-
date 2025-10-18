@@ -95,6 +95,10 @@ body {
         padding-top: 0.75rem;
     }
 
+    #top-nav {
+        display: none;
+    }
+
     /* General mobile layout adjustments */
     body {
         padding-bottom: 80px; /* Space for bottom nav */
