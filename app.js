@@ -1395,13 +1395,13 @@ onAuthStateChanged(auth, user => {
         
         appContainer.classList.add('hidden');
         authContainer.classList.remove('hidden');
-        document.getElementById('loading-screen').style.display = 'none';
+        loadingContainer.classList.add('hidden');
     }
 });
 
 document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    document.getElementById('loading-screen').style.display = 'flex';
+    loadingContainer.classList.remove('hidden');
     authContainer.classList.add('hidden');
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
