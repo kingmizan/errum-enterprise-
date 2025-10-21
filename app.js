@@ -1350,6 +1350,11 @@ const bindSectionEventListeners = (section, context) => {
 // --- AUTH & INITIALIZATION ---
 onAuthStateChanged(auth, user => {
     if (user) {
+        // Immediately hide loading screen and show app container
+        appContainer.classList.remove('hidden');
+        authContainer.classList.add('hidden');
+        loadingContainer.classList.add('hidden');
+
         try {
             currentUserId = user.uid;
             document.getElementById('user-email').textContent = user.email;
@@ -1357,42 +1362,39 @@ onAuthStateChanged(auth, user => {
             if (transactionsUnsubscribe) transactionsUnsubscribe();
             if (contactsUnsubscribe) contactsUnsubscribe();
 
-        const transQuery = query(collection(db, "users", currentUserId, "transactions"));
-        transactionsUnsubscribe = onSnapshot(transQuery, snapshot => {
-            transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
-            if (currentSection === 'dashboard' || currentSection === 'contacts') {
-                appLogic.renderAll(); 
-                appLogic.renderContacts();
-            }
-        });
-        
-        const contactsQuery = query(collection(db, "users", currentUserId, "contacts"), orderBy("name"));
-        contactsUnsubscribe = onSnapshot(contactsQuery, snapshot => {
-            contacts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
-             if (currentSection === 'dashboard' || currentSection === 'contacts') {
-                appLogic.renderAll(); 
-                appLogic.renderContacts();
-            } else if (currentSection === 'transaction-form') {
-                appLogic.populateTradeDropdowns();
-            }
-        });
+            const transQuery = query(collection(db, "users", currentUserId, "transactions"));
+            transactionsUnsubscribe = onSnapshot(transQuery, snapshot => {
+                transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
+                if (currentSection === 'dashboard' || currentSection === 'contacts') {
+                    appLogic.renderAll();
+                    appLogic.renderContacts();
+                }
+            });
 
-        appContainer.classList.remove('hidden');
-        authContainer.classList.add('hidden');
-        loadingContainer.classList.add('hidden');
-        
-        bindAppEventListeners();
-        renderBottomNav();
-        navigateTo('dashboard');
-    } catch (error) {
-        console.error("Error during app initialization:", error);
-        showToast("An error occurred. Please refresh the page.");
-        loadingContainer.classList.add('hidden');
-        authContainer.classList.remove('hidden'); // Show login
-    }
-} else {
+            const contactsQuery = query(collection(db, "users", currentUserId, "contacts"), orderBy("name"));
+            contactsUnsubscribe = onSnapshot(contactsQuery, snapshot => {
+                contacts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
+                 if (currentSection === 'dashboard' || currentSection === 'contacts') {
+                    appLogic.renderAll();
+                    appLogic.renderContacts();
+                } else if (currentSection === 'transaction-form') {
+                    appLogic.populateTradeDropdowns();
+                }
+            });
+
+            bindAppEventListeners();
+            renderBottomNav();
+            navigateTo('dashboard');
+        } catch (error) {
+            console.error("Error during app initialization:", error);
+            showToast("An error occurred. Please refresh the page.");
+            // If something goes wrong, hide app and show auth screen
+            appContainer.classList.add('hidden');
+            authContainer.classList.remove('hidden');
+        }
+    } else {
         currentUserId = null;
         transactions = [];
         contacts = [];
