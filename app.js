@@ -1348,78 +1348,98 @@ const bindSectionEventListeners = (section, context) => {
 };
 
 // --- AUTH & INITIALIZATION ---
-onAuthStateChanged(auth, user => {
-    if (user) {
-        // Immediately hide loading screen and show app container
-        appContainer.classList.remove('hidden');
-        authContainer.classList.add('hidden');
-        loadingContainer.classList.add('hidden');
+if (!auth || !db) {
+    console.error("Firebase services not available. App cannot start.");
+    loadingContainer.classList.add('hidden');
+    authContainer.classList.remove('hidden');
+    const errorP = document.getElementById('auth-error');
+    if (errorP) {
+        errorP.textContent = "Error: App could not connect to services.";
+    }
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        const submitButton = loginForm.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.textContent = "Connection Failed";
+            submitButton.classList.add('bg-rose-500', 'hover:bg-rose-600');
+            submitButton.classList.remove('bg-cyan-600', 'hover:bg-cyan-700');
+        }
+    }
+} else {
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            // Immediately hide loading screen and show app container
+            appContainer.classList.remove('hidden');
+            authContainer.classList.add('hidden');
+            loadingContainer.classList.add('hidden');
 
-        try {
-            currentUserId = user.uid;
-            document.getElementById('user-email').textContent = user.email;
+            try {
+                currentUserId = user.uid;
+                document.getElementById('user-email').textContent = user.email;
 
+                if (transactionsUnsubscribe) transactionsUnsubscribe();
+                if (contactsUnsubscribe) contactsUnsubscribe();
+
+                const transQuery = query(collection(db, "users", currentUserId, "transactions"));
+                transactionsUnsubscribe = onSnapshot(transQuery, snapshot => {
+                    transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
+                    if (currentSection === 'dashboard' || currentSection === 'contacts') {
+                        appLogic.renderAll();
+                        appLogic.renderContacts();
+                    }
+                });
+
+                const contactsQuery = query(collection(db, "users", currentUserId, "contacts"), orderBy("name"));
+                contactsUnsubscribe = onSnapshot(contactsQuery, snapshot => {
+                    contacts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
+                     if (currentSection === 'dashboard' || currentSection === 'contacts') {
+                        appLogic.renderAll();
+                        appLogic.renderContacts();
+                    } else if (currentSection === 'transaction-form') {
+                        appLogic.populateTradeDropdowns();
+                    }
+                });
+
+                bindAppEventListeners();
+                renderBottomNav();
+                navigateTo('dashboard');
+            } catch (error) {
+                console.error("Error during app initialization:", error);
+                showToast("An error occurred. Please refresh the page.");
+                // If something goes wrong, hide app and show auth screen
+                appContainer.classList.add('hidden');
+                authContainer.classList.remove('hidden');
+            }
+        } else {
+            currentUserId = null;
+            transactions = [];
+            contacts = [];
             if (transactionsUnsubscribe) transactionsUnsubscribe();
             if (contactsUnsubscribe) contactsUnsubscribe();
 
-            const transQuery = query(collection(db, "users", currentUserId, "transactions"));
-            transactionsUnsubscribe = onSnapshot(transQuery, snapshot => {
-                transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
-                if (currentSection === 'dashboard' || currentSection === 'contacts') {
-                    appLogic.renderAll();
-                    appLogic.renderContacts();
-                }
-            });
-
-            const contactsQuery = query(collection(db, "users", currentUserId, "contacts"), orderBy("name"));
-            contactsUnsubscribe = onSnapshot(contactsQuery, snapshot => {
-                contacts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
-                 if (currentSection === 'dashboard' || currentSection === 'contacts') {
-                    appLogic.renderAll();
-                    appLogic.renderContacts();
-                } else if (currentSection === 'transaction-form') {
-                    appLogic.populateTradeDropdowns();
-                }
-            });
-
-            bindAppEventListeners();
-            renderBottomNav();
-            navigateTo('dashboard');
-        } catch (error) {
-            console.error("Error during app initialization:", error);
-            showToast("An error occurred. Please refresh the page.");
-            // If something goes wrong, hide app and show auth screen
             appContainer.classList.add('hidden');
             authContainer.classList.remove('hidden');
+            loadingContainer.classList.add('hidden');
         }
-    } else {
-        currentUserId = null;
-        transactions = [];
-        contacts = [];
-        if (transactionsUnsubscribe) transactionsUnsubscribe();
-        if (contactsUnsubscribe) contactsUnsubscribe();
-        
-        appContainer.classList.add('hidden');
-        authContainer.classList.remove('hidden');
-        loadingContainer.classList.add('hidden');
-    }
-});
+    });
 
-document.getElementById('login-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    loadingContainer.classList.remove('hidden');
-    authContainer.classList.add('hidden');
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const errorP = document.getElementById('auth-error');
-    errorP.textContent = '';
-    try {
-        await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-        errorP.textContent = "Invalid email or password.";
-        loadingContainer.classList.add('hidden');
-        authContainer.classList.remove('hidden');
-    }
-});
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        loadingContainer.classList.remove('hidden');
+        authContainer.classList.add('hidden');
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errorP = document.getElementById('auth-error');
+        errorP.textContent = '';
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+            errorP.textContent = "Invalid email or password.";
+            loadingContainer.classList.add('hidden');
+            authContainer.classList.remove('hidden');
+        }
+    });
+}
