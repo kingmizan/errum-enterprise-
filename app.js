@@ -55,20 +55,20 @@ const animateCountUp = (el, endValue) => {
 // --- HTML TEMPLATES ---
 const templates = {
     dashboard: `
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-rose-100 text-rose-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Total Payable</h3><p id="total-payable" class="text-3xl font-bold text-rose-500 mt-1">৳0.00</p></div></div></div>
-            <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-green-100 text-green-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Total Receivable</h3><p id="total-receivable" class="text-3xl font-bold text-green-600 mt-1">৳0.00</p></div></div></div>
-            <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-cyan-100 text-cyan-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Net Balance</h3><p id="total-profit" class="text-3xl font-bold text-cyan-600 mt-1">৳0.00</p></div></div></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
+            <div class="card p-4 md:p-6"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-rose-100 text-rose-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Total Payable</h3><p id="total-payable" class="text-2xl md:text-3xl font-bold text-rose-500 mt-1">৳0.00</p></div></div></div>
+            <div class="card p-4 md:p-6"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-green-100 text-green-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Total Receivable</h3><p id="total-receivable" class="text-2xl md:text-3xl font-bold text-green-600 mt-1">৳0.00</p></div></div></div>
+            <div class="card p-4 md:p-6"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-blue-100 text-blue-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Net Balance</h3><p id="total-profit" class="text-2xl md:text-3xl font-bold text-blue-600 mt-1">৳0.00</p></div></div></div>
         </div>
-        <div class="bg-white rounded-xl shadow-md border border-slate-200">
-            <div class="p-4 border-b border-slate-200 flex flex-wrap gap-4 justify-between items-center"><h2 class="text-xl font-bold text-slate-800">Recent Transactions</h2><div class="flex flex-wrap items-center gap-2"><input id="search-input" type="text" placeholder="Search..." class="w-48 p-2 border border-slate-300 rounded-lg bg-slate-50"><input type="date" id="filter-start-date" class="p-2 border border-slate-300 rounded-lg bg-slate-50"><input type="date" id="filter-end-date" class="p-2 border border-slate-300 rounded-lg bg-slate-50"></div></div>
-            <div class="overflow-x-auto"><table class="w-full text-sm responsive-table"><thead><tr class="border-b border-slate-200 bg-slate-50"><th class="text-left font-semibold py-3 px-4">Date</th><th class="text-left font-semibold py-3 px-4">Details</th><th class="text-right font-semibold py-3 px-4">Profit/Value</th><th class="text-right font-semibold py-3 px-4">Payable Bal</th><th class="text-right font-semibold py-3 px-4">Receivable Bal</th><th class="text-center font-semibold py-3 px-4">Actions</th></tr></thead><tbody id="transaction-history-body"></tbody></table></div>
-            <div id="pagination-controls" class="flex justify-center items-center gap-4 p-4 border-t border-slate-200"></div>
+        <div class="card">
+            <div class="card-header flex flex-wrap gap-4 justify-between items-center"><h2 class="text-lg font-bold text-slate-800">Recent Transactions</h2><div class="flex flex-wrap items-center gap-2"><input id="search-input" type="text" placeholder="Search..." class="w-48 input-field"><input type="date" id="filter-start-date" class="input-field"><input type="date" id="filter-end-date" class="input-field"></div></div>
+            <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="border-b border-slate-200 bg-slate-50"><th class="text-left font-semibold py-3 px-4">Date</th><th class="text-left font-semibold py-3 px-4">Details</th><th class="text-right font-semibold py-3 px-4">Profit/Value</th><th class="text-right font-semibold py-3 px-4">Payable Bal</th><th class="text-right font-semibold py-3 px-4">Receivable Bal</th><th class="text-center font-semibold py-3 px-4">Actions</th></tr></thead><tbody id="transaction-history-body"></tbody></table></div>
+            <div id="pagination-controls" class="card-footer flex justify-center items-center gap-4"></div>
         </div>`,
     contacts: `
-        <div class="bg-white rounded-xl shadow-md border border-slate-200">
-            <div class="p-4 border-b border-slate-200 flex justify-between items-center"><h2 class="text-xl font-bold text-slate-800">Manage Party</h2><button id="add-contact-btn" class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm shadow-sm shadow-cyan-500/30"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>Add New Party</button></div>
-            <div class="overflow-x-auto"><table class="w-full text-sm responsive-table"><thead><tr class="border-b border-slate-200 bg-slate-50">
+        <div class="card">
+            <div class="card-header flex justify-between items-center"><h2 class="text-lg font-bold text-slate-800">Manage Party</h2><button id="add-contact-btn" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>Add New Party</button></div>
+            <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="border-b border-slate-200 bg-slate-50">
                 <th class="text-left font-semibold py-3 px-4">Name</th>
                 <th class="text-left font-semibold py-3 px-4">Type</th>
                 <th class="text-left font-semibold py-3 px-4">Phone</th>
@@ -78,64 +78,64 @@ const templates = {
             </tr></thead><tbody id="contacts-table-body"></tbody></table></div>
         </div>`,
     'transaction-form': `
-        <div class="bg-white rounded-xl shadow-md border border-slate-200 max-w-4xl mx-auto">
-            <div class="p-6 border-b border-slate-200"><h2 id="form-title" class="text-xl font-bold text-slate-800">Add New Transaction</h2></div>
-            <form id="transaction-form" class="p-6">
+        <div class="card max-w-4xl mx-auto">
+            <div class="card-header"><h2 id="form-title" class="text-lg font-bold text-slate-800">Add New Transaction</h2></div>
+            <form id="transaction-form" class="card-content">
                 <input type="hidden" id="transaction-id">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                    <div class="lg:col-span-2"><label for="item" class="font-semibold text-sm">Item Details</label><input type="text" id="item" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50" required></div>
-                    <div><label for="scale-weight" class="font-semibold text-sm">Scale Weight (kg)</label><input type="number" step="any" id="scale-weight" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50"></div>
-                    <div><label for="less" class="font-semibold text-sm">Less (kg)</label><input type="number" step="any" id="less" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50"></div>
-                    <div><label for="net-weight" class="font-semibold text-sm">Net Weight (kg)</label><input type="number" step="any" id="net-weight" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-100" readonly></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div class="lg:col-span-2"><label for="item" class="font-semibold text-sm">Item Details</label><input type="text" id="item" class="input-field mt-1" required></div>
+                    <div><label for="scale-weight" class="font-semibold text-sm">Scale Wt (kg)</label><input type="number" step="any" id="scale-weight" placeholder="0.00" class="input-field mt-1"></div>
+                    <div><label for="less" class="font-semibold text-sm">Less (kg)</label><input type="number" step="any" id="less" placeholder="0.00" class="input-field mt-1"></div>
+                    <div><label for="net-weight" class="font-semibold text-sm">Net Wt (kg)</label><input type="number" step="any" id="net-weight" placeholder="0.00" class="input-field mt-1 bg-slate-100" readonly></div>
                 </div>
-                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-4 p-4 rounded-lg bg-slate-50 border border-slate-200">
                         <h3 class="font-bold text-lg text-rose-500">Supplier Details</h3>
-                        <div><label for="supplier-select" class="font-semibold text-sm">Supplier Name</label><select id="supplier-select" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white" required><option value="">-- Select Supplier --</option></select></div>
-                        <div><label for="vehicle-no" class="font-semibold text-sm">Vehicle No</label><input type="text" id="vehicle-no" placeholder="e.g., DHAKA-123" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"></div>
-                        <div><label for="supplier-rate" class="font-semibold text-sm">Supplier Rate (per kg)</label><input type="number" step="any" id="supplier-rate" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"></div>
+                        <div><label for="supplier-select" class="font-semibold text-sm">Supplier Name</label><select id="supplier-select" class="input-field mt-1" required><option value="">-- Select Supplier --</option></select></div>
+                        <div><label for="vehicle-no" class="font-semibold text-sm">Vehicle No</label><input type="text" id="vehicle-no" placeholder="e.g., DHAKA-123" class="input-field mt-1"></div>
+                        <div><label for="supplier-rate" class="font-semibold text-sm">Supplier Rate (per kg)</label><input type="number" step="any" id="supplier-rate" placeholder="0.00" class="input-field mt-1"></div>
                         <div class="grid grid-cols-2 gap-4">
-                            <div><label for="paid-to-supplier" class="font-semibold text-sm">Initial Payment</label><input type="number" step="any" id="paid-to-supplier" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"></div>
-                            <div><label for="paid-to-supplier-method" class="font-semibold text-sm">Method</label><select id="paid-to-supplier-method" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
+                            <div><label for="paid-to-supplier" class="font-semibold text-sm">Initial Payment</label><input type="number" step="any" id="paid-to-supplier" placeholder="0.00" class="input-field mt-1"></div>
+                            <div><label for="paid-to-supplier-method" class="font-semibold text-sm">Method</label><select id="paid-to-supplier-method" class="input-field mt-1"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
                         </div>
                     </div>
                     <div class="space-y-4 p-4 rounded-lg bg-slate-50 border border-slate-200">
                         <h3 class="font-bold text-lg text-green-600">Buyer Details</h3>
-                        <div><label for="buyer-select" class="font-semibold text-sm">Buyer Name</label><select id="buyer-select" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white" required><option value="">-- Select Buyer --</option></select></div>
-                        <div><label for="buyer-rate" class="font-semibold text-sm">Buyer Rate (per kg)</label><input type="number" step="any" id="buyer-rate" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"></div>
+                        <div><label for="buyer-select" class="font-semibold text-sm">Buyer Name</label><select id="buyer-select" class="input-field mt-1" required><option value="">-- Select Buyer --</option></select></div>
+                        <div><label for="buyer-rate" class="font-semibold text-sm">Buyer Rate (per kg)</label><input type="number" step="any" id="buyer-rate" placeholder="0.00" class="input-field mt-1"></div>
                         <div class="grid grid-cols-2 gap-4">
-                            <div><label for="received-from-buyer" class="font-semibold text-sm">Initial Payment</label><input type="number" step="any" id="received-from-buyer" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"></div>
-                            <div><label for="received-from-buyer-method" class="font-semibold text-sm">Method</label><select id="received-from-buyer-method" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
+                            <div><label for="received-from-buyer" class="font-semibold text-sm">Initial Payment</label><input type="number" step="any" id="received-from-buyer" placeholder="0.00" class="input-field mt-1"></div>
+                            <div><label for="received-from-buyer-method" class="font-semibold text-sm">Method</label><select id="received-from-buyer-method" class="input-field mt-1"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
                         </div>
                     </div>
                 </div>
                 <div class="mt-6 pt-6 border-t border-slate-200 space-y-2">
-                    <div><label for="date" class="font-semibold text-sm">Transaction Date</label><input type="date" id="date" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50" required></div>
+                    <div><label for="date" class="font-semibold text-sm">Transaction Date</label><input type="date" id="date" class="input-field mt-1" required></div>
                     <div class="flex justify-between items-center text-lg"><span class="font-semibold text-slate-500">Total Payable:</span><span id="supplier-total" class="font-bold text-rose-500">৳0.00</span></div>
                     <div class="flex justify-between items-center text-lg"><span class="font-semibold text-slate-500">Total Receivable:</span><span id="buyer-total" class="font-bold text-green-600">৳0.00</span></div>
-                    <div class="flex justify-between items-center text-xl"><span class="font-semibold text-slate-800">Gross Profit on Deal:</span><span id="transaction-profit" class="font-bold text-cyan-600">৳0.00</span></div>
+                    <div class="flex justify-between items-center text-xl"><span class="font-semibold text-slate-800">Gross Profit on Deal:</span><span id="transaction-profit" class="font-bold text-blue-600">৳0.00</span></div>
                 </div>
                 <div class="flex justify-end gap-3 pt-6 mt-4 border-t border-slate-200">
-                    <button type="button" id="cancel-transaction-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Cancel</button>
-                    <button type="button" id="reset-form-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Reset</button>
-                    <button type="submit" class="px-6 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Save Transaction</button>
+                    <button type="button" id="cancel-transaction-btn" class="btn btn-secondary">Cancel</button>
+                    <button type="button" id="reset-form-btn" class="btn btn-secondary">Reset</button>
+                    <button type="submit" class="btn btn-primary">Save Transaction</button>
                 </div>
             </form>
         </div>`,
     statements: `
         <div>
-            <div class="bg-white rounded-xl shadow-md border border-slate-200 p-6 mb-8">
+            <div class="card p-6 mb-8">
                 <h2 class="text-xl font-bold text-slate-800 mb-4">Generate a Statement</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
                         <h3 class="font-semibold mb-2">Overall Business Statement</h3>
                         <p class="text-sm text-slate-500 mb-4">View a complete ledger of all transactions.</p>
-                        <button id="generate-overall-statement-btn" class="px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Generate Overall</button>
+                        <button id="generate-overall-statement-btn" class="btn btn-primary">Generate Overall</button>
                     </div>
                     <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
                         <h3 class="font-semibold mb-2">Statement by Party</h3>
                         <p class="text-sm text-slate-500 mb-4">Select a specific party to view their ledger.</p>
-                        <select id="party-ledger-select" class="w-full p-2 border border-slate-300 rounded-lg bg-white">
+                        <select id="party-ledger-select" class="input-field">
                             <option value="">-- Select a Party --</option>
                         </select>
                     </div>
@@ -188,9 +188,9 @@ const appLogic = (() => {
         const nextDisabled = dashboardCurrentPage === totalPages ? 'disabled' : '';
 
         controlsContainer.innerHTML = `
-            <button id="prev-page-btn" class="px-3 py-1 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300 disabled:opacity-50" ${prevDisabled}>Previous</button>
+            <button id="prev-page-btn" class="btn btn-secondary" ${prevDisabled}>Previous</button>
             <span class="text-sm font-semibold">Page ${dashboardCurrentPage} of ${totalPages}</span>
-            <button id="next-page-btn" class="px-3 py-1 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300 disabled:opacity-50" ${nextDisabled}>Next</button>
+            <button id="next-page-btn" class="btn btn-secondary" ${nextDisabled}>Next</button>
         `;
 
         document.getElementById('prev-page-btn')?.addEventListener('click', () => {
@@ -256,7 +256,7 @@ const appLogic = (() => {
         
         pageData.forEach(t => {
             const row = document.createElement('tr'); 
-            row.className = 'hover:bg-slate-50 border-b border-slate-200 md:border-b-0 cursor-pointer';
+            row.className = 'hover:bg-slate-50 border-b border-slate-200 last:border-b-0 cursor-pointer';
             row.dataset.id = t.id;
 
             let detailsHtml, valueHtml, payableBalHtml, receivableBalHtml, actionsHtml;
@@ -343,9 +343,9 @@ const appLogic = (() => {
                 </span>`;
             }
             
-            const row = document.createElement('tr'); row.className = 'hover:bg-slate-50 border-b border-slate-200 md:border-b-0';
+            const row = document.createElement('tr'); row.className = 'hover:bg-slate-50 border-b border-slate-200 last:border-b-0';
             row.innerHTML = `<td data-label="Name" class="py-4 px-4 align-middle">
-                                <button data-ledger-id="${c.id}" class="font-medium text-slate-800 hover:text-cyan-600 text-left cursor-pointer">${c.name}</button>
+                                <button data-ledger-id="${c.id}" class="font-medium text-slate-800 hover:text-blue-600 text-left cursor-pointer">${c.name}</button>
                                </td>
                                <td data-label="Type" class="py-4 px-4 align-middle">${typeBadge}</td>
                                <td data-label="Phone" class="py-4 px-4 align-middle">${c.phone || 'N/A'}</td>
@@ -1065,7 +1065,7 @@ const appLogic = (() => {
 // --- NAVIGATION & EVENT BINDING ---
 const navigateTo = (section, context = null) => {
     return new Promise((resolve) => {
-        document.querySelectorAll('.nav-link').forEach(link => {
+        document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(link => {
             link.classList.toggle('active', link.dataset.section === section);
         });
         mainContent.innerHTML = templates[section];
@@ -1086,7 +1086,9 @@ const navigateTo = (section, context = null) => {
 
 const bindAppEventListeners = () => {
     document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', (e) => navigateTo(e.currentTarget.dataset.section)));
+    document.querySelectorAll('.mobile-nav-link').forEach(link => link.addEventListener('click', (e) => navigateTo(e.currentTarget.dataset.section)));
     document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+    document.getElementById('mobile-logout-btn').addEventListener('click', () => signOut(auth));
     document.getElementById('save-payment-btn').addEventListener('click', appLogic.handleSavePayment);
     document.querySelectorAll('[data-close-modal]').forEach(btn => btn.addEventListener('click', (e) => document.getElementById(e.currentTarget.dataset.closeModal).classList.add('hidden')));
     document.getElementById('contact-form').addEventListener('submit', appLogic.handleSaveContact);
