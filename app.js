@@ -15,12 +15,17 @@ const dashboardItemsPerPage = 7;
 let currentStatementData = { type: null, data: [], name: '' };
 
 // --- DOM ELEMENTS ---
-const loadingContainer = document.getElementById('loading-container');
+const loadingContainer = document.getElementById('loading-screen');
 const authContainer = document.getElementById('auth-container');
 const appContainer = document.getElementById('app-container');
 const mainContent = document.getElementById('app-content');
 
 // --- HELPER FUNCTIONS ---
+const generateTransactionId = () => {
+    const randomNum = Math.floor(100000 + Math.random() * 900000);
+    return `TRXEE-${randomNum}`;
+};
+
 const showToast = (message) => {
     const toast = document.getElementById('toast');
     document.getElementById('toast-message').textContent = message;
@@ -61,8 +66,17 @@ const templates = {
             <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-cyan-100 text-cyan-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Net Balance</h3><p id="total-profit" class="text-3xl font-bold text-cyan-600 mt-1">৳0.00</p></div></div></div>
         </div>
         <div class="bg-white rounded-xl shadow-md border border-slate-200">
-            <div class="p-4 border-b border-slate-200 flex flex-wrap gap-4 justify-between items-center"><h2 class="text-xl font-bold text-slate-800">Recent Transactions</h2><div class="flex flex-wrap items-center gap-2"><input id="search-input" type="text" placeholder="Search..." class="w-48 p-2 border border-slate-300 rounded-lg bg-slate-50"><input type="date" id="filter-start-date" class="p-2 border border-slate-300 rounded-lg bg-slate-50"><input type="date" id="filter-end-date" class="p-2 border border-slate-300 rounded-lg bg-slate-50"></div></div>
-            <div class="overflow-x-auto"><table class="w-full text-sm responsive-table"><thead><tr class="border-b border-slate-200 bg-slate-50"><th class="text-left font-semibold py-3 px-4">Date</th><th class="text-left font-semibold py-3 px-4">Details</th><th class="text-right font-semibold py-3 px-4">Profit/Value</th><th class="text-right font-semibold py-3 px-4">Payable Bal</th><th class="text-right font-semibold py-3 px-4">Receivable Bal</th><th class="text-center font-semibold py-3 px-4">Actions</th></tr></thead><tbody id="transaction-history-body"></tbody></table></div>
+            <div class="p-4 border-b border-slate-200 flex flex-wrap gap-4 justify-between items-center">
+                <h2 class="text-xl font-bold text-slate-800">Recent Transactions</h2>
+                <div class="flex flex-wrap items-center gap-2">
+                    <input id="search-input" type="text" placeholder="Search by name or TRXEE ID..." class="w-48 p-2 border border-slate-300 rounded-lg bg-slate-50">
+                    <input type="date" id="filter-start-date" class="p-2 border border-slate-300 rounded-lg bg-slate-50">
+                    <input type="date" id="filter-end-date" class="p-2 border border-slate-300 rounded-lg bg-slate-50">
+                </div>
+            </div>
+            <div id="transaction-history-body" class="p-2 md:p-4 grid grid-cols-1 gap-3">
+                <!-- Transaction cards will be inserted here -->
+            </div>
             <div id="pagination-controls" class="flex justify-center items-center gap-4 p-4 border-t border-slate-200"></div>
         </div>`,
     contacts: `
@@ -165,6 +179,7 @@ const appLogic = (() => {
         const endDate = document.getElementById('filter-end-date').value;
         return allSortedTransactions.filter(t => 
             (searchTerm === '' || 
+            (t.transactionId && t.transactionId.toLowerCase().includes(searchTerm)) ||
             (t.item && t.item.toLowerCase().includes(searchTerm)) ||
             (t.supplierName && t.supplierName.toLowerCase().includes(searchTerm)) ||
             (t.buyerName && t.buyerName.toLowerCase().includes(searchTerm)) ||
@@ -242,60 +257,74 @@ const appLogic = (() => {
     };
 
     const renderTransactionHistory = (data) => {
-        const tbody = document.getElementById('transaction-history-body'); if(!tbody) return; 
-        
+        const container = document.getElementById('transaction-history-body');
+        if (!container) return;
+
         const startIndex = (dashboardCurrentPage - 1) * dashboardItemsPerPage;
         const endIndex = startIndex + dashboardItemsPerPage;
         const pageData = data.slice(startIndex, endIndex);
 
-        tbody.innerHTML = '';
-        if (pageData.length === 0) { 
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-500"><div class="flex flex-col items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg><h3 class="font-semibold mt-2">No Transactions Found</h3><p>Your recorded transactions will appear here.</p></div></td></tr>`; 
-            return; 
+        container.innerHTML = '';
+        if (pageData.length === 0) {
+            container.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500"><div class="flex flex-col items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg><h3 class="font-semibold mt-2">No Transactions Found</h3><p>Your recorded transactions will appear here.</p></div></div>`;
+            return;
         }
 
         pageData.forEach(t => {
-            const row = document.createElement('tr');
-            row.className = 'hover:bg-slate-50 border-b border-slate-200 md:border-b-0 cursor-pointer';
-            row.dataset.id = t.id;
+            const card = document.createElement('div');
+            card.className = 'transaction-card bg-white border border-slate-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer';
+            card.dataset.id = t.id;
 
-            let detailsHtml, valueHtml, payableBalHtml, receivableBalHtml, actionsHtml;
+            let iconHtml, titleHtml, amountHtml, balanceHtml, actionsHtml;
 
             if (t.type === 'trade') {
                 const paidToSupplier = getPayments(t.paymentsToSupplier);
                 const receivedFromBuyer = getPayments(t.paymentsFromBuyer);
                 const payableBalance = t.supplierTotal - paidToSupplier;
                 const receivableBalance = t.buyerTotal - receivedFromBuyer;
-                detailsHtml = `<div class="font-medium text-slate-800">${t.item}</div><div class="text-xs text-slate-500">${t.supplierName} → ${t.buyerName}</div>`;
-                valueHtml = `৳${(t.profit || 0).toFixed(2)}`;
-                payableBalHtml = `<span class="font-semibold ${payableBalance > 0.01 ? 'text-rose-500' : 'text-slate-500'}">৳${payableBalance.toFixed(2)}</span>`;
-                receivableBalHtml = `<span class="font-semibold ${receivableBalance > 0.01 ? 'text-green-600' : 'text-slate-500'}">৳${receivableBalance.toFixed(2)}</span>`;
                 
-                actionsHtml = `<div class="flex justify-end md:justify-center items-center gap-2">
+                iconHtml = `<div class="p-2.5 rounded-full bg-cyan-100 text-cyan-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg></div>`;
+                titleHtml = `<div class="flex-1"><p class="font-semibold text-slate-800">${t.item}</p><p class="text-xs text-slate-500">${t.supplierName} → ${t.buyerName}</p></div>`;
+                amountHtml = `<div class="text-right"><p class="font-bold text-lg text-cyan-600">৳${(t.profit || 0).toFixed(2)}</p><p class="text-xs text-slate-500">Profit</p></div>`;
+
+                balanceHtml = `
+                    <div class="flex justify-between items-center text-sm mt-4 pt-3 border-t border-slate-200">
+                        <div><span class="font-semibold text-slate-600">Payable:</span> <span class="font-bold ${payableBalance > 0.01 ? 'text-rose-500' : 'text-slate-500'}">৳${payableBalance.toFixed(2)}</span></div>
+                        <div><span class="font-semibold text-slate-600">Receivable:</span> <span class="font-bold ${receivableBalance > 0.01 ? 'text-green-600' : 'text-slate-500'}">৳${receivableBalance.toFixed(2)}</span></div>
+                    </div>`;
+
+                actionsHtml = `<div class="actions-cell flex justify-end items-center gap-2 mt-2">
                     ${payableBalance > 0.01 ? `<button title="Pay Supplier" data-payment-id="${t.id}" data-payment-type="toSupplier" class="px-2 py-1 text-xs rounded font-semibold text-rose-700 bg-rose-100 hover:bg-rose-200">Pay</button>` : ''}
                     ${receivableBalance > 0.01 ? `<button title="Receive from Buyer" data-payment-id="${t.id}" data-payment-type="fromBuyer" class="px-2 py-1 text-xs rounded font-semibold text-green-700 bg-green-100 hover:bg-green-200">Receive</button>` : ''}
                     <button title="Edit" data-edit-id="${t.id}" class="p-1 text-blue-600 hover:bg-blue-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
                     <button title="Delete" data-delete-id="${t.id}" class="p-1 text-rose-500 hover:bg-rose-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
                 </div>`;
+
             } else if (t.type === 'payment') {
-                detailsHtml = `<div class="font-medium text-slate-800">${t.description} (${t.paymentType})</div><div class="text-xs text-slate-500">${t.name}</div>`;
-                valueHtml = `৳${(t.amount || 0).toFixed(2)}`;
-                payableBalHtml = '<span class="text-slate-400">-</span>';
-                receivableBalHtml = '<span class="text-slate-400">-</span>';
-                actionsHtml = `<div class="flex justify-end md:justify-center items-center gap-1">
+                const isReceived = t.paymentType === 'received';
+                iconHtml = `<div class="p-2.5 rounded-full ${isReceived ? 'bg-green-100 text-green-600' : 'bg-rose-100 text-rose-500'}">${isReceived ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 13l-5 5m0 0l-5-5m5 5V6" /></svg>` : `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 11l5-5m0 0l5 5m-5-5v12" /></svg>`}</div>`;
+                titleHtml = `<div class="flex-1"><p class="font-semibold text-slate-800">${t.description}</p><p class="text-xs text-slate-500">${t.name}</p></div>`;
+                amountHtml = `<div class="text-right"><p class="font-bold text-lg ${isReceived ? 'text-green-600' : 'text-rose-500'}">৳${(t.amount || 0).toFixed(2)}</p><p class="text-xs text-slate-500">${isReceived ? 'Received' : 'Paid'}</p></div>`;
+                balanceHtml = ''; // No balance for direct payments
+                actionsHtml = `<div class="actions-cell flex justify-end items-center gap-1 mt-2">
                     <button title="Delete" data-delete-id="${t.id}" class="p-1 text-rose-500 hover:bg-rose-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
                 </div>`;
             }
-            
-            row.innerHTML = `
-                <td data-label="Date" class="py-4 px-4 align-top">${t.date}</td>
-                <td data-label="Details" class="py-4 px-4 align-top">${detailsHtml}</td>
-                <td data-label="Profit/Value" class="py-4 px-4 align-top text-right font-medium">${valueHtml}</td>
-                <td data-label="Payable Bal" class="py-4 px-4 align-top text-right">${payableBalHtml}</td>
-                <td data-label="Receivable Bal" class="py-4 px-4 align-top text-right">${receivableBalHtml}</td>
-                <td data-label="Actions" class="py-4 px-4 align-top actions-cell">${actionsHtml}</td>
+
+            card.innerHTML = `
+                <div class="flex items-center gap-4">
+                    ${iconHtml}
+                    ${titleHtml}
+                    ${amountHtml}
+                </div>
+                ${balanceHtml}
+                ${actionsHtml}
+                 <div class="text-xs text-slate-400 mt-2 flex justify-between">
+                    <span>${t.date}</span>
+                    <span>${t.transactionId || ''}</span>
+                </div>
             `;
-            tbody.appendChild(row);
+            container.appendChild(card);
         });
     };
 
@@ -539,6 +568,7 @@ const appLogic = (() => {
         const id = document.getElementById('transaction-id').value;
         
         const transactionData = {
+            transactionId: generateTransactionId(),
             type: 'trade',
             date: document.getElementById('date').value,
             item: document.getElementById('item').value.trim(),
@@ -683,6 +713,7 @@ const appLogic = (() => {
         e.preventDefault();
         const contactName = document.getElementById('direct-payment-contact-name').value;
         const paymentData = {
+            transactionId: generateTransactionId(),
             type: 'payment',
             date: document.getElementById('direct-payment-date').value,
             name: contactName,
@@ -1067,7 +1098,7 @@ const appLogic = (() => {
         const invoiceContent = document.getElementById('transaction-invoice-content');
         const detailTitle = document.getElementById('transaction-detail-title');
 
-        detailTitle.textContent = `Details for Transaction #${t.id.substring(0, 6)}`;
+        detailTitle.textContent = `Details for Transaction ${t.transactionId}`;
 
         let detailsHtml = `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1183,11 +1214,50 @@ const appLogic = (() => {
 })();
 
 // --- NAVIGATION & EVENT BINDING ---
+const renderBottomNav = () => {
+    const topNavLinks = document.querySelectorAll('.nav-link');
+    const bottomNavContainer = document.getElementById('bottom-nav');
+    if (!bottomNavContainer) return;
+
+    bottomNavContainer.innerHTML = '';
+    topNavLinks.forEach(link => {
+        const newLink = document.createElement('button');
+        newLink.dataset.section = link.dataset.section;
+        newLink.className = 'flex flex-col items-center justify-center text-xs gap-1 p-2 rounded-lg transition-colors w-full';
+
+        const icon = link.querySelector('svg').cloneNode(true);
+        icon.classList.remove('h-5', 'w-5');
+        icon.classList.add('h-6', 'w-6');
+
+        const text = link.querySelector('span').textContent;
+
+        newLink.innerHTML = `${icon.outerHTML}<span class="text-xs">${text}</span>`;
+        bottomNavContainer.appendChild(newLink);
+    });
+
+    bottomNavContainer.addEventListener('click', (e) => {
+        const button = e.target.closest('button');
+        if (button && button.dataset.section) {
+            navigateTo(button.dataset.section);
+        }
+    });
+};
+
 const navigateTo = (section, context = null) => {
     return new Promise((resolve) => {
+        // Top nav
         document.querySelectorAll('.nav-link').forEach(link => {
             link.classList.toggle('active', link.dataset.section === section);
         });
+
+        // Bottom nav
+        document.querySelectorAll('#bottom-nav button').forEach(link => {
+            const isActive = link.dataset.section === section;
+            link.classList.toggle('bg-cyan-600', isActive);
+            link.classList.toggle('text-white', isActive);
+            link.classList.toggle('text-slate-500', !isActive);
+        });
+
         mainContent.innerHTML = templates[section];
         
         mainContent.classList.remove('content-enter');
@@ -1223,17 +1293,17 @@ const bindSectionEventListeners = (section, context) => {
         document.getElementById('filter-end-date').addEventListener('change', () => { dashboardCurrentPage = 1; appLogic.renderAll(); });
         
         document.getElementById('transaction-history-body').addEventListener('click', (e) => {
-            const button = e.target.closest('button');
-            if (button && button.closest('td')?.classList.contains('actions-cell')) {
+            const actionButton = e.target.closest('.actions-cell button');
+            if (actionButton) {
                 e.stopPropagation();
-                const { editId, deleteId, paymentId, paymentType } = button.dataset;
+                const { editId, deleteId, paymentId, paymentType } = actionButton.dataset;
                 if (editId) { navigateTo('transaction-form').then(() => appLogic.setupTradeFormForEdit(editId)); }
                 if (deleteId) appLogic.handleDelete(deleteId);
                 if (paymentId) appLogic.openPaymentModal(paymentId, paymentType);
             } else {
-                const row = e.target.closest('tr');
-                if (row && row.dataset.id) {
-                    appLogic.renderTransactionDetails(row.dataset.id);
+                const card = e.target.closest('.transaction-card');
+                if (card && card.dataset.id) {
+                    appLogic.renderTransactionDetails(card.dataset.id);
                 }
             }
         });
@@ -1280,11 +1350,12 @@ const bindSectionEventListeners = (section, context) => {
 // --- AUTH & INITIALIZATION ---
 onAuthStateChanged(auth, user => {
     if (user) {
-        currentUserId = user.uid;
-        document.getElementById('user-email').textContent = user.email;
+        try {
+            currentUserId = user.uid;
+            document.getElementById('user-email').textContent = user.email;
 
-        if (transactionsUnsubscribe) transactionsUnsubscribe();
-        if (contactsUnsubscribe) contactsUnsubscribe();
+            if (transactionsUnsubscribe) transactionsUnsubscribe();
+            if (contactsUnsubscribe) contactsUnsubscribe();
 
         const transQuery = query(collection(db, "users", currentUserId, "transactions"));
         transactionsUnsubscribe = onSnapshot(transQuery, snapshot => {
@@ -1312,10 +1383,16 @@ onAuthStateChanged(auth, user => {
         authContainer.classList.add('hidden');
         loadingContainer.classList.add('hidden');
         
-        navigateTo('dashboard');
         bindAppEventListeners();
-
-    } else {
+        renderBottomNav();
+        navigateTo('dashboard');
+    } catch (error) {
+        console.error("Error during app initialization:", error);
+        showToast("An error occurred. Please refresh the page.");
+        loadingContainer.classList.add('hidden');
+        authContainer.classList.remove('hidden'); // Show login
+    }
+} else {
         currentUserId = null;
         transactions = [];
         contacts = [];

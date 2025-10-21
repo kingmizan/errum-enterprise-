@@ -15,13 +15,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="style.css">
+    <style>
+        #loading-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #f8fafc; /* bg-slate-50 */
+            z-index: 50;
+        }
+    </style>
 </head>
 <body class="text-slate-700">
 
-    <div id="loading-container" class="fixed inset-0 bg-slate-50 z-50 flex items-center justify-center p-4">
+    <div id="loading-screen" class="hidden">
         <div class="flex flex-col items-center gap-4">
             <svg class="animate-spin h-8 w-8 text-cyan-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-            <p class="text-slate-500">Connecting...</p>
+            <p class="text-slate-500 font-semibold">Loading...</p>
         </div>
     </div>
 
@@ -54,7 +68,7 @@
     </div>
 
     <div id="app-container" class="hidden">
-        <div class="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
+        <div class="container mx-auto max-w-7xl">
             <header class="flex justify-between items-center mb-8">
                 <div class="flex items-center gap-4">
                     <div class="bg-cyan-600 p-3 rounded-2xl text-white shadow-lg shadow-cyan-500/30 flex-shrink-0">
@@ -75,7 +89,7 @@
                 </div>
             </header>
 
-            <nav class="bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm rounded-xl p-2 mb-8 flex flex-nowrap justify-start sm:justify-center gap-2 overflow-x-auto">
+            <nav id="top-nav" class="bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm rounded-xl p-2 mb-8 flex flex-nowrap justify-start sm:justify-center gap-2 overflow-x-auto">
                 <button data-section="dashboard" class="nav-link active flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition text-slate-600 hover:bg-slate-100">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
                     <span class="whitespace-nowrap">Dashboard</span>
@@ -95,6 +109,10 @@
             </nav>
 
             <main id="app-content"></main>
+
+            <nav id="bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg flex justify-around p-2 z-30">
+                <!-- Navigation links will be dynamically inserted here -->
+            </nav>
             
             <footer class="text-center py-6 mt-8 text-xs text-slate-500">
                 Coded and Developed By <a href="https://t.me/GoITBD" target="_blank" rel="noopener noreferrer" class="font-semibold text-cyan-600 hover:underline">GoIT</a>.
