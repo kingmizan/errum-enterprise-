@@ -12,15 +12,15 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="text-slate-700">
+<body class="antialiased text-slate-800 bg-slate-50">
 
     <div id="loading-container" class="fixed inset-0 bg-slate-50 z-50 flex items-center justify-center p-4">
         <div class="flex flex-col items-center gap-4">
-            <svg class="animate-spin h-8 w-8 text-cyan-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             <p class="text-slate-500">Connecting...</p>
         </div>
     </div>
@@ -28,7 +28,7 @@
     <div id="auth-container" class="hidden fixed inset-0 bg-slate-50 z-40 flex items-center justify-center p-4">
         <div class="w-full max-w-sm">
             <div class="flex flex-col items-center justify-center gap-4 mb-8">
-                <div class="bg-cyan-600 p-4 rounded-2xl text-white shadow-lg shadow-cyan-500/30">
+                <div class="bg-blue-600 p-4 rounded-2xl text-white shadow-lg shadow-blue-500/30">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
                 </div>
                 <div class="text-center">
@@ -36,18 +36,18 @@
                     <p class="text-slate-500">Sign in to your account</p>
                 </div>
             </div>
-            <div class="bg-white p-8 rounded-2xl shadow-md border border-slate-200">
+            <div class="card p-8">
                 <form id="login-form" class="space-y-6">
                     <div>
                         <label for="email" class="font-semibold text-sm text-slate-600">Email Address</label>
-                        <input type="email" id="email" class="w-full p-3 mt-1 border border-slate-300 rounded-lg bg-slate-50 focus:ring-2 focus:ring-cyan-500" required>
+                        <input type="email" id="email" class="input-field mt-1" required>
                     </div>
                     <div>
                         <label for="password" class="font-semibold text-sm text-slate-600">Password</label>
-                        <input type="password" id="password" class="w-full p-3 mt-1 border border-slate-300 rounded-lg bg-slate-50 focus:ring-2 focus:ring-cyan-500" required>
+                        <input type="password" id="password" class="input-field mt-1" required>
                     </div>
                     <p id="auth-error" class="text-rose-500 text-sm h-4"></p>
-                    <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-sm shadow-cyan-500/30">Sign In</button>
+                    <button type="submit" class="w-full btn btn-primary">Sign In</button>
                 </form>
             </div>
         </div>
@@ -55,13 +55,14 @@
 
     <div id="app-container" class="hidden">
         <div class="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
-            <header class="flex justify-between items-center mb-8">
-                <div class="flex items-center gap-4">
-                    <div class="bg-cyan-600 p-3 rounded-2xl text-white shadow-lg shadow-cyan-500/30 flex-shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            <!-- App Header -->
+            <header class="flex justify-between items-center mb-6 md:mb-8">
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-600 p-3 rounded-xl text-white shadow-lg shadow-blue-500/30 flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Errum Enterprise</h1>
+                        <h1 class="text-xl md:text-2xl font-bold text-slate-800 tracking-tight">Errum Enterprise</h1>
                         <p id="user-email" class="text-sm text-slate-500 truncate">Welcome!</p>
                     </div>
                 </div>
@@ -69,13 +70,14 @@
                     <button id="settings-btn" class="p-2 rounded-full text-slate-500 hover:bg-slate-200 transition-colors" title="Settings">
                          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                     </button>
-                    <button id="logout-btn" class="p-2 rounded-full text-slate-500 hover:bg-slate-200 transition-colors" title="Logout">
+                    <button id="logout-btn" class="p-2 rounded-full text-slate-500 hover:bg-slate-200 transition-colors hide-on-mobile" title="Logout">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                     </button>
                 </div>
             </header>
 
-            <nav class="bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm rounded-xl p-2 mb-8 flex flex-nowrap justify-start sm:justify-center gap-2 overflow-x-auto">
+            <!-- Desktop Navigation -->
+            <nav class="bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm rounded-xl p-2 mb-8 flex-nowrap justify-start sm:justify-center gap-2 overflow-x-auto hide-on-mobile">
                 <button data-section="dashboard" class="nav-link active flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition text-slate-600 hover:bg-slate-100">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
                     <span class="whitespace-nowrap">Dashboard</span>
@@ -96,20 +98,43 @@
 
             <main id="app-content"></main>
             
-            <footer class="text-center py-6 mt-8 text-xs text-slate-500">
-                Coded and Developed By <a href="https://t.me/GoITBD" target="_blank" rel="noopener noreferrer" class="font-semibold text-cyan-600 hover:underline">GoIT</a>.
+            <footer class="text-center py-6 mt-8 text-xs text-slate-500 hide-on-mobile">
+                Coded and Developed By <a href="https://t.me/GoITBD" target="_blank" rel="noopener noreferrer" class="font-semibold text-blue-600 hover:underline">GoIT</a>.
             </footer>
         </div>
+
+        <!-- Mobile Navigation -->
+        <nav id="mobile-nav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around items-center h-16 hide-on-desktop shadow-[0_-1px_4px_rgba(0,0,0,0.05)]">
+            <button data-section="dashboard" class="mobile-nav-link flex flex-col items-center justify-center text-slate-500 h-full w-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                <span class="text-xs font-medium">Dashboard</span>
+            </button>
+            <button data-section="contacts" class="mobile-nav-link flex flex-col items-center justify-center text-slate-500 h-full w-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21a6 6 0 00-9-5.197M15 21a6 6 0 006-6v-1a3 3 0 00-3-3H6a3 3 0 00-3 3v1a6 6 0 006 6z" /></svg>
+                <span class="text-xs font-medium">Party</span>
+            </button>
+            <button data-section="transaction-form" class="mobile-nav-link flex flex-col items-center justify-center text-slate-500 h-full w-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" /></svg>
+            </button>
+            <button data-section="statements" class="mobile-nav-link flex flex-col items-center justify-center text-slate-500 h-full w-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                <span class="text-xs font-medium">Statements</span>
+            </button>
+            <button id="mobile-logout-btn" class="flex flex-col items-center justify-center text-slate-500 h-full w-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                <span class="text-xs font-medium">Logout</span>
+            </button>
+        </nav>
     </div>
     
     <div id="modals-and-helpers">
-        <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 text-white py-2 px-5 rounded-lg shadow-xl text-sm font-semibold opacity-0 translate-y-10 transition-all duration-300">
+        <div id="toast" class="fixed bottom-20 md:bottom-5 right-5 bg-slate-800 text-white py-2 px-5 rounded-lg shadow-xl text-sm font-semibold opacity-0 translate-y-10 transition-all duration-300">
             <span id="toast-message"></span>
         </div>
 
         <div id="transaction-detail-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-xl shadow-lg w-full max-w-4xl h-[90vh] flex flex-col border border-slate-200">
-                <div class="p-5 flex justify-between items-center border-b border-slate-200 flex-shrink-0">
+            <div class="bg-white rounded-xl shadow-lg w-full max-w-4xl h-[90vh] flex flex-col card">
+                <div class="p-5 flex justify-between items-center card-header">
                     <h2 id="transaction-detail-title" class="text-xl font-bold text-slate-800">Transaction Details</h2>
                     <button data-close-modal="transaction-detail-modal" class="p-2 rounded-full hover:bg-slate-100 -mr-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
@@ -119,66 +144,66 @@
                     <div id="transaction-detail-content"></div>
                     <div id="transaction-invoice-content" class="hidden"></div>
                 </div>
-                <div id="transaction-detail-footer" class="p-4 bg-white flex justify-end gap-3 rounded-b-xl border-t border-slate-200 flex-shrink-0">
-                    <button id="toggle-invoice-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">View Invoice</button>
-                    <button id="save-invoice-btn" class="hidden px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Save as PNG</button>
+                <div id="transaction-detail-footer" class="p-4 flex justify-end gap-3 card-footer">
+                    <button id="toggle-invoice-btn" class="btn btn-secondary">View Invoice</button>
+                    <button id="save-invoice-btn" class="hidden btn btn-primary">Save as PNG</button>
                 </div>
             </div>
         </div>
 
         <div id="payment-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-xl shadow-lg w-full max-w-md border border-slate-200">
+            <div class="card w-full max-w-md">
                 <div class="p-6">
                     <h2 id="payment-modal-title" class="text-xl font-bold mb-1 text-slate-800">Add Payment</h2>
                     <p class="mb-4 text-sm text-slate-500">Amount Due: <span id="payment-due-amount" class="font-semibold"></span></p>
                     <div class="space-y-4">
-                        <div><label for="payment-date" class="font-semibold text-sm">Date</label><input type="date" id="payment-date" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50"></div>
-                        <div><label for="payment-amount" class="font-semibold text-sm">Amount</label><input type="number" id="payment-amount" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50"></div>
-                        <div><label for="partial-payment-method" class="font-semibold text-sm">Method</label><select id="partial-payment-method" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
+                        <div><label for="payment-date" class="font-semibold text-sm">Date</label><input type="date" id="payment-date" class="input-field mt-1"></div>
+                        <div><label for="payment-amount" class="font-semibold text-sm">Amount</label><input type="number" id="payment-amount" placeholder="0.00" class="input-field mt-1"></div>
+                        <div><label for="partial-payment-method" class="font-semibold text-sm">Method</label><select id="partial-payment-method" class="input-field mt-1"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
                     </div>
                 </div>
-                <div class="bg-slate-50 p-4 flex justify-end gap-3 rounded-b-xl border-t border-slate-200"><button data-close-modal="payment-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Cancel</button><button id="save-payment-btn" class="px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Save Payment</button></div>
+                <div class="card-footer flex justify-end gap-3"><button data-close-modal="payment-modal" class="btn btn-secondary">Cancel</button><button id="save-payment-btn" class="btn btn-primary">Save Payment</button></div>
             </div>
         </div>
         
         <div id="direct-payment-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-xl shadow-lg w-full max-w-md border border-slate-200">
+            <div class="card w-full max-w-md">
                 <form id="direct-payment-form">
                     <div class="p-6">
                         <h2 id="direct-payment-modal-title" class="text-xl font-bold mb-4 text-slate-800">Add Direct Payment</h2>
                         <input type="hidden" id="direct-payment-contact-id">
                         <input type="hidden" id="direct-payment-contact-name">
                         <div class="space-y-4">
-                            <div><label for="direct-payment-date" class="font-semibold text-sm">Date</label><input type="date" id="direct-payment-date" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50" required></div>
-                            <div><label for="direct-payment-amount" class="font-semibold text-sm">Amount</label><input type="number" step="any" id="direct-payment-amount" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50" required></div>
-                            <div><label for="direct-payment-method" class="font-semibold text-sm">Method</label><select id="direct-payment-method" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
-                            <div><label for="direct-payment-desc" class="font-semibold text-sm">Description / Note</label><input type="text" id="direct-payment-desc" placeholder="e.g., Advance Payment" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50" required></div>
+                            <div><label for="direct-payment-date" class="font-semibold text-sm">Date</label><input type="date" id="direct-payment-date" class="input-field mt-1" required></div>
+                            <div><label for="direct-payment-amount" class="font-semibold text-sm">Amount</label><input type="number" step="any" id="direct-payment-amount" placeholder="0.00" class="input-field mt-1" required></div>
+                            <div><label for="direct-payment-method" class="font-semibold text-sm">Method</label><select id="direct-payment-method" class="input-field mt-1"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
+                            <div><label for="direct-payment-desc" class="font-semibold text-sm">Description / Note</label><input type="text" id="direct-payment-desc" placeholder="e.g., Advance Payment" class="input-field mt-1" required></div>
                             <div><label class="font-semibold text-sm">Payment Type</label><div class="flex gap-4 mt-1"><label class="flex items-center gap-2"><input type="radio" name="direct-payment-type" value="made" class="form-radio"> Payment Made</label><label class="flex items-center gap-2"><input type="radio" name="direct-payment-type" value="received" class="form-radio"> Payment Received</label></div></div>
                         </div>
                     </div>
-                    <div class="bg-slate-50 p-4 flex justify-end gap-3 rounded-b-xl border-t border-slate-200"><button type="button" data-close-modal="direct-payment-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Save Payment</button></div>
+                    <div class="card-footer flex justify-end gap-3"><button type="button" data-close-modal="direct-payment-modal" class="btn btn-secondary">Cancel</button><button type="submit" class="btn btn-primary">Save Payment</button></div>
                 </form>
             </div>
         </div>
 
         <div id="contact-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-xl shadow-lg w-full max-w-md border border-slate-200">
+            <div class="card w-full max-w-md">
                 <form id="contact-form">
                     <div class="p-6">
                         <h2 id="contact-form-title" class="text-xl font-bold mb-4 text-slate-800">Add New Contact</h2>
                         <input type="hidden" id="contact-id">
                         <div class="space-y-4">
                             <div><label class="font-semibold text-sm">Party Type</label><div class="flex gap-4 mt-2"><label class="flex items-center gap-2"><input type="radio" name="contact-type" value="supplier" class="form-radio" checked> Supplier</label><label class="flex items-center gap-2"><input type="radio" name="contact-type" value="buyer" class="form-radio"> Buyer</label></div></div>
-                            <div><label for="contact-name" class="font-semibold text-sm">Full Name</label><input type="text" id="contact-name" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50"></div>
-                            <div><label for="contact-phone" class="font-semibold text-sm">Phone Number</label><input type="tel" id="contact-phone" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50"></div>
-                            <div><label for="contact-address" class="font-semibold text-sm">Address</label><textarea id="contact-address" rows="3" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50" placeholder="Contact's address"></textarea></div>
+                            <div><label for="contact-name" class="font-semibold text-sm">Full Name</label><input type="text" id="contact-name" class="input-field mt-1"></div>
+                            <div><label for="contact-phone" class="font-semibold text-sm">Phone Number</label><input type="tel" id="contact-phone" class="input-field mt-1"></div>
+                            <div><label for="contact-address" class="font-semibold text-sm">Address</label><textarea id="contact-address" rows="3" class="input-field mt-1" placeholder="Contact's address"></textarea></div>
                             
                             <div id="opening-balance-section" class="pt-4 border-t border-slate-200">
                                 <p class="font-semibold text-sm">Opening Balance</p>
                                 <div class="mt-2 space-y-2">
                                     <div>
                                         <label for="contact-opening-balance" class="sr-only">Amount</label>
-                                        <input type="number" step="any" id="contact-opening-balance" placeholder="0.00" class="w-full p-2 border border-slate-300 rounded-lg bg-slate-50">
+                                        <input type="number" step="any" id="contact-opening-balance" placeholder="0.00" class="input-field">
                                     </div>
                                     <div class="flex gap-4 text-sm">
                                         <label class="flex items-center gap-2"><input type="radio" name="opening-balance-type" value="receivable" class="form-radio" checked> Receivable (They Owe You)</label>
@@ -188,24 +213,24 @@
                             </div>
                         </div>
                     </div>
-                    <div class="bg-slate-50 p-4 flex justify-end gap-3 rounded-b-xl border-t border-slate-200"><button type="button" data-close-modal="contact-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Save Contact</button></div>
+                    <div class="card-footer flex justify-end gap-3"><button type="button" data-close-modal="contact-modal" class="btn btn-secondary">Cancel</button><button type="submit" class="btn btn-primary">Save Contact</button></div>
                 </form>
             </div>
         </div>
 
         <div id="password-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-xl shadow-lg w-full max-w-md border border-slate-200">
+            <div class="card w-full max-w-md">
                 <form id="password-change-form">
                     <div class="p-6">
                         <h2 class="text-xl font-bold mb-4 text-slate-800">Change Password</h2>
                         <div class="space-y-4">
-                            <div><label for="current-password" class="font-semibold text-sm">Current Password</label><input type="password" id="current-password" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50" required></div>
-                            <div><label for="new-password" class="font-semibold text-sm">New Password</label><input type="password" id="new-password" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50" required></div>
-                            <div><label for="confirm-password" class="font-semibold text-sm">Confirm New Password</label><input type="password" id="confirm-password" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50" required></div>
+                            <div><label for="current-password" class="font-semibold text-sm">Current Password</label><input type="password" id="current-password" class="input-field mt-1" required></div>
+                            <div><label for="new-password" class="font-semibold text-sm">New Password</label><input type="password" id="new-password" class="input-field mt-1" required></div>
+                            <div><label for="confirm-password" class="font-semibold text-sm">Confirm New Password</label><input type="password" id="confirm-password" class="input-field mt-1" required></div>
                             <p id="password-error" class="text-rose-500 text-sm h-4"></p>
                         </div>
                     </div>
-                    <div class="bg-slate-50 p-4 flex justify-end gap-3 rounded-b-xl border-t border-slate-200"><button type="button" data-close-modal="password-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Save Changes</button></div>
+                    <div class="card-footer flex justify-end gap-3"><button type="button" data-close-modal="password-modal" class="btn btn-secondary">Cancel</button><button type="submit" class="btn btn-primary">Save Changes</button></div>
                 </form>
             </div>
         </div>
