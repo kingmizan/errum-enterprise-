@@ -56,7 +56,13 @@ body {
 }
 
 /* Main content padding for mobile nav */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
+    .md\:hidden {
+        display: block;
+    }
+    .hidden.md\:block {
+        display: none;
+    }
     #app-container {
         padding-bottom: 80px; /* Adjust based on mobile nav height */
     }
@@ -64,7 +70,7 @@ body {
         display: none;
     }
 }
-@media (min-width: 769px) {
+@media (min-width: 768px) {
     .hide-on-desktop {
         display: none;
     }
