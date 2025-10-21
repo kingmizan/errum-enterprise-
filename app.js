@@ -55,20 +55,20 @@ const animateCountUp = (el, endValue) => {
 // --- HTML TEMPLATES ---
 const templates = {
     dashboard: `
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
-            <div class="card p-4 md:p-6"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-rose-100 text-rose-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Total Payable</h3><p id="total-payable" class="text-2xl md:text-3xl font-bold text-rose-500 mt-1">৳0.00</p></div></div></div>
-            <div class="card p-4 md:p-6"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-green-100 text-green-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Total Receivable</h3><p id="total-receivable" class="text-2xl md:text-3xl font-bold text-green-600 mt-1">৳0.00</p></div></div></div>
-            <div class="card p-4 md:p-6"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-blue-100 text-blue-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Net Balance</h3><p id="total-profit" class="text-2xl md:text-3xl font-bold text-blue-600 mt-1">৳0.00</p></div></div></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-rose-100 text-rose-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Total Payable</h3><p id="total-payable" class="text-3xl font-bold text-rose-500 mt-1">৳0.00</p></div></div></div>
+            <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-green-100 text-green-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Total Receivable</h3><p id="total-receivable" class="text-3xl font-bold text-green-600 mt-1">৳0.00</p></div></div></div>
+            <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-cyan-100 text-cyan-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Net Balance</h3><p id="total-profit" class="text-3xl font-bold text-cyan-600 mt-1">৳0.00</p></div></div></div>
         </div>
-        <div class="card">
-            <div class="card-header flex flex-wrap gap-4 justify-between items-center"><h2 class="text-lg font-bold text-slate-800">Recent Transactions</h2><div class="flex flex-wrap items-center gap-2"><input id="search-input" type="text" placeholder="Search..." class="w-48 input-field"><input type="date" id="filter-start-date" class="input-field"><input type="date" id="filter-end-date" class="input-field"></div></div>
-            <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="border-b border-slate-200 bg-slate-50"><th class="text-left font-semibold py-3 px-4">Date</th><th class="text-left font-semibold py-3 px-4">Details</th><th class="text-right font-semibold py-3 px-4">Profit/Value</th><th class="text-right font-semibold py-3 px-4">Payable Bal</th><th class="text-right font-semibold py-3 px-4">Receivable Bal</th><th class="text-center font-semibold py-3 px-4">Actions</th></tr></thead><tbody id="transaction-history-body"></tbody></table></div>
-            <div id="pagination-controls" class="card-footer flex justify-center items-center gap-4"></div>
+        <div class="bg-white rounded-xl shadow-md border border-slate-200">
+            <div class="p-4 border-b border-slate-200 flex flex-wrap gap-4 justify-between items-center"><h2 class="text-xl font-bold text-slate-800">Recent Transactions</h2><div class="flex flex-wrap items-center gap-2"><input id="search-input" type="text" placeholder="Search..." class="w-48 p-2 border border-slate-300 rounded-lg bg-slate-50"><input type="date" id="filter-start-date" class="p-2 border border-slate-300 rounded-lg bg-slate-50"><input type="date" id="filter-end-date" class="p-2 border border-slate-300 rounded-lg bg-slate-50"></div></div>
+            <div class="overflow-x-auto"><table class="w-full text-sm responsive-table"><thead><tr class="border-b border-slate-200 bg-slate-50"><th class="text-left font-semibold py-3 px-4">Date</th><th class="text-left font-semibold py-3 px-4">Details</th><th class="text-right font-semibold py-3 px-4">Profit/Value</th><th class="text-right font-semibold py-3 px-4">Payable Bal</th><th class="text-right font-semibold py-3 px-4">Receivable Bal</th><th class="text-center font-semibold py-3 px-4">Actions</th></tr></thead><tbody id="transaction-history-body"></tbody></table></div>
+            <div id="pagination-controls" class="flex justify-center items-center gap-4 p-4 border-t border-slate-200"></div>
         </div>`,
     contacts: `
-        <div class="card">
-            <div class="card-header flex justify-between items-center"><h2 class="text-lg font-bold text-slate-800">Manage Party</h2><button id="add-contact-btn" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>Add New Party</button></div>
-            <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="border-b border-slate-200 bg-slate-50">
+        <div class="bg-white rounded-xl shadow-md border border-slate-200">
+            <div class="p-4 border-b border-slate-200 flex justify-between items-center"><h2 class="text-xl font-bold text-slate-800">Manage Party</h2><button id="add-contact-btn" class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm shadow-sm shadow-cyan-500/30"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>Add New Party</button></div>
+            <div class="overflow-x-auto"><table class="w-full text-sm responsive-table"><thead><tr class="border-b border-slate-200 bg-slate-50">
                 <th class="text-left font-semibold py-3 px-4">Name</th>
                 <th class="text-left font-semibold py-3 px-4">Type</th>
                 <th class="text-left font-semibold py-3 px-4">Phone</th>
@@ -78,64 +78,64 @@ const templates = {
             </tr></thead><tbody id="contacts-table-body"></tbody></table></div>
         </div>`,
     'transaction-form': `
-        <div class="card max-w-4xl mx-auto">
-            <div class="card-header"><h2 id="form-title" class="text-lg font-bold text-slate-800">Add New Transaction</h2></div>
-            <form id="transaction-form" class="card-content">
+        <div class="bg-white rounded-xl shadow-md border border-slate-200 max-w-4xl mx-auto">
+            <div class="p-6 border-b border-slate-200"><h2 id="form-title" class="text-xl font-bold text-slate-800">Add New Transaction</h2></div>
+            <form id="transaction-form" class="p-6">
                 <input type="hidden" id="transaction-id">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                    <div class="lg:col-span-2"><label for="item" class="font-semibold text-sm">Item Details</label><input type="text" id="item" class="input-field mt-1" required></div>
-                    <div><label for="scale-weight" class="font-semibold text-sm">Scale Wt (kg)</label><input type="number" step="any" id="scale-weight" placeholder="0.00" class="input-field mt-1"></div>
-                    <div><label for="less" class="font-semibold text-sm">Less (kg)</label><input type="number" step="any" id="less" placeholder="0.00" class="input-field mt-1"></div>
-                    <div><label for="net-weight" class="font-semibold text-sm">Net Wt (kg)</label><input type="number" step="any" id="net-weight" placeholder="0.00" class="input-field mt-1 bg-slate-100" readonly></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                    <div class="lg:col-span-2"><label for="item" class="font-semibold text-sm">Item Details</label><input type="text" id="item" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50" required></div>
+                    <div><label for="scale-weight" class="font-semibold text-sm">Scale Weight (kg)</label><input type="number" step="any" id="scale-weight" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50"></div>
+                    <div><label for="less" class="font-semibold text-sm">Less (kg)</label><input type="number" step="any" id="less" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50"></div>
+                    <div><label for="net-weight" class="font-semibold text-sm">Net Weight (kg)</label><input type="number" step="any" id="net-weight" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-100" readonly></div>
                 </div>
-                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                     <div class="space-y-4 p-4 rounded-lg bg-slate-50 border border-slate-200">
                         <h3 class="font-bold text-lg text-rose-500">Supplier Details</h3>
-                        <div><label for="supplier-select" class="font-semibold text-sm">Supplier Name</label><select id="supplier-select" class="input-field mt-1" required><option value="">-- Select Supplier --</option></select></div>
-                        <div><label for="vehicle-no" class="font-semibold text-sm">Vehicle No</label><input type="text" id="vehicle-no" placeholder="e.g., DHAKA-123" class="input-field mt-1"></div>
-                        <div><label for="supplier-rate" class="font-semibold text-sm">Supplier Rate (per kg)</label><input type="number" step="any" id="supplier-rate" placeholder="0.00" class="input-field mt-1"></div>
+                        <div><label for="supplier-select" class="font-semibold text-sm">Supplier Name</label><select id="supplier-select" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white" required><option value="">-- Select Supplier --</option></select></div>
+                        <div><label for="vehicle-no" class="font-semibold text-sm">Vehicle No</label><input type="text" id="vehicle-no" placeholder="e.g., DHAKA-123" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"></div>
+                        <div><label for="supplier-rate" class="font-semibold text-sm">Supplier Rate (per kg)</label><input type="number" step="any" id="supplier-rate" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"></div>
                         <div class="grid grid-cols-2 gap-4">
-                            <div><label for="paid-to-supplier" class="font-semibold text-sm">Initial Payment</label><input type="number" step="any" id="paid-to-supplier" placeholder="0.00" class="input-field mt-1"></div>
-                            <div><label for="paid-to-supplier-method" class="font-semibold text-sm">Method</label><select id="paid-to-supplier-method" class="input-field mt-1"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
+                            <div><label for="paid-to-supplier" class="font-semibold text-sm">Initial Payment</label><input type="number" step="any" id="paid-to-supplier" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"></div>
+                            <div><label for="paid-to-supplier-method" class="font-semibold text-sm">Method</label><select id="paid-to-supplier-method" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
                         </div>
                     </div>
                     <div class="space-y-4 p-4 rounded-lg bg-slate-50 border border-slate-200">
                         <h3 class="font-bold text-lg text-green-600">Buyer Details</h3>
-                        <div><label for="buyer-select" class="font-semibold text-sm">Buyer Name</label><select id="buyer-select" class="input-field mt-1" required><option value="">-- Select Buyer --</option></select></div>
-                        <div><label for="buyer-rate" class="font-semibold text-sm">Buyer Rate (per kg)</label><input type="number" step="any" id="buyer-rate" placeholder="0.00" class="input-field mt-1"></div>
+                        <div><label for="buyer-select" class="font-semibold text-sm">Buyer Name</label><select id="buyer-select" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white" required><option value="">-- Select Buyer --</option></select></div>
+                        <div><label for="buyer-rate" class="font-semibold text-sm">Buyer Rate (per kg)</label><input type="number" step="any" id="buyer-rate" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"></div>
                         <div class="grid grid-cols-2 gap-4">
-                            <div><label for="received-from-buyer" class="font-semibold text-sm">Initial Payment</label><input type="number" step="any" id="received-from-buyer" placeholder="0.00" class="input-field mt-1"></div>
-                            <div><label for="received-from-buyer-method" class="font-semibold text-sm">Method</label><select id="received-from-buyer-method" class="input-field mt-1"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
+                            <div><label for="received-from-buyer" class="font-semibold text-sm">Initial Payment</label><input type="number" step="any" id="received-from-buyer" placeholder="0.00" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"></div>
+                            <div><label for="received-from-buyer-method" class="font-semibold text-sm">Method</label><select id="received-from-buyer-method" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-white"><option>Cash</option><option>Bank</option><option>Bkash</option><option>Rocket</option><option>Nagod</option></select></div>
                         </div>
                     </div>
                 </div>
                 <div class="mt-6 pt-6 border-t border-slate-200 space-y-2">
-                    <div><label for="date" class="font-semibold text-sm">Transaction Date</label><input type="date" id="date" class="input-field mt-1" required></div>
+                    <div><label for="date" class="font-semibold text-sm">Transaction Date</label><input type="date" id="date" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50" required></div>
                     <div class="flex justify-between items-center text-lg"><span class="font-semibold text-slate-500">Total Payable:</span><span id="supplier-total" class="font-bold text-rose-500">৳0.00</span></div>
                     <div class="flex justify-between items-center text-lg"><span class="font-semibold text-slate-500">Total Receivable:</span><span id="buyer-total" class="font-bold text-green-600">৳0.00</span></div>
-                    <div class="flex justify-between items-center text-xl"><span class="font-semibold text-slate-800">Gross Profit on Deal:</span><span id="transaction-profit" class="font-bold text-blue-600">৳0.00</span></div>
+                    <div class="flex justify-between items-center text-xl"><span class="font-semibold text-slate-800">Gross Profit on Deal:</span><span id="transaction-profit" class="font-bold text-cyan-600">৳0.00</span></div>
                 </div>
                 <div class="flex justify-end gap-3 pt-6 mt-4 border-t border-slate-200">
-                    <button type="button" id="cancel-transaction-btn" class="btn btn-secondary">Cancel</button>
-                    <button type="button" id="reset-form-btn" class="btn btn-secondary">Reset</button>
-                    <button type="submit" class="btn btn-primary">Save Transaction</button>
+                    <button type="button" id="cancel-transaction-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Cancel</button>
+                    <button type="button" id="reset-form-btn" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Reset</button>
+                    <button type="submit" class="px-6 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Save Transaction</button>
                 </div>
             </form>
         </div>`,
     statements: `
         <div>
-            <div class="card p-6 mb-8">
+            <div class="bg-white rounded-xl shadow-md border border-slate-200 p-6 mb-8">
                 <h2 class="text-xl font-bold text-slate-800 mb-4">Generate a Statement</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
                         <h3 class="font-semibold mb-2">Overall Business Statement</h3>
                         <p class="text-sm text-slate-500 mb-4">View a complete ledger of all transactions.</p>
-                        <button id="generate-overall-statement-btn" class="btn btn-primary">Generate Overall</button>
+                        <button id="generate-overall-statement-btn" class="px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Generate Overall</button>
                     </div>
                     <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
                         <h3 class="font-semibold mb-2">Statement by Party</h3>
                         <p class="text-sm text-slate-500 mb-4">Select a specific party to view their ledger.</p>
-                        <select id="party-ledger-select" class="input-field">
+                        <select id="party-ledger-select" class="w-full p-2 border border-slate-300 rounded-lg bg-white">
                             <option value="">-- Select a Party --</option>
                         </select>
                     </div>
@@ -188,9 +188,9 @@ const appLogic = (() => {
         const nextDisabled = dashboardCurrentPage === totalPages ? 'disabled' : '';
 
         controlsContainer.innerHTML = `
-            <button id="prev-page-btn" class="btn btn-secondary" ${prevDisabled}>Previous</button>
+            <button id="prev-page-btn" class="px-3 py-1 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300 disabled:opacity-50" ${prevDisabled}>Previous</button>
             <span class="text-sm font-semibold">Page ${dashboardCurrentPage} of ${totalPages}</span>
-            <button id="next-page-btn" class="btn btn-secondary" ${nextDisabled}>Next</button>
+            <button id="next-page-btn" class="px-3 py-1 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300 disabled:opacity-50" ${nextDisabled}>Next</button>
         `;
 
         document.getElementById('prev-page-btn')?.addEventListener('click', () => {
@@ -242,60 +242,58 @@ const appLogic = (() => {
     };
 
     const renderTransactionHistory = (data) => {
-        const tbody = document.getElementById('transaction-history-body'); if(!tbody) return; 
+        const container = document.getElementById('transaction-history-body'); if(!container) return;
         
         const startIndex = (dashboardCurrentPage - 1) * dashboardItemsPerPage;
         const endIndex = startIndex + dashboardItemsPerPage;
         const pageData = data.slice(startIndex, endIndex);
 
-        tbody.innerHTML = '';
+        container.innerHTML = '';
         if (pageData.length === 0) { 
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-500"><div class="flex flex-col items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg><h3 class="font-semibold mt-2">No Transactions Found</h3><p>Your recorded transactions will appear here.</p></div></td></tr>`; 
+            container.innerHTML = `<div class="text-center py-12 text-slate-500"><div class="flex flex-col items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg><h3 class="font-semibold mt-2">No Transactions Found</h3><p>Your recorded transactions will appear here.</p></div></div>`;
             return; 
         }
         
         pageData.forEach(t => {
-            const row = document.createElement('tr'); 
-            row.className = 'hover:bg-slate-50 border-b border-slate-200 last:border-b-0 cursor-pointer';
-            row.dataset.id = t.id;
+            const card = document.createElement('div');
+            card.className = 'card cursor-pointer hover:shadow-md transition-shadow duration-300 mb-4';
+            card.dataset.id = t.id;
 
-            let detailsHtml, valueHtml, payableBalHtml, receivableBalHtml, actionsHtml;
+            let icon, title, subtitle, amount, amountColor;
 
             if (t.type === 'trade') {
-                const paidToSupplier = getPayments(t.paymentsToSupplier);
-                const receivedFromBuyer = getPayments(t.paymentsFromBuyer);
-                const payableBalance = t.supplierTotal - paidToSupplier;
-                const receivableBalance = t.buyerTotal - receivedFromBuyer;
-                detailsHtml = `<div class="font-medium text-slate-800">${t.item}</div><div class="text-xs text-slate-500">${t.supplierName} → ${t.buyerName}</div>`;
-                valueHtml = `৳${(t.profit || 0).toFixed(2)}`;
-                payableBalHtml = `<span class="font-semibold ${payableBalance > 0.01 ? 'text-rose-500' : 'text-slate-500'}">৳${payableBalance.toFixed(2)}</span>`;
-                receivableBalHtml = `<span class="font-semibold ${receivableBalance > 0.01 ? 'text-green-600' : 'text-slate-500'}">৳${receivableBalance.toFixed(2)}</span>`;
-                
-                actionsHtml = `<div class="flex justify-end md:justify-center items-center gap-2">
-                    ${payableBalance > 0.01 ? `<button title="Pay Supplier" data-payment-id="${t.id}" data-payment-type="toSupplier" class="px-2 py-1 text-xs rounded font-semibold text-rose-700 bg-rose-100 hover:bg-rose-200">Pay</button>` : ''}
-                    ${receivableBalance > 0.01 ? `<button title="Receive from Buyer" data-payment-id="${t.id}" data-payment-type="fromBuyer" class="px-2 py-1 text-xs rounded font-semibold text-green-700 bg-green-100 hover:bg-green-200">Receive</button>` : ''}
-                    <button title="Edit" data-edit-id="${t.id}" class="p-1 text-blue-600 hover:bg-blue-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
-                    <button title="Delete" data-delete-id="${t.id}" class="p-1 text-rose-500 hover:bg-rose-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
-                </div>`;
+                icon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>`;
+                title = t.item;
+                subtitle = `${t.supplierName} → ${t.buyerName}`;
+                amount = `৳${(t.profit || 0).toFixed(2)}`;
+                amountColor = 'text-blue-600';
             } else if (t.type === 'payment') {
-                detailsHtml = `<div class="font-medium text-slate-800">${t.description} (${t.paymentType})</div><div class="text-xs text-slate-500">${t.name}</div>`;
-                valueHtml = `৳${(t.amount || 0).toFixed(2)}`;
-                payableBalHtml = '<span class="text-slate-400">-</span>';
-                receivableBalHtml = '<span class="text-slate-400">-</span>';
-                actionsHtml = `<div class="flex justify-end md:justify-center items-center gap-1">
-                    <button title="Delete" data-delete-id="${t.id}" class="p-1 text-rose-500 hover:bg-rose-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
-                </div>`;
+                if (t.paymentType === 'made') {
+                    icon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>`;
+                    amountColor = 'text-rose-500';
+                } else { // received
+                    icon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>`;
+                    amountColor = 'text-green-600';
+                }
+                title = t.description;
+                subtitle = t.name;
+                amount = `৳${(t.amount || 0).toFixed(2)}`;
             }
             
-            row.innerHTML = `
-                <td data-label="Date" class="py-4 px-4 align-top">${t.date}</td>
-                <td data-label="Details" class="py-4 px-4 align-top">${detailsHtml}</td>
-                <td data-label="Profit/Value" class="py-4 px-4 align-top text-right font-medium">${valueHtml}</td>
-                <td data-label="Payable Bal" class="py-4 px-4 align-top text-right">${payableBalHtml}</td>
-                <td data-label="Receivable Bal" class="py-4 px-4 align-top text-right">${receivableBalHtml}</td>
-                <td data-label="Actions" class="py-4 px-4 align-top actions-cell">${actionsHtml}</td>
+            card.innerHTML = `
+                <div class="p-4 flex items-center">
+                    <div class="mr-4 p-3 rounded-full bg-slate-100 ${amountColor}">${icon}</div>
+                    <div class="flex-grow">
+                        <div class="font-bold text-slate-800">${title}</div>
+                        <div class="text-sm text-slate-500">${subtitle}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold text-lg ${amountColor}">${amount}</div>
+                        <div class="text-sm text-slate-500">${t.date}</div>
+                    </div>
+                </div>
             `;
-            tbody.appendChild(row);
+            container.appendChild(card);
         });
     };
 
@@ -343,9 +341,9 @@ const appLogic = (() => {
                 </span>`;
             }
             
-            const row = document.createElement('tr'); row.className = 'hover:bg-slate-50 border-b border-slate-200 last:border-b-0';
+            const row = document.createElement('tr'); row.className = 'hover:bg-slate-50 border-b border-slate-200 md:border-b-0';
             row.innerHTML = `<td data-label="Name" class="py-4 px-4 align-middle">
-                                <button data-ledger-id="${c.id}" class="font-medium text-slate-800 hover:text-blue-600 text-left cursor-pointer">${c.name}</button>
+                                <button data-ledger-id="${c.id}" class="font-medium text-slate-800 hover:text-cyan-600 text-left cursor-pointer">${c.name}</button>
                                </td>
                                <td data-label="Type" class="py-4 px-4 align-middle">${typeBadge}</td>
                                <td data-label="Phone" class="py-4 px-4 align-middle">${c.phone || 'N/A'}</td>
@@ -1053,6 +1051,129 @@ const appLogic = (() => {
         }
     };
 
+    const renderTransactionDetails = (id) => {
+        const t = transactions.find(t => t.id === id);
+        if (!t) return;
+
+        const contentEl = document.getElementById('transaction-detail-content');
+        let html = '';
+
+        if (t.type === 'trade') {
+            const paidToSupplier = getPayments(t.paymentsToSupplier);
+            const receivedFromBuyer = getPayments(t.paymentsFromBuyer);
+            const payableBalance = t.supplierTotal - paidToSupplier;
+            const receivableBalance = t.buyerTotal - receivedFromBuyer;
+
+            html = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card p-4">
+                        <h3 class="font-bold text-lg text-rose-500 mb-2">Supplier: ${t.supplierName}</h3>
+                        <p><strong>Item:</strong> ${t.item}</p>
+                        <p><strong>Vehicle No:</strong> ${t.vehicleNo || 'N/A'}</p>
+                        <p><strong>Net Weight:</strong> ${t.netWeight.toFixed(2)} kg @ ৳${t.supplierRate.toFixed(2)}/kg</p>
+                        <p class="font-bold text-xl mt-2">Total: ৳${t.supplierTotal.toFixed(2)}</p>
+                        <p><strong>Paid:</strong> ৳${paidToSupplier.toFixed(2)}</p>
+                        <p class="font-bold ${payableBalance > 0.01 ? 'text-rose-500' : 'text-slate-500'}">Balance: ৳${payableBalance.toFixed(2)}</p>
+                        <div class="mt-4 flex gap-2">
+                             ${payableBalance > 0.01 ? `<button data-payment-id="${t.id}" data-payment-type="toSupplier" class="btn btn-secondary text-sm">Add Payment</button>` : ''}
+                        </div>
+                    </div>
+                    <div class="card p-4">
+                        <h3 class="font-bold text-lg text-green-600 mb-2">Buyer: ${t.buyerName}</h3>
+                         <p><strong>Item:</strong> ${t.item}</p>
+                        <p><strong>Vehicle No:</strong> ${t.vehicleNo || 'N/A'}</p>
+                        <p><strong>Net Weight:</strong> ${t.netWeight.toFixed(2)} kg @ ৳${t.buyerRate.toFixed(2)}/kg</p>
+                        <p class="font-bold text-xl mt-2">Total: ৳${t.buyerTotal.toFixed(2)}</p>
+                        <p><strong>Received:</strong> ৳${receivedFromBuyer.toFixed(2)}</p>
+                        <p class="font-bold ${receivableBalance > 0.01 ? 'text-green-600' : 'text-slate-500'}">Balance: ৳${receivableBalance.toFixed(2)}</p>
+                        <div class="mt-4 flex gap-2">
+                            ${receivableBalance > 0.01 ? `<button data-payment-id="${t.id}" data-payment-type="fromBuyer" class="btn btn-secondary text-sm">Receive Payment</button>` : ''}
+                        </div>
+                    </div>
+                </div>
+                 <div class="mt-4 flex justify-end gap-2">
+                    <button title="Edit" data-edit-id="${t.id}" class="btn btn-secondary text-sm">Edit</button>
+                    <button title="Delete" data-delete-id="${t.id}" class="btn btn-secondary text-sm">Delete</button>
+                </div>
+            `;
+        } else { // Payment
+             html = `
+                <div class="card p-4">
+                    <h3 class="font-bold text-lg mb-2">Payment Details</h3>
+                    <p><strong>Contact:</strong> ${t.name}</p>
+                    <p><strong>Date:</strong> ${t.date}</p>
+                    <p><strong>Description:</strong> ${t.description}</p>
+                    <p><strong>Amount:</strong> <span class="font-bold ${t.paymentType === 'made' ? 'text-rose-500' : 'text-green-600'}">৳${t.amount.toFixed(2)}</span></p>
+                    <p><strong>Type:</strong> ${t.paymentType === 'made' ? 'Payment Made' : 'Payment Received'}</p>
+                </div>
+                 <div class="mt-4 flex justify-end">
+                    <button title="Delete" data-delete-id="${t.id}" class="btn btn-secondary text-sm">Delete</button>
+                </div>
+            `;
+        }
+
+        contentEl.innerHTML = html;
+    };
+
+    const renderInvoice = (id) => {
+        const t = transactions.find(t => t.id === id);
+        if (!t || t.type !== 'trade') return;
+
+        const invoiceContentEl = document.getElementById('transaction-invoice-content');
+        const paidToSupplier = getPayments(t.paymentsToSupplier);
+        const receivedFromBuyer = getPayments(t.paymentsFromBuyer);
+
+        invoiceContentEl.innerHTML = `
+            <div class="p-8 bg-white" id="invoice-to-print">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold">Errum Enterprise</h1>
+                    <p>Your Business Address Here</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div>
+                        <h3 class="font-bold">Bill To:</h3>
+                        <p>${t.buyerName}</p>
+                    </div>
+                    <div class="text-right">
+                        <p><strong>Invoice #:</strong> ${t.id.substring(0, 8)}</p>
+                        <p><strong>Date:</strong> ${t.date}</p>
+                    </div>
+                </div>
+                <table class="w-full text-sm mb-8">
+                    <thead class="bg-slate-100">
+                        <tr>
+                            <th class="p-2 text-left">Item Description</th>
+                            <th class="p-2 text-right">Net Weight (kg)</th>
+                            <th class="p-2 text-right">Rate</th>
+                            <th class="p-2 text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="p-2">${t.item}</td>
+                            <td class="p-2 text-right">${t.netWeight.toFixed(2)}</td>
+                            <td class="p-2 text-right">৳${t.buyerRate.toFixed(2)}</td>
+                            <td class="p-2 text-right">৳${t.buyerTotal.toFixed(2)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="flex justify-end">
+                    <div class="w-full md:w-1/2">
+                        <div class="flex justify-between mb-2"><span class="font-semibold">Subtotal:</span> <span>৳${t.buyerTotal.toFixed(2)}</span></div>
+                        <div class="flex justify-between mb-2"><span class="font-semibold">Paid:</span> <span>৳${receivedFromBuyer.toFixed(2)}</span></div>
+                        <div class="flex justify-between font-bold text-xl border-t pt-2"><span class="font-semibold">Amount Due:</span> <span>৳${(t.buyerTotal - receivedFromBuyer).toFixed(2)}</span></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    };
+
+    const openTransactionDetailModal = (id) => {
+        renderTransactionDetails(id);
+        renderInvoice(id);
+        document.getElementById('transaction-detail-modal').classList.remove('hidden');
+    };
+
     const bindStatementExportButtons = () => {
         document.getElementById('statement-csv-btn')?.addEventListener('click', () => handleContentExportCSV());
         document.getElementById('statement-png-btn')?.addEventListener('click', () => handleContentExport('png'));
@@ -1065,7 +1186,7 @@ const appLogic = (() => {
 // --- NAVIGATION & EVENT BINDING ---
 const navigateTo = (section, context = null) => {
     return new Promise((resolve) => {
-        document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(link => {
+        document.querySelectorAll('.nav-link').forEach(link => {
             link.classList.toggle('active', link.dataset.section === section);
         });
         mainContent.innerHTML = templates[section];
@@ -1086,15 +1207,43 @@ const navigateTo = (section, context = null) => {
 
 const bindAppEventListeners = () => {
     document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', (e) => navigateTo(e.currentTarget.dataset.section)));
-    document.querySelectorAll('.mobile-nav-link').forEach(link => link.addEventListener('click', (e) => navigateTo(e.currentTarget.dataset.section)));
     document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
-    document.getElementById('mobile-logout-btn').addEventListener('click', () => signOut(auth));
     document.getElementById('save-payment-btn').addEventListener('click', appLogic.handleSavePayment);
     document.querySelectorAll('[data-close-modal]').forEach(btn => btn.addEventListener('click', (e) => document.getElementById(e.currentTarget.dataset.closeModal).classList.add('hidden')));
     document.getElementById('contact-form').addEventListener('submit', appLogic.handleSaveContact);
     document.getElementById('settings-btn').addEventListener('click', () => document.getElementById('password-modal').classList.remove('hidden'));
     document.getElementById('password-change-form').addEventListener('submit', appLogic.handlePasswordChange);
     document.getElementById('direct-payment-form').addEventListener('submit', appLogic.handleDirectPaymentSubmit);
+
+    document.getElementById('transaction-detail-modal').addEventListener('click', e => {
+        const button = e.target.closest('button');
+        if (!button) return;
+
+        const { paymentId, paymentType, editId, deleteId } = button.dataset;
+        const transactionId = transactions.find(t => t.id === paymentId || t.id === editId || t.id === deleteId)?.id;
+
+        if (paymentId) appLogic.openPaymentModal(paymentId, paymentType);
+        if (editId) { navigateTo('transaction-form').then(() => appLogic.setupTradeFormForEdit(editId)); document.getElementById('transaction-detail-modal').classList.add('hidden'); }
+        if (deleteId) { appLogic.handleDelete(deleteId); document.getElementById('transaction-detail-modal').classList.add('hidden'); }
+
+        if (button.id === 'toggle-invoice-btn') {
+            document.getElementById('transaction-detail-content').classList.toggle('hidden');
+            document.getElementById('transaction-invoice-content').classList.toggle('hidden');
+            button.textContent = button.textContent === 'View Invoice' ? 'View Details' : 'View Invoice';
+            document.getElementById('save-invoice-btn').classList.toggle('hidden');
+        }
+
+        if (button.id === 'save-invoice-btn') {
+            const content = document.getElementById('invoice-to-print');
+            showToast('Generating PNG...');
+            html2canvas(content, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `invoice-${transactionId}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+    });
 };
 
 const bindSectionEventListeners = (section, context) => {
@@ -1105,13 +1254,9 @@ const bindSectionEventListeners = (section, context) => {
         document.getElementById('filter-end-date').addEventListener('change', () => { dashboardCurrentPage = 1; appLogic.renderAll(); });
         
         document.getElementById('transaction-history-body').addEventListener('click', (e) => {
-            const button = e.target.closest('button');
-            if (button && button.closest('td')?.classList.contains('actions-cell')) { 
-                e.stopPropagation();
-                const { editId, deleteId, paymentId, paymentType } = button.dataset;
-                if (editId) { navigateTo('transaction-form').then(() => appLogic.setupTradeFormForEdit(editId)); }
-                if (deleteId) appLogic.handleDelete(deleteId); 
-                if (paymentId) appLogic.openPaymentModal(paymentId, paymentType); 
+            const card = e.target.closest('.card');
+            if (card) {
+                appLogic.openTransactionDetailModal(card.dataset.id);
             }
         });
     } else if (section === 'contacts') {
