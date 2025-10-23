@@ -56,24 +56,33 @@ const animateCountUp = (el, endValue) => {
 const templates = {
     dashboard: `
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="card p-6 flex items-center gap-4">
-                <div class="p-3 rounded-lg bg-red-100 text-red-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div>
-                <div><h3 class="text-sm font-semibold text-gray-500">Total Payable</h3><p id="total-payable" class="text-3xl font-bold text-red-500 mt-1">৳0.00</p></div>
+            <div class="card p-6">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 rounded-full bg-red-100 text-red-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 11l3-3m0 0l3 3m-3-3v8m0-13a9 9 0 110-18 9 9 0 010 18z" /></svg></div>
+                    <h3 class="text-sm font-semibold text-gray-500">Total Payable</h3>
+                </div>
+                <p id="total-payable" class="text-3xl font-bold text-red-600 mt-4">৳0.00</p>
             </div>
-            <div class="card p-6 flex items-center gap-4">
-                <div class="p-3 rounded-lg bg-green-100 text-green-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg></div>
-                <div><h3 class="text-sm font-semibold text-gray-500">Total Receivable</h3><p id="total-receivable" class="text-3xl font-bold text-green-600 mt-1">৳0.00</p></div>
+            <div class="card p-6">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 rounded-full bg-green-100 text-green-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z" /></svg></div>
+                    <h3 class="text-sm font-semibold text-gray-500">Total Receivable</h3>
+                </div>
+                <p id="total-receivable" class="text-3xl font-bold text-green-600 mt-4">৳0.00</p>
             </div>
-            <div class="card p-6 flex items-center gap-4">
-                <div class="p-3 rounded-lg bg-blue-100 text-blue-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" /></svg></div>
-                <div><h3 class="text-sm font-semibold text-gray-500">Net Balance</h3><p id="total-profit" class="text-3xl font-bold text-blue-600 mt-1">৳0.00</p></div>
+            <div class="card p-6">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10m16-5H4" /></svg></div>
+                    <h3 class="text-sm font-semibold text-gray-500">Net Balance</h3>
+                </div>
+                <p id="total-profit" class="text-3xl font-bold text-blue-800 mt-4">৳0.00</p>
             </div>
         </div>
         <div class="card">
             <div class="p-4 border-b border-gray-200 flex flex-wrap gap-4 justify-between items-center">
                 <h2 class="text-lg font-bold text-gray-800">Recent Transactions</h2>
                 <div class="flex flex-wrap items-center gap-2">
-                    <input id="search-input" type="text" placeholder="Search..." class="w-48 input-field">
+                    <input id="search-input" type="text" placeholder="Search transactions..." class="w-48 input-field">
                     <input type="date" id="filter-start-date" class="input-field">
                     <input type="date" id="filter-end-date" class="input-field">
                 </div>
@@ -975,7 +984,30 @@ const appLogic = (() => {
                 finalBalance = runningBalance;
                 
                 const balanceStatus = finalBalance > 0.01 ? "Receivable" : (finalBalance < -0.01 ? "Payable" : "Settled");
-                const foot = [[{ content: `Final Balance (${balanceStatus}):`, colSpan: 8, styles: { halign: 'right', fontStyle: 'bold' } }, { content: `৳${Math.abs(finalBalance).toFixed(2)}`, styles: { halign: 'right', fontStyle: 'bold' } }]];
+                const foot = [[{ content: `Final Balance (${balanceStatus}):`, colSpan: 7, styles: { halign: 'right', fontStyle: 'bold' } }, { content: `৳${Math.abs(finalBalance).toFixed(2)}`, styles: { halign: 'right', fontStyle: 'bold' } }]];
+
+                doc.autoTable({
+                    head: head,
+                    body: body,
+                    foot: foot,
+                    theme: 'striped',
+                    headStyles: { fillColor: [8, 145, 178] }, // Cyan-600
+                    didDrawPage: (data) => {
+                        doc.setFontSize(20); doc.setFont('helvetica', 'bold');
+                        doc.text('Errum Enterprise', data.settings.margin.left, 40);
+                        doc.setFontSize(12); doc.setFont('helvetica', 'normal');
+                        doc.text(`Account Ledger for: ${name}`, data.settings.margin.left, 58);
+
+                        const pageCount = doc.internal.getNumberOfPages();
+                        const footerY = doc.internal.pageSize.height - 30;
+                        doc.setFontSize(8);
+                        doc.text(`Page ${data.pageNumber} of ${pageCount}`, data.settings.margin.left, footerY);
+                        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, doc.internal.pageSize.width - data.settings.margin.right, footerY, { align: 'right' });
+                    },
+                    margin: { top: 70 },
+                    styles: { fontSize: 8 }
+                });
+
 
             } else { // 'overall' type
                 head.push([
@@ -1244,7 +1276,7 @@ const appLogic = (() => {
         document.getElementById('statement-pdf-btn')?.addEventListener('click', () => handleContentExport('pdf'));
     };
 
-    return { renderAll, renderContacts, resetContactForm, setupContactFormForEdit, handleSaveContact, handleDeleteContact, populateTradeDropdowns, updateTradeTotals, calculateNetWeight, resetTradeForm, setupTradeFormForEdit, handleTradeFormSubmit, handleDelete, openPaymentModal, handleSavePayment, openDirectPaymentModal, handleDirectPaymentSubmit, renderContactLedger, renderOverallStatement, handlePasswordChange };
+    return { renderAll, renderContacts, resetContactForm, setupContactFormForEdit, handleSaveContact, handleDeleteContact, populateTradeDropdowns, updateTradeTotals, calculateNetWeight, resetTradeForm, setupTradeFormForEdit, handleTradeFormSubmit, handleDelete, openPaymentModal, handleSavePayment, openDirectPaymentModal, handleDirectPaymentSubmit, renderContactLedger, renderOverallStatement, handlePasswordChange, openTransactionDetailModal };
 })();
 
 // --- NAVIGATION & EVENT BINDING ---
@@ -1270,8 +1302,9 @@ const navigateTo = (section, context = null) => {
 };
 
 const bindAppEventListeners = () => {
-    document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', (e) => navigateTo(e.currentTarget.dataset.section)));
+    document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(link => link.addEventListener('click', (e) => navigateTo(e.currentTarget.dataset.section)));
     document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+    document.getElementById('mobile-logout-btn').addEventListener('click', () => signOut(auth));
     document.getElementById('save-payment-btn').addEventListener('click', appLogic.handleSavePayment);
     document.querySelectorAll('[data-close-modal]').forEach(btn => btn.addEventListener('click', (e) => document.getElementById(e.currentTarget.dataset.closeModal).classList.add('hidden')));
     document.getElementById('contact-form').addEventListener('submit', appLogic.handleSaveContact);
