@@ -60,10 +60,6 @@ const templates = {
             <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-green-100 text-green-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Total Receivable</h3><p id="total-receivable" class="text-3xl font-bold text-green-600 mt-1">৳0.00</p></div></div></div>
             <div class="p-6 bg-white rounded-xl shadow-md border border-slate-200 transition-transform hover:-translate-y-1"><div class="flex items-center gap-4"><div class="p-3 rounded-lg bg-cyan-100 text-cyan-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" /></svg></div><div><h3 class="text-sm font-semibold text-slate-500">Net Balance</h3><p id="total-profit" class="text-3xl font-bold text-cyan-600 mt-1">৳0.00</p></div></div></div>
         </div>
-        <div class="bg-white rounded-xl shadow-md border border-slate-200 mb-8">
-            <div class="p-4 border-b border-slate-200"><h2 class="text-xl font-bold text-slate-800">Performance Overview</h2></div>
-            <div class="p-4"><canvas id="performance-chart"></canvas></div>
-        </div>
         <div class="bg-white rounded-xl shadow-md border border-slate-200">
             <div class="p-4 border-b border-slate-200 flex flex-wrap gap-4 justify-between items-center"><h2 class="text-xl font-bold text-slate-800">Recent Transactions</h2><div class="flex flex-wrap items-center gap-2"><input id="search-input" type="text" placeholder="Search..." class="w-48 p-2 border border-slate-300 rounded-lg bg-slate-50"><input type="date" id="filter-start-date" class="p-2 border border-slate-300 rounded-lg bg-slate-50"><input type="date" id="filter-end-date" class="p-2 border border-slate-300 rounded-lg bg-slate-50"></div></div>
             <div class="overflow-x-auto"><table class="w-full text-sm responsive-table"><thead><tr class="border-b border-slate-200 bg-slate-50"><th class="text-left font-semibold py-3 px-4">Date</th><th class="text-left font-semibold py-3 px-4">Details</th><th class="text-right font-semibold py-3 px-4">Profit/Value</th><th class="text-right font-semibold py-3 px-4">Payable Bal</th><th class="text-right font-semibold py-3 px-4">Receivable Bal</th><th class="text-center font-semibold py-3 px-4">Actions</th></tr></thead><tbody id="transaction-history-body"></tbody></table></div>
@@ -262,10 +258,6 @@ const appLogic = (() => {
             const row = document.createElement('tr');
             row.className = 'hover:bg-slate-50 border-b border-slate-200 md:border-b-0 cursor-pointer';
             row.dataset.id = t.id;
-            row.addEventListener('click', (e) => {
-                if (e.target.closest('button')) return; // Ignore clicks on action buttons
-                appLogic.showTransactionDetails(t.id);
-            });
 
             let detailsHtml, valueHtml, payableBalHtml, receivableBalHtml, actionsHtml;
 
@@ -287,6 +279,13 @@ const appLogic = (() => {
                 </div>`;
             } else if (t.type === 'payment') {
                 detailsHtml = `<div class="font-medium text-slate-800">${t.description} (${t.paymentType})</div><div class="text-xs text-slate-500">${t.name}</div>`;
+                valueHtml = `৳${(t.amount || 0).toFixed(2)}`;
+                payableBalHtml = '<span class="text-slate-400">-</span>';
+                receivableBalHtml = '<span class="text-slate-400">-</span>';
+                const icon = t.paymentType === 'received'
+                    ? `<span class="text-green-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 112 0v11.586l4.293-4.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg></span>`
+                    : `<span class="text-rose-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg></span>`;
+                detailsHtml = `<div class="font-medium text-slate-800">${icon}${t.description} (${t.paymentType})</div><div class="text-xs text-slate-500 ml-6">${t.name}</div>`;
                 valueHtml = `৳${(t.amount || 0).toFixed(2)}`;
                 payableBalHtml = '<span class="text-slate-400">-</span>';
                 receivableBalHtml = '<span class="text-slate-400">-</span>';
@@ -375,90 +374,7 @@ const appLogic = (() => {
         renderDashboardMetrics(data); 
         renderTransactionHistory(data); 
         renderDashboardPaginationControls(data.length);
-        renderPerformanceChart();
     };
-
-    const renderPerformanceChart = () => {
-        const ctx = document.getElementById('performance-chart');
-        if (!ctx) return;
-
-        const monthlyProfit = {};
-        const monthLabels = [];
-        const today = new Date();
-
-        for (let i = 11; i >= 0; i--) {
-            const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-            const monthName = date.toLocaleString('default', { month: 'short' });
-            monthLabels.push(monthName);
-            monthlyProfit[monthKey] = 0;
-        }
-
-        transactions.forEach(t => {
-            if (t.type === 'trade' && t.profit) {
-                const date = new Date(t.date);
-                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                if (monthlyProfit.hasOwnProperty(monthKey)) {
-                    monthlyProfit[monthKey] += t.profit;
-                }
-            }
-        });
-
-        const chartData = Object.values(monthlyProfit);
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: monthLabels,
-                datasets: [{
-                    label: 'Monthly Profit',
-                    data: chartData,
-                    borderColor: '#0891b2', // cyan-600
-                    backgroundColor: 'rgba(14, 165, 233, 0.1)',
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#0891b2',
-                    pointBorderColor: '#fff',
-                    pointHoverRadius: 7,
-                    pointHoverBackgroundColor: '#0891b2',
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '৳' + value.toLocaleString();
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed.y !== null) {
-                                    label += '৳' + context.parsed.y.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                                }
-                                return label;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    };
-
     const resetContactForm = () => {
         document.getElementById('contact-form-title').textContent = 'Add New Party'; 
         document.getElementById('contact-form').reset(); 
@@ -1000,7 +916,7 @@ const appLogic = (() => {
                 
                 const balanceStatus = finalBalance > 0.01 ? "Receivable" : (finalBalance < -0.01 ? "Payable" : "Settled");
                 body.push([
-                    { content: `Final Balance (${balanceStatus}):`, colSpan: 7, styles: { halign: 'right', fontStyle: 'bold' } },
+                    { content: `Final Balance (${balanceStatus}):`, colSpan: 8, styles: { halign: 'right', fontStyle: 'bold' } },
                     { content: `৳${Math.abs(finalBalance).toFixed(2)}`, styles: { halign: 'right', fontStyle: 'bold' } }
                 ]);
 
@@ -1332,6 +1248,34 @@ const appLogic = (() => {
         renderPrintableInvoice(t);
 
         document.getElementById('save-invoice-btn').onclick = handleSaveInvoice;
+
+        const toggleBtn = document.getElementById('toggle-invoice-btn');
+        const detailContent = document.getElementById('transaction-detail-content');
+        const invoiceContent = document.getElementById('transaction-invoice-content');
+        const saveBtn = document.getElementById('save-invoice-btn');
+
+        toggleBtn.onclick = () => {
+            const isInvoiceVisible = !invoiceContent.classList.contains('hidden');
+            if (isInvoiceVisible) {
+                invoiceContent.classList.add('hidden');
+                detailContent.classList.remove('hidden');
+                toggleBtn.textContent = 'View Invoice';
+                saveBtn.classList.add('hidden');
+            } else {
+                invoiceContent.innerHTML = document.getElementById('invoice-print-container').innerHTML;
+                detailContent.classList.add('hidden');
+                invoiceContent.classList.remove('hidden');
+                toggleBtn.textContent = 'View Details';
+                saveBtn.classList.remove('hidden');
+            }
+        };
+
+        // Reset view state when modal is opened
+        invoiceContent.classList.add('hidden');
+        detailContent.classList.remove('hidden');
+        toggleBtn.textContent = 'View Invoice';
+        saveBtn.classList.add('hidden');
+
         document.getElementById('transaction-detail-modal').classList.remove('hidden');
     };
 
