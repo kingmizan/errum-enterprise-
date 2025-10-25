@@ -905,7 +905,8 @@ const appLogic = (() => {
                     const bal = runningBalance > 0.01 ? `${runningBalance.toFixed(2)} Dr` : runningBalance < -0.01 ? `${Math.abs(runningBalance).toFixed(2)} Cr` : '0.00';
                     body.push([
                         item.date === '0000-01-01' ? 'Initial' : item.date,
-                        item.description, item.vehicleNo, item.netWeight > 0 ? item.netWeight.toFixed(2) : '',
+                        item.description, item.vehicleNo,
+                        item.netWeight > 0 ? item.netWeight.toFixed(2) : '',
                         item.rate > 0 ? `@${item.rate.toFixed(2)}` : '',
                         item.debit > 0 ? item.debit.toFixed(2) : '',
                         item.credit > 0 ? item.credit.toFixed(2) : '',
@@ -916,7 +917,7 @@ const appLogic = (() => {
                 
                 const balanceStatus = finalBalance > 0.01 ? "Receivable" : (finalBalance < -0.01 ? "Payable" : "Settled");
                 body.push([
-                    { content: `Final Balance (${balanceStatus}):`, colSpan: 8, styles: { halign: 'right', fontStyle: 'bold' } },
+                    { content: `Final Balance (${balanceStatus}):`, colSpan: 7, styles: { halign: 'right', fontStyle: 'bold' } },
                     { content: `৳${Math.abs(finalBalance).toFixed(2)}`, styles: { halign: 'right', fontStyle: 'bold' } }
                 ]);
 
@@ -1330,6 +1331,11 @@ const bindSectionEventListeners = (section, context) => {
                 if (editId) { navigateTo('transaction-form').then(() => appLogic.setupTradeFormForEdit(editId)); }
                 if (deleteId) appLogic.handleDelete(deleteId);
                 if (paymentId) appLogic.openPaymentModal(paymentId, paymentType);
+            } else {
+                const row = e.target.closest('tr');
+                if (row && row.dataset.id) {
+                    appLogic.showTransactionDetails(row.dataset.id);
+                }
             }
         });
     } else if (section === 'contacts') {
