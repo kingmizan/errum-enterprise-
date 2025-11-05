@@ -918,7 +918,7 @@ const appLogic = (() => {
                 const balanceStatus = finalBalance > 0.01 ? "Receivable" : (finalBalance < -0.01 ? "Payable" : "Settled");
                 body.push([
                     { content: `Final Balance (${balanceStatus}):`, colSpan: 7, styles: { halign: 'right', fontStyle: 'bold' } },
-                    { content: `৳${Math.abs(finalBalance).toFixed(2)}`, styles: { halign: 'right', fontStyle: 'bold' } }
+                    { content: `BDT ${Math.abs(finalBalance).toFixed(2)}`, styles: { halign: 'right', fontStyle: 'bold' } }
                 ]);
 
             } else { // 'overall' type
@@ -947,7 +947,7 @@ const appLogic = (() => {
                 const balanceStatus = finalBalance >= 0 ? "Net Receivable" : "Net Payable";
                  body.push([
                     { content: `Final Net Balance (${balanceStatus}):`, colSpan: 12, styles: { halign: 'right', fontStyle: 'bold' } },
-                    { content: `৳${Math.abs(finalBalance).toFixed(2)}`, styles: { halign: 'right', fontStyle: 'bold' } }
+                    { content: `BDT ${Math.abs(finalBalance).toFixed(2)}`, styles: { halign: 'right', fontStyle: 'bold' } }
                 ]);
             }
 
@@ -1387,24 +1387,26 @@ onAuthStateChanged(auth, user => {
         if (transactionsUnsubscribe) transactionsUnsubscribe();
         if (contactsUnsubscribe) contactsUnsubscribe();
 
+        const refreshDependentViews = (section) => {
+            if (section === 'dashboard' || section === 'contacts') {
+                appLogic.renderAll();
+                appLogic.renderContacts();
+            }
+        };
+
         const transQuery = query(collection(db, "users", currentUserId, "transactions"));
         transactionsUnsubscribe = onSnapshot(transQuery, snapshot => {
             transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
-            if (currentSection === 'dashboard' || currentSection === 'contacts') {
-                appLogic.renderAll(); 
-                appLogic.renderContacts();
-            }
+            refreshDependentViews(currentSection);
         });
         
         const contactsQuery = query(collection(db, "users", currentUserId, "contacts"), orderBy("name"));
         contactsUnsubscribe = onSnapshot(contactsQuery, snapshot => {
             contacts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             const currentSection = document.querySelector('.nav-link.active')?.dataset.section;
-             if (currentSection === 'dashboard' || currentSection === 'contacts') {
-                appLogic.renderAll(); 
-                appLogic.renderContacts();
-            } else if (currentSection === 'transaction-form') {
+            refreshDependentViews(currentSection);
+            if (currentSection === 'transaction-form') {
                 appLogic.populateTradeDropdowns();
             }
         });
