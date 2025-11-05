@@ -266,7 +266,8 @@ const appLogic = (() => {
                 const receivedFromBuyer = getPayments(t.paymentsFromBuyer);
                 const payableBalance = t.supplierTotal - paidToSupplier;
                 const receivableBalance = t.buyerTotal - receivedFromBuyer;
-                detailsHtml = `<div class="font-medium text-slate-800">${t.item}</div><div class="text-xs text-slate-500">${t.supplierName} → ${t.buyerName}</div>`;
+                const tradeIcon = `<span class="text-cyan-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg></span>`;
+                detailsHtml = `<div class="flex items-center">${tradeIcon}<div class="ml-2"><div class="font-medium text-slate-800">${t.item}</div><div class="text-xs text-slate-500">${t.supplierName} → ${t.buyerName}</div></div></div>`;
                 valueHtml = `৳${(t.profit || 0).toFixed(2)}`;
                 payableBalHtml = `<span class="font-semibold ${payableBalance > 0.01 ? 'text-rose-500' : 'text-slate-500'}">৳${payableBalance.toFixed(2)}</span>`;
                 receivableBalHtml = `<span class="font-semibold ${receivableBalance > 0.01 ? 'text-green-600' : 'text-slate-500'}">৳${receivableBalance.toFixed(2)}</span>`;
