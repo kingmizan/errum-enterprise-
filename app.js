@@ -1,6 +1,6 @@
 // --- FIREBASE & APP DEPENDENCIES ---
 import { auth, db } from './firebase-config.js';
-import { signInWithEmailAndPassword, onAuthStateChanged, signOut, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut, EmailAuthProvider, reauthenticateWithCredential, updatePassword, updateEmail } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { getFirestore, collection, onSnapshot, addDoc, doc, setDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
 // --- GLOBAL STATE ---
@@ -1062,6 +1062,39 @@ const appLogic = (() => {
         }
     };
 
+    const handleChangeEmail = async (e) => {
+        e.preventDefault();
+        const password = document.getElementById('current-password-for-email').value;
+        const newEmail = document.getElementById('new-email').value;
+        const errorP = document.getElementById('email-error');
+        errorP.textContent = '';
+
+        if (!password || !newEmail) {
+            errorP.textContent = 'Please fill all fields.';
+            return;
+        }
+
+        const user = auth.currentUser;
+        const credential = EmailAuthProvider.credential(user.email, password);
+
+        try {
+            await reauthenticateWithCredential(user, credential);
+            await updateEmail(user, newEmail);
+            showToast('Email updated successfully!');
+            document.getElementById('email-change-form').reset();
+            document.getElementById('email-modal').classList.add('hidden');
+        } catch (error) {
+            if (error.code === 'auth/wrong-password') {
+                errorP.textContent = 'Incorrect current password.';
+            } else if (error.code === 'auth/invalid-email') {
+                errorP.textContent = 'The new email address is invalid.';
+            } else {
+                errorP.textContent = 'An error occurred. Please try again.';
+                console.error(error);
+            }
+        }
+    };
+
     const bindStatementExportButtons = () => {
         document.getElementById('statement-csv-btn')?.addEventListener('click', () => handleContentExportCSV());
         document.getElementById('statement-png-btn')?.addEventListener('click', () => handleContentExport('png'));
@@ -1281,7 +1314,7 @@ const appLogic = (() => {
         document.getElementById('transaction-detail-modal').classList.remove('hidden');
     };
 
-    return { renderAll, renderContacts, resetContactForm, setupContactFormForEdit, handleSaveContact, handleDeleteContact, populateTradeDropdowns, updateTradeTotals, calculateNetWeight, resetTradeForm, setupTradeFormForEdit, handleTradeFormSubmit, handleDelete, openPaymentModal, handleSavePayment, openDirectPaymentModal, handleDirectPaymentSubmit, renderContactLedger, renderOverallStatement, handlePasswordChange, showTransactionDetails };
+    return { renderAll, renderContacts, resetContactForm, setupContactFormForEdit, handleSaveContact, handleDeleteContact, populateTradeDropdowns, updateTradeTotals, calculateNetWeight, resetTradeForm, setupTradeFormForEdit, handleTradeFormSubmit, handleDelete, openPaymentModal, handleSavePayment, openDirectPaymentModal, handleDirectPaymentSubmit, renderContactLedger, renderOverallStatement, handlePasswordChange, handleChangeEmail, showTransactionDetails };
 })();
 
 // --- NAVIGATION & EVENT BINDING ---
@@ -1315,6 +1348,8 @@ const bindAppEventListeners = () => {
     document.getElementById('settings-btn').addEventListener('click', () => document.getElementById('password-modal').classList.remove('hidden'));
     document.getElementById('password-change-form').addEventListener('submit', appLogic.handlePasswordChange);
     document.getElementById('direct-payment-form').addEventListener('submit', appLogic.handleDirectPaymentSubmit);
+    document.getElementById('email-btn').addEventListener('click', () => document.getElementById('email-modal').classList.remove('hidden'));
+    document.getElementById('email-change-form').addEventListener('submit', appLogic.handleChangeEmail);
 };
 
 const bindSectionEventListeners = (section, context) => {
