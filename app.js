@@ -252,6 +252,7 @@ const appLogic = (() => {
                 payableBalHtml = '<span class="text-slate-400">-</span>';
                 receivableBalHtml = '<span class="text-slate-400">-</span>';
                 actionsHtml = `<div class="flex justify-end md:justify-center items-center gap-1">
+                    <button title="Edit" data-edit-payment-id="${t.id}" class="p-1 text-blue-600 hover:bg-blue-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
                     <button title="Delete" data-delete-id="${t.id}" class="p-1 text-rose-500 hover:bg-rose-100 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
                 </div>`;
             }
@@ -366,8 +367,13 @@ const appLogic = (() => {
     };
     const handleSaveContact = async (e) => {
         e.preventDefault();
-        const id = document.getElementById('contact-id').value;
-        const name = document.getElementById('contact-name').value.trim();
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.textContent = 'Saving...';
+
+        try {
+            const id = document.getElementById('contact-id').value;
+            const name = document.getElementById('contact-name').value.trim();
         if (!name) { showToast('Contact name is required.'); return; }
         if (!id && contacts.some(c => c.name.toLowerCase() === name.toLowerCase())) { showToast('A contact with this name already exists.'); return; }
         
@@ -404,6 +410,9 @@ const appLogic = (() => {
         } catch (error) {
             showToast('Error: Could not save contact.');
             console.error("Error saving contact: ", error);
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Save Contact';
         }
         document.getElementById('contact-modal').classList.add('hidden');
     };
@@ -504,9 +513,14 @@ const appLogic = (() => {
 
     const handleTradeFormSubmit = async (e) => {
         e.preventDefault();
-        const id = document.getElementById('transaction-id').value;
-        
-        const transactionData = {
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.textContent = 'Saving...';
+
+        try {
+            const id = document.getElementById('transaction-id').value;
+
+            const transactionData = {
             type: 'trade',
             date: document.getElementById('date').value,
             item: document.getElementById('item').value.trim(),
@@ -564,6 +578,9 @@ const appLogic = (() => {
         } catch (error) {
             showToast("Error: Could not save transaction.");
             console.error("Transaction save error: ", error);
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Save Transaction';
         }
     };
 
@@ -631,8 +648,9 @@ const appLogic = (() => {
     const openDirectPaymentModal = (contactId) => {
         const contact = contacts.find(c => c.id === contactId);
         if (!contact) return;
+        document.getElementById('direct-payment-form').reset();
         document.getElementById('direct-payment-modal-title').textContent = `Add Direct Payment for ${contact.name}`;
-        document.getElementById('direct-payment-contact-id').value = contact.id;
+        document.getElementById('direct-payment-transaction-id').value = '';
         document.getElementById('direct-payment-contact-name').value = contact.name;
         document.getElementById('direct-payment-date').value = new Date().toISOString().split('T')[0];
         
@@ -647,9 +665,32 @@ const appLogic = (() => {
         document.getElementById('direct-payment-modal').classList.remove('hidden');
     };
 
+    const setupPaymentFormForEdit = (transactionId) => {
+        const transaction = transactions.find(t => t.id === transactionId);
+        if (!transaction || transaction.type !== 'payment') return;
+
+        document.getElementById('direct-payment-form').reset();
+        document.getElementById('direct-payment-modal-title').textContent = `Edit Payment for ${transaction.name}`;
+        document.getElementById('direct-payment-transaction-id').value = transaction.id;
+        document.getElementById('direct-payment-contact-name').value = transaction.name;
+        document.getElementById('direct-payment-date').value = transaction.date;
+        document.getElementById('direct-payment-amount').value = transaction.amount;
+        document.getElementById('direct-payment-method').value = transaction.method;
+        document.getElementById('direct-payment-desc').value = transaction.description;
+        document.querySelector(`input[name="direct-payment-type"][value="${transaction.paymentType}"]`).checked = true;
+
+        document.getElementById('direct-payment-modal').classList.remove('hidden');
+    };
+
     const handleDirectPaymentSubmit = async (e) => {
         e.preventDefault();
-        const contactName = document.getElementById('direct-payment-contact-name').value;
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.textContent = 'Saving...';
+
+        try {
+            const transactionId = document.getElementById('direct-payment-transaction-id').value;
+            const contactName = document.getElementById('direct-payment-contact-name').value;
         const paymentData = {
             type: 'payment',
             date: document.getElementById('direct-payment-date').value,
@@ -664,13 +705,21 @@ const appLogic = (() => {
             showToast('Please fill out all fields.'); return;
         }
         try {
-            await addDoc(collection(db, "users", currentUserId, "transactions"), paymentData);
-            showToast(`Payment for ${contactName} saved!`);
+            if (transactionId) {
+                await setDoc(doc(db, "users", currentUserId, "transactions", transactionId), paymentData);
+                showToast(`Payment for ${contactName} updated!`);
+            } else {
+                await addDoc(collection(db, "users", currentUserId, "transactions"), paymentData);
+                showToast(`Payment for ${contactName} saved!`);
+            }
             document.getElementById('direct-payment-form').reset();
             document.getElementById('direct-payment-modal').classList.add('hidden');
         } catch (error) {
             showToast('Error: Could not save direct payment.');
             console.error("Error saving direct payment: ", error);
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Save Payment';
         }
     };
     
@@ -1353,7 +1402,7 @@ const appLogic = (() => {
         document.getElementById('transaction-detail-modal').classList.remove('hidden');
     };
 
-    return { renderAll, renderContacts, resetContactForm, setupContactFormForEdit, handleSaveContact, handleDeleteContact, populateTradeDropdowns, updateTradeTotals, calculateNetWeight, resetTradeForm, setupTradeFormForEdit, handleTradeFormSubmit, handleDelete, openPaymentModal, handleSavePayment, openDirectPaymentModal, handleDirectPaymentSubmit, renderContactLedger, renderOverallStatement, handlePasswordChange, showTransactionDetails, handleBackupGeneration };
+    return { renderAll, renderContacts, resetContactForm, setupContactFormForEdit, handleSaveContact, handleDeleteContact, populateTradeDropdowns, updateTradeTotals, calculateNetWeight, resetTradeForm, setupTradeFormForEdit, handleTradeFormSubmit, handleDelete, openPaymentModal, handleSavePayment, openDirectPaymentModal, setupPaymentFormForEdit, handleDirectPaymentSubmit, renderContactLedger, renderOverallStatement, handlePasswordChange, showTransactionDetails, handleBackupGeneration };
 })();
 
 // --- NAVIGATION & EVENT BINDING ---
@@ -1400,14 +1449,19 @@ const bindSectionEventListeners = (section, context) => {
             const button = e.target.closest('button');
             if (button && button.closest('td')?.classList.contains('actions-cell')) {
                 e.stopPropagation();
-                const { editId, deleteId, paymentId, paymentType } = button.dataset;
+                const { editId, deleteId, paymentId, paymentType, editPaymentId } = button.dataset;
                 if (editId) { navigateTo('transaction-form').then(() => appLogic.setupTradeFormForEdit(editId)); }
+                if (editPaymentId) appLogic.setupPaymentFormForEdit(editPaymentId);
                 if (deleteId) appLogic.handleDelete(deleteId);
                 if (paymentId) appLogic.openPaymentModal(paymentId, paymentType);
             } else {
                 const row = e.target.closest('tr');
                 if (row && row.dataset.id) {
-                    appLogic.showTransactionDetails(row.dataset.id);
+                    const transactionId = row.dataset.id;
+                    const transaction = transactions.find(t => t.id === transactionId);
+                    if (transaction && transaction.type === 'trade') {
+                        appLogic.showTransactionDetails(transactionId);
+                    }
                 }
             }
         });
