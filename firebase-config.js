@@ -5,12 +5,12 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/9.15.0/firebase
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyAvjLh6aRRUyrJDUtywBbOUwTLH4hWX9e4",
-    authDomain: "milon-ltd.firebaseapp.com",
-    projectId: "milon-ltd",
-    storageBucket: "milon-ltd.appspot.com",
-    messagingSenderId: "780532796920",
-    appId: "1:780532796920:web:433cb112e3836c79e35a0d"
+    apiKey: "AIzaSyABNEJkkGgPJ0dnR5d0MvMe7LKxNXmY3qA",
+  authDomain: "errumint.firebaseapp.com",
+  projectId: "errumint",
+  storageBucket: "errumint.firebasestorage.app",
+  messagingSenderId: "866391947093",
+  appId: "1:866391947093:web:9800939477c9a3969ae1dc"
 };
 
 // Initialize Firebase
