@@ -10,8 +10,6 @@ let currentUserId = null;
 let transactionsUnsubscribe = null;
 let contactsUnsubscribe = null;
 let currentPaymentInfo = { id: null, type: null };
-let dashboardCurrentPage = 1;
-const dashboardItemsPerPage = 7;
 let currentStatementData = { type: null, data: [], name: '' };
 
 // --- DOM ELEMENTS ---
@@ -63,7 +61,6 @@ const templates = {
         <div class="bg-white rounded-xl shadow-md border border-slate-200">
             <div class="p-4 border-b border-slate-200 flex flex-wrap gap-4 justify-between items-center"><h2 class="text-xl font-bold text-slate-800">Recent Transactions</h2><div class="flex flex-wrap items-center gap-2"><input id="search-input" type="text" placeholder="Search..." class="w-48 p-2 border border-slate-300 rounded-lg bg-slate-50"><input type="date" id="filter-start-date" class="p-2 border border-slate-300 rounded-lg bg-slate-50"><input type="date" id="filter-end-date" class="p-2 border border-slate-300 rounded-lg bg-slate-50"></div></div>
             <div class="overflow-x-auto"><table class="w-full text-sm responsive-table"><thead><tr class="border-b border-slate-200 bg-slate-50"><th class="text-left font-semibold py-3 px-4">Date</th><th class="text-left font-semibold py-3 px-4">Details</th><th class="text-right font-semibold py-3 px-4">Profit/Value</th><th class="text-right font-semibold py-3 px-4">Payable Bal</th><th class="text-right font-semibold py-3 px-4">Receivable Bal</th><th class="text-center font-semibold py-3 px-4">Actions</th></tr></thead><tbody id="transaction-history-body"></tbody></table></div>
-            <div id="pagination-controls" class="flex justify-center items-center gap-4 p-4 border-t border-slate-200"></div>
         </div>`,
     contacts: `
         <div class="bg-white rounded-xl shadow-md border border-slate-200">
@@ -128,9 +125,9 @@ const templates = {
                 <h2 class="text-xl font-bold text-slate-800 mb-4">Generate a Statement</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                        <h3 class="font-semibold mb-2">Overall Business Statement</h3>
-                        <p class="text-sm text-slate-500 mb-4">View a complete ledger of all transactions.</p>
-                        <button id="generate-overall-statement-btn" class="px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Generate Overall</button>
+                        <h3 class="font-semibold mb-2">Backup Statements</h3>
+                        <p class="text-sm text-slate-500 mb-4">Download a PDF backup of all party statements.</p>
+                        <button id="generate-backup-btn" class="px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Generate & Download Backup</button>
                     </div>
                     <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
                         <h3 class="font-semibold mb-2">Statement by Party</h3>
@@ -174,40 +171,6 @@ const appLogic = (() => {
         );
     };
     
-    const renderDashboardPaginationControls = (totalItems) => {
-        const controlsContainer = document.getElementById('pagination-controls');
-        if (!controlsContainer) return;
-
-        const totalPages = Math.ceil(totalItems / dashboardItemsPerPage);
-        if (totalPages <= 1) {
-            controlsContainer.innerHTML = '';
-            return;
-        }
-
-        const prevDisabled = dashboardCurrentPage === 1 ? 'disabled' : '';
-        const nextDisabled = dashboardCurrentPage === totalPages ? 'disabled' : '';
-
-        controlsContainer.innerHTML = `
-            <button id="prev-page-btn" class="px-3 py-1 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300 disabled:opacity-50" ${prevDisabled}>Previous</button>
-            <span class="text-sm font-semibold">Page ${dashboardCurrentPage} of ${totalPages}</span>
-            <button id="next-page-btn" class="px-3 py-1 text-sm rounded-md font-semibold bg-slate-200 hover:bg-slate-300 disabled:opacity-50" ${nextDisabled}>Next</button>
-        `;
-
-        document.getElementById('prev-page-btn')?.addEventListener('click', () => {
-            if (dashboardCurrentPage > 1) {
-                dashboardCurrentPage--;
-                renderAll();
-            }
-        });
-
-        document.getElementById('next-page-btn')?.addEventListener('click', () => {
-            if (dashboardCurrentPage < totalPages) {
-                dashboardCurrentPage++;
-                renderAll();
-            }
-        });
-    };
-
     const renderDashboardMetrics = (data) => {
         let totalPayable = 0, totalReceivable = 0;
 
@@ -244,9 +207,7 @@ const appLogic = (() => {
     const renderTransactionHistory = (data) => {
         const tbody = document.getElementById('transaction-history-body'); if(!tbody) return;
 
-        const startIndex = (dashboardCurrentPage - 1) * dashboardItemsPerPage;
-        const endIndex = startIndex + dashboardItemsPerPage;
-        const pageData = data.slice(startIndex, endIndex);
+        const pageData = data.slice(0, 10);
 
         tbody.innerHTML = '';
         if (pageData.length === 0) {
@@ -374,7 +335,6 @@ const appLogic = (() => {
         const data = getFilteredTransactions(); 
         renderDashboardMetrics(data); 
         renderTransactionHistory(data); 
-        renderDashboardPaginationControls(data.length);
     };
     const resetContactForm = () => {
         document.getElementById('contact-form-title').textContent = 'Add New Party'; 
@@ -868,6 +828,118 @@ const appLogic = (() => {
                 </div>
             </div>`;
         bindStatementExportButtons();
+    };
+
+    const handleBackupGeneration = async () => {
+        showToast('Generating backup PDF... This may take a moment.');
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'l', unit: 'pt', format: 'a4' });
+
+        // 1. Create Summary Page
+        let totalPayable = 0, totalReceivable = 0;
+        transactions.forEach(t => {
+            if (t.type === 'trade') {
+                totalPayable += (t.supplierTotal || 0) - getPayments(t.paymentsToSupplier);
+                totalReceivable += (t.buyerTotal || 0) - getPayments(t.paymentsFromBuyer);
+            } else if (t.type === 'payment') {
+                if (t.paymentType === 'made') totalPayable -= t.amount;
+                else totalReceivable -= t.amount;
+            }
+        });
+        contacts.forEach(c => {
+            if (c.openingBalance && c.openingBalance.amount > 0) {
+                if (c.openingBalance.type === 'payable') totalPayable += c.openingBalance.amount;
+                else totalReceivable += c.openingBalance.amount;
+            }
+        });
+        const netBalance = totalReceivable - totalPayable;
+
+        doc.setFontSize(20);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Errum Enterprise - Backup', 40, 60);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Backup Generated On: ${new Date().toLocaleDateString()}`, 40, 80);
+
+        doc.autoTable({
+            startY: 120,
+            head: [['Metric', 'Amount (BDT)']],
+            body: [
+                ['Total Payable', `BDT ${totalPayable.toFixed(2)}`],
+                ['Total Receivable', `BDT ${totalReceivable.toFixed(2)}`],
+                ['Net Balance', `BDT ${netBalance.toFixed(2)}`]
+            ],
+            theme: 'striped',
+            headStyles: { fillColor: [8, 145, 178] },
+        });
+
+        // 2. Create a page for each contact
+        for (const contact of contacts) {
+            doc.addPage();
+
+            let ledgerItems = [];
+            if (contact.openingBalance && contact.openingBalance.amount > 0) {
+                ledgerItems.push({
+                    date: '0000-01-01', description: 'Opening Balance', vehicleNo: '-', netWeight: 0, rate: 0,
+                    debit: contact.openingBalance.type === 'receivable' ? contact.openingBalance.amount : 0,
+                    credit: contact.openingBalance.type === 'payable' ? contact.openingBalance.amount : 0,
+                });
+            }
+            transactions.forEach(t => {
+                if (t.supplierName === contact.name) {
+                    ledgerItems.push({ date: t.date, description: `Purchase: ${t.item}`, vehicleNo: t.vehicleNo || '-', netWeight: t.netWeight || t.weight || 0, rate: t.supplierRate || 0, debit: 0, credit: t.supplierTotal });
+                    (t.paymentsToSupplier || []).forEach(p => ledgerItems.push({ date: p.date, description: `Payment Made (${p.method})`, vehicleNo: '-', netWeight: 0, rate: 0, debit: p.amount, credit: 0 }));
+                }
+                if (t.buyerName === contact.name) {
+                    ledgerItems.push({ date: t.date, description: `Sale: ${t.item}`, vehicleNo: t.vehicleNo || '-', netWeight: t.netWeight || t.weight || 0, rate: t.buyerRate || 0, debit: t.buyerTotal, credit: 0 });
+                    (t.paymentsFromBuyer || []).forEach(p => ledgerItems.push({ date: p.date, description: `Payment Received (${p.method})`, vehicleNo: '-', netWeight: 0, rate: 0, debit: 0, credit: p.amount }));
+                }
+                if (t.type === 'payment' && t.name === contact.name) {
+                     ledgerItems.push({ date: t.date, description: `Direct Payment - ${t.description}`, vehicleNo: '-', netWeight: 0, rate: 0, debit: t.paymentType === 'made' ? t.amount : 0, credit: t.paymentType === 'received' ? t.amount : 0 });
+                }
+            });
+
+            ledgerItems.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            let runningBalance = 0;
+            const body = ledgerItems.map(item => {
+                runningBalance += (item.debit || 0) - (item.credit || 0);
+                const bal = runningBalance > 0.01 ? `${runningBalance.toFixed(2)} Dr` : runningBalance < -0.01 ? `${Math.abs(runningBalance).toFixed(2)} Cr` : '0.00';
+                return [
+                    item.date === '0000-01-01' ? 'Initial' : item.date,
+                    item.description, item.vehicleNo,
+                    item.netWeight > 0 ? item.netWeight.toFixed(2) : '',
+                    item.rate > 0 ? `@${item.rate.toFixed(2)}` : '',
+                    item.debit > 0 ? item.debit.toFixed(2) : '',
+                    item.credit > 0 ? item.credit.toFixed(2) : '',
+                    bal
+                ];
+            });
+
+            const finalBalance = runningBalance;
+            const balanceStatus = finalBalance > 0.01 ? "Receivable" : (finalBalance < -0.01 ? "Payable" : "Settled");
+            body.push([
+                { content: `Final Balance (${balanceStatus}):`, colSpan: 7, styles: { halign: 'right', fontStyle: 'bold' } },
+                { content: `BDT ${Math.abs(finalBalance).toFixed(2)}`, styles: { halign: 'right', fontStyle: 'bold' } }
+            ]);
+
+            doc.autoTable({
+                head: [['Date', 'Description', 'Vehicle', 'Net Wt.', 'Rate', 'Debit', 'Credit', 'Balance']],
+                body: body,
+                theme: 'striped',
+                headStyles: { fillColor: [8, 145, 178] },
+                didDrawPage: (data) => {
+                    doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+                    doc.text(`Account Ledger: ${contact.name}`, data.settings.margin.left, 40);
+                    doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+                    doc.text(`${contact.type.charAt(0).toUpperCase() + contact.type.slice(1)}`, data.settings.margin.left, 58);
+                },
+                margin: { top: 70 },
+                styles: { fontSize: 8 },
+            });
+        }
+
+        doc.save(`Backup-Errum-Enterprise-${new Date().toISOString().slice(0, 10)}.pdf`);
     };
 
     const handleContentExport = async (format) => {
@@ -1366,7 +1438,7 @@ const bindSectionEventListeners = (section, context) => {
             option.textContent = c.name;
             partySelect.appendChild(option);
         });
-        document.getElementById('generate-overall-statement-btn').addEventListener('click', appLogic.renderOverallStatement);
+        document.getElementById('generate-backup-btn').addEventListener('click', appLogic.handleBackupGeneration);
         partySelect.addEventListener('change', (e) => {
             if (e.target.value) {
                 appLogic.renderContactLedger(e.target.value);
