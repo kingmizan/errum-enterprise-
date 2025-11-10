@@ -215,7 +215,7 @@ const appLogic = (() => {
             return;
         }
 
-        pageData.forEach(t => {
+        data.forEach(t => {
             const row = document.createElement('tr');
             row.className = 'hover:bg-slate-50 border-b border-slate-200 md:border-b-0 cursor-pointer';
             row.dataset.id = t.id;
@@ -374,39 +374,39 @@ const appLogic = (() => {
         try {
             const id = document.getElementById('contact-id').value;
             const name = document.getElementById('contact-name').value.trim();
-        if (!name) { showToast('Contact name is required.'); return; }
-        if (!id && contacts.some(c => c.name.toLowerCase() === name.toLowerCase())) { showToast('A contact with this name already exists.'); return; }
-        
-        const contactData = { 
-            name: name, 
-            type: document.querySelector('#contact-form input[name="contact-type"]:checked').value, 
-            phone: document.getElementById('contact-phone').value.trim(),
-            address: document.getElementById('contact-address').value.trim() 
-        };
+            if (!name) { showToast('Contact name is required.'); return; }
+            if (!id && contacts.some(c => c.name.toLowerCase() === name.toLowerCase())) { showToast('A contact with this name already exists.'); return; }
 
-        if (!id) {
-            const openingBalanceAmount = parseFloat(document.getElementById('contact-opening-balance').value) || 0;
-            if (openingBalanceAmount > 0) {
-                contactData.openingBalance = {
-                    amount: openingBalanceAmount,
-                    type: document.querySelector('input[name="opening-balance-type"]:checked').value
-                };
+            const contactData = {
+                name: name,
+                type: document.querySelector('#contact-form input[name="contact-type"]:checked').value,
+                phone: document.getElementById('contact-phone').value.trim(),
+                address: document.getElementById('contact-address').value.trim()
+            };
+
+            if (!id) {
+                const openingBalanceAmount = parseFloat(document.getElementById('contact-opening-balance').value) || 0;
+                if (openingBalanceAmount > 0) {
+                    contactData.openingBalance = {
+                        amount: openingBalanceAmount,
+                        type: document.querySelector('input[name="opening-balance-type"]:checked').value
+                    };
+                }
             }
-        }
-        
-        try {
+
             if (id) {
                 const oldName = contacts.find(c => c.id === id)?.name;
                 if (oldName && oldName !== name) {
-                    if (transactions.some(t => t.name === oldName || t.supplierName === oldName || t.buyerName === oldName)) { 
-                        showToast('Cannot rename contact with existing transactions.'); 
-                        return; 
+                        if (transactions.some(t => t.name === oldName || t.supplierName === oldName || t.buyerName === oldName)) {
+                            showToast('Cannot rename contact with existing transactions.');
+                            return;
+                        }
                     }
+                    await setDoc(doc(db, "users", currentUserId, "contacts", id), contactData, { merge: true }); showToast('Contact updated!');
+                } else {
+                    await addDoc(collection(db, "users", currentUserId, "contacts"), contactData); showToast('Contact added!');
                 }
-                await setDoc(doc(db, "users", currentUserId, "contacts", id), contactData, { merge: true }); showToast('Contact updated!');
-            } else {
-                await addDoc(collection(db, "users", currentUserId, "contacts"), contactData); showToast('Contact added!');
-            }
+            document.getElementById('contact-modal').classList.add('hidden');
         } catch (error) {
             showToast('Error: Could not save contact.');
             console.error("Error saving contact: ", error);
@@ -414,7 +414,6 @@ const appLogic = (() => {
             submitButton.disabled = false;
             submitButton.textContent = 'Save Contact';
         }
-        document.getElementById('contact-modal').classList.add('hidden');
     };
     const handleDeleteContact = async (id) => {
         const contact = contacts.find(c => c.id === id); if (!contact) return;
@@ -521,52 +520,51 @@ const appLogic = (() => {
             const id = document.getElementById('transaction-id').value;
 
             const transactionData = {
-            type: 'trade',
-            date: document.getElementById('date').value,
-            item: document.getElementById('item').value.trim(),
-            vehicleNo: document.getElementById('vehicle-no').value.trim(),
-            scaleWeight: parseFloat(document.getElementById('scale-weight').value) || 0,
-            less: parseFloat(document.getElementById('less').value) || 0,
-            netWeight: parseFloat(document.getElementById('net-weight').value) || 0,
-            supplierName: document.getElementById('supplier-select').value,
-            supplierRate: parseFloat(document.getElementById('supplier-rate').value) || 0,
-            buyerName: document.getElementById('buyer-select').value,
-            buyerRate: parseFloat(document.getElementById('buyer-rate').value) || 0,
-        };
+                type: 'trade',
+                date: document.getElementById('date').value,
+                item: document.getElementById('item').value.trim(),
+                vehicleNo: document.getElementById('vehicle-no').value.trim(),
+                scaleWeight: parseFloat(document.getElementById('scale-weight').value) || 0,
+                less: parseFloat(document.getElementById('less').value) || 0,
+                netWeight: parseFloat(document.getElementById('net-weight').value) || 0,
+                supplierName: document.getElementById('supplier-select').value,
+                supplierRate: parseFloat(document.getElementById('supplier-rate').value) || 0,
+                buyerName: document.getElementById('buyer-select').value,
+                buyerRate: parseFloat(document.getElementById('buyer-rate').value) || 0,
+            };
 
-        if (!transactionData.date || !transactionData.item || !transactionData.supplierName || !transactionData.buyerName) {
-            showToast('Please fill all required fields.'); return;
-        }
+            if (!transactionData.date || !transactionData.item || !transactionData.supplierName || !transactionData.buyerName) {
+                showToast('Please fill all required fields.'); return;
+            }
 
-        if (transactionData.supplierName === transactionData.buyerName) {
-            showToast('Supplier and Buyer cannot be the same.'); return;
-        }
+            if (transactionData.supplierName === transactionData.buyerName) {
+                showToast('Supplier and Buyer cannot be the same.'); return;
+            }
 
-        transactionData.supplierTotal = transactionData.netWeight * transactionData.supplierRate;
-        transactionData.buyerTotal = transactionData.netWeight * transactionData.buyerRate;
-        transactionData.profit = transactionData.buyerTotal - transactionData.supplierTotal;
+            transactionData.supplierTotal = transactionData.netWeight * transactionData.supplierRate;
+            transactionData.buyerTotal = transactionData.netWeight * transactionData.buyerRate;
+            transactionData.profit = transactionData.buyerTotal - transactionData.supplierTotal;
 
-        const paidToSupplier = parseFloat(document.getElementById('paid-to-supplier').value) || 0;
-        const receivedFromBuyer = parseFloat(document.getElementById('received-from-buyer').value) || 0;
+            const paidToSupplier = parseFloat(document.getElementById('paid-to-supplier').value) || 0;
+            const receivedFromBuyer = parseFloat(document.getElementById('received-from-buyer').value) || 0;
 
-        if (paidToSupplier > transactionData.supplierTotal + 0.01) { showToast('Paid amount cannot exceed supplier total.'); return; }
-        if (receivedFromBuyer > transactionData.buyerTotal + 0.01) { showToast('Received amount cannot exceed buyer total.'); return; }
-        
-        const paymentsToSupplier = [];
-        if (paidToSupplier > 0) { 
-            const method = document.getElementById('paid-to-supplier-method').value;
-            paymentsToSupplier.push({ date: transactionData.date, amount: paidToSupplier, method: method }); 
-        }
-        transactionData.paymentsToSupplier = paymentsToSupplier;
-        
-        const paymentsFromBuyer = [];
-        if (receivedFromBuyer > 0) { 
-            const method = document.getElementById('received-from-buyer-method').value;
-            paymentsFromBuyer.push({ date: transactionData.date, amount: receivedFromBuyer, method: method }); 
-        }
-        transactionData.paymentsFromBuyer = paymentsFromBuyer;
+            if (paidToSupplier > transactionData.supplierTotal + 0.01) { showToast('Paid amount cannot exceed supplier total.'); return; }
+            if (receivedFromBuyer > transactionData.buyerTotal + 0.01) { showToast('Received amount cannot exceed buyer total.'); return; }
 
-        try {
+            const paymentsToSupplier = [];
+            if (paidToSupplier > 0) {
+                const method = document.getElementById('paid-to-supplier-method').value;
+                paymentsToSupplier.push({ date: transactionData.date, amount: paidToSupplier, method: method });
+            }
+            transactionData.paymentsToSupplier = paymentsToSupplier;
+
+            const paymentsFromBuyer = [];
+            if (receivedFromBuyer > 0) {
+                const method = document.getElementById('received-from-buyer-method').value;
+                paymentsFromBuyer.push({ date: transactionData.date, amount: receivedFromBuyer, method: method });
+            }
+            transactionData.paymentsFromBuyer = paymentsFromBuyer;
+
             if (id) {
                 await setDoc(doc(db, "users", currentUserId, "transactions", id), transactionData);
                 showToast('Transaction Updated!');
@@ -691,20 +689,20 @@ const appLogic = (() => {
         try {
             const transactionId = document.getElementById('direct-payment-transaction-id').value;
             const contactName = document.getElementById('direct-payment-contact-name').value;
-        const paymentData = {
-            type: 'payment',
-            date: document.getElementById('direct-payment-date').value,
-            name: contactName,
-            amount: parseFloat(document.getElementById('direct-payment-amount').value) || 0,
-            method: document.getElementById('direct-payment-method').value,
-            description: document.getElementById('direct-payment-desc').value.trim(),
-            paymentType: document.querySelector('input[name="direct-payment-type"]:checked').value
-        };
+            const paymentData = {
+                type: 'payment',
+                date: document.getElementById('direct-payment-date').value,
+                name: contactName,
+                amount: parseFloat(document.getElementById('direct-payment-amount').value) || 0,
+                method: document.getElementById('direct-payment-method').value,
+                description: document.getElementById('direct-payment-desc').value.trim(),
+                paymentType: document.querySelector('input[name="direct-payment-type"]:checked').value
+            };
 
-        if (!paymentData.date || !paymentData.amount || !paymentData.description) {
-            showToast('Please fill out all fields.'); return;
-        }
-        try {
+            if (!paymentData.date || !paymentData.amount || !paymentData.description) {
+                showToast('Please fill out all fields.'); return;
+            }
+
             if (transactionId) {
                 await setDoc(doc(db, "users", currentUserId, "transactions", transactionId), paymentData);
                 showToast(`Payment for ${contactName} updated!`);
@@ -1405,6 +1403,9 @@ const appLogic = (() => {
     return { renderAll, renderContacts, resetContactForm, setupContactFormForEdit, handleSaveContact, handleDeleteContact, populateTradeDropdowns, updateTradeTotals, calculateNetWeight, resetTradeForm, setupTradeFormForEdit, handleTradeFormSubmit, handleDelete, openPaymentModal, handleSavePayment, openDirectPaymentModal, setupPaymentFormForEdit, handleDirectPaymentSubmit, renderContactLedger, renderOverallStatement, handlePasswordChange, showTransactionDetails, handleBackupGeneration };
 })();
 
+// Expose for testing purposes
+window.appLogic = appLogic;
+
 // --- NAVIGATION & EVENT BINDING ---
 const navigateTo = (section, context = null) => {
     return new Promise((resolve) => {
@@ -1459,8 +1460,12 @@ const bindSectionEventListeners = (section, context) => {
                 if (row && row.dataset.id) {
                     const transactionId = row.dataset.id;
                     const transaction = transactions.find(t => t.id === transactionId);
-                    if (transaction && transaction.type === 'trade') {
-                        appLogic.showTransactionDetails(transactionId);
+                    if (transaction) {
+                        if (transaction.type === 'trade') {
+                            appLogic.showTransactionDetails(transactionId);
+                        } else if (transaction.type === 'payment') {
+                            appLogic.setupPaymentFormForEdit(transactionId);
+                        }
                     }
                 }
             }
