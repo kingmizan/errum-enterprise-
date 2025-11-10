@@ -1,6 +1,6 @@
 // --- FIREBASE & APP DEPENDENCIES ---
 import { auth, db } from './firebase-config.js';
-import { signInWithEmailAndPassword, onAuthStateChanged, signOut, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut, EmailAuthProvider, reauthenticateWithCredential, updatePassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { getFirestore, collection, onSnapshot, addDoc, doc, setDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
 // --- GLOBAL STATE ---
@@ -1448,3 +1448,39 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         authContainer.classList.remove('hidden');
     }
 });
+
+document.getElementById('forgot-password-btn').addEventListener('click', () => {
+    document.getElementById('password-reset-modal').classList.remove('hidden');
+});
+
+document.querySelector('[data-close-modal="password-reset-modal"]').addEventListener('click', () => {
+    document.getElementById('password-reset-modal').classList.add('hidden');
+});
+
+const handlePasswordReset = async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('reset-email').value;
+    const errorP = document.getElementById('reset-error');
+    errorP.textContent = '';
+
+    if (!email) {
+        errorP.textContent = 'Please enter your email address.';
+        return;
+    }
+
+    try {
+        await sendPasswordResetEmail(auth, email);
+        showToast('Password reset email sent! Please check your inbox.');
+        document.getElementById('password-reset-modal').classList.add('hidden');
+        document.getElementById('password-reset-form').reset();
+    } catch (error) {
+        if (error.code === 'auth/user-not-found') {
+            errorP.textContent = 'No user found with this email address.';
+        } else {
+            errorP.textContent = 'An error occurred. Please try again.';
+            console.error('Password Reset Error:', error);
+        }
+    }
+};
+
+document.getElementById('password-reset-form').addEventListener('submit', handlePasswordReset);

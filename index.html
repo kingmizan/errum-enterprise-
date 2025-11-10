@@ -43,7 +43,10 @@
                         <input type="email" id="email" class="w-full p-3 mt-1 border border-slate-300 rounded-lg bg-slate-50 focus:ring-2 focus:ring-cyan-500" required>
                     </div>
                     <div>
-                        <label for="password" class="font-semibold text-sm text-slate-600">Password</label>
+                        <div class="flex justify-between items-center">
+                            <label for="password" class="font-semibold text-sm text-slate-600">Password</label>
+                            <button type="button" id="forgot-password-btn" class="text-sm font-semibold text-cyan-600 hover:underline">Forgot Password?</button>
+                        </div>
                         <input type="password" id="password" class="w-full p-3 mt-1 border border-slate-300 rounded-lg bg-slate-50 focus:ring-2 focus:ring-cyan-500" required>
                     </div>
                     <p id="auth-error" class="text-rose-500 text-sm h-4"></p>
@@ -210,6 +213,28 @@
                         </div>
                     </div>
                     <div class="bg-slate-50 p-4 flex justify-end gap-3 rounded-b-xl border-t border-slate-200"><button type="button" data-close-modal="contact-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Save Contact</button></div>
+                </form>
+            </div>
+        </div>
+
+        <div id="password-reset-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-lg w-full max-w-md border border-slate-200">
+                <form id="password-reset-form">
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold mb-4 text-slate-800">Reset Password</h2>
+                        <p class="text-sm text-slate-500 mb-4">Enter your email address and we will send you a link to reset your password.</p>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="reset-email" class="font-semibold text-sm">Email Address</label>
+                                <input type="email" id="reset-email" class="w-full p-2 mt-1 border border-slate-300 rounded-lg bg-slate-50" required>
+                            </div>
+                            <p id="reset-error" class="text-rose-500 text-sm h-4"></p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 p-4 flex justify-end gap-3 rounded-b-xl border-t border-slate-200">
+                        <button type="button" data-close-modal="password-reset-modal" class="px-4 py-2 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-sm">Cancel</button>
+                        <button type="submit" class="px-4 py-2 rounded-lg font-semibold bg-cyan-600 text-white hover:bg-cyan-700 text-sm">Send Reset Link</button>
+                    </div>
                 </form>
             </div>
         </div>
