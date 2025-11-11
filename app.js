@@ -215,7 +215,7 @@ const appLogic = (() => {
             return;
         }
 
-        pageData.forEach(t => {
+        data.forEach(t => {
             const row = document.createElement('tr');
             row.className = 'hover:bg-slate-50 border-b border-slate-200 md:border-b-0 cursor-pointer';
             row.dataset.id = t.id;
@@ -1456,7 +1456,7 @@ const navigateTo = (section, context = null) => {
         mainContent.classList.add('content-enter');
 
         if (section === 'dashboard') {
-            dashboardCurrentPage = 1;
+            appLogic.renderAll();
         }
         setTimeout(() => {
             bindSectionEventListeners(section, context);
@@ -1464,6 +1464,8 @@ const navigateTo = (section, context = null) => {
         }, 0);
     });
 };
+
+window.navigateTo = navigateTo;
 
 const bindAppEventListeners = () => {
     document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', (e) => navigateTo(e.currentTarget.dataset.section)));
