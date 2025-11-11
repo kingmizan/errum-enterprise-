@@ -215,7 +215,7 @@ const appLogic = (() => {
             return;
         }
 
-        data.forEach(t => {
+        pageData.forEach(t => {
             const row = document.createElement('tr');
             row.className = 'hover:bg-slate-50 border-b border-slate-200 md:border-b-0 cursor-pointer';
             row.dataset.id = t.id;
@@ -266,6 +266,43 @@ const appLogic = (() => {
                 <td data-label="Actions" class="py-4 px-4 align-top actions-cell">${actionsHtml}</td>
             `;
             tbody.appendChild(row);
+
+            // Add event listeners directly to the buttons
+            const payButton = row.querySelector('[data-payment-id]');
+            if (payButton) {
+                payButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const { paymentId, paymentType } = e.currentTarget.dataset;
+                    appLogic.openPaymentModal(paymentId, paymentType);
+                });
+            }
+
+            const editButton = row.querySelector('[data-edit-id]');
+            if (editButton) {
+                editButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const { editId } = e.currentTarget.dataset;
+                    navigateTo('transaction-form').then(() => appLogic.setupTradeFormForEdit(editId));
+                });
+            }
+
+            const deleteButton = row.querySelector('[data-delete-id]');
+            if (deleteButton) {
+                deleteButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const { deleteId } = e.currentTarget.dataset;
+                    appLogic.handleDelete(deleteId);
+                });
+            }
+
+            const editPaymentButton = row.querySelector('[data-edit-payment-id]');
+            if (editPaymentButton) {
+                editPaymentButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const { editPaymentId } = e.currentTarget.dataset;
+                    appLogic.setupPaymentFormForEdit(editPaymentId);
+                });
+            }
         });
     };
 
@@ -1447,25 +1484,15 @@ const bindSectionEventListeners = (section, context) => {
         document.getElementById('filter-end-date').addEventListener('change', () => { dashboardCurrentPage = 1; appLogic.renderAll(); });
         
         document.getElementById('transaction-history-body').addEventListener('click', (e) => {
-            const button = e.target.closest('button');
-            if (button && button.closest('td')?.classList.contains('actions-cell')) {
-                e.stopPropagation();
-                const { editId, deleteId, paymentId, paymentType, editPaymentId } = button.dataset;
-                if (editId) { navigateTo('transaction-form').then(() => appLogic.setupTradeFormForEdit(editId)); }
-                if (editPaymentId) appLogic.setupPaymentFormForEdit(editPaymentId);
-                if (deleteId) appLogic.handleDelete(deleteId);
-                if (paymentId) appLogic.openPaymentModal(paymentId, paymentType);
-            } else {
-                const row = e.target.closest('tr');
-                if (row && row.dataset.id) {
-                    const transactionId = row.dataset.id;
-                    const transaction = transactions.find(t => t.id === transactionId);
-                    if (transaction) {
-                        if (transaction.type === 'trade') {
-                            appLogic.showTransactionDetails(transactionId);
-                        } else if (transaction.type === 'payment') {
-                            appLogic.setupPaymentFormForEdit(transactionId);
-                        }
+            const row = e.target.closest('tr');
+            if (row && row.dataset.id) {
+                const transactionId = row.dataset.id;
+                const transaction = transactions.find(t => t.id === transactionId);
+                if (transaction) {
+                    if (transaction.type === 'trade') {
+                        appLogic.showTransactionDetails(transactionId);
+                    } else if (transaction.type === 'payment') {
+                        appLogic.setupPaymentFormForEdit(transactionId);
                     }
                 }
             }
